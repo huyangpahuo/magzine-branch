@@ -1,0 +1,10 @@
+- title: 石纪元第一季
+  cover: https://i1.hdslb.com/bfs/bangumi/image/ae05a72b11d7f409bbff9475afb13dfca081ffd1.jpg@660w_884h.webp
+  bangumi_url: "https://bangumi.tv/subject/266794"
+  sources:
+    - name: "BiliBili"
+      player_api: ""
+      episodes:
+        - title: "1"
+          url: "https://www.bilibili.com/bangumi/play/ep276773"
+   

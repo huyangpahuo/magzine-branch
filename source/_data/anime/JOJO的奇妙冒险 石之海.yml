@@ -1,0 +1,10 @@
+- title: JOJO的奇妙冒险 石之海
+  cover: https://i1.hdslb.com/bfs/bangumi/image/14ccd8457a9b7351e7be1d87db2719791108ddc0.png@660w_884h.webp
+  bangumi_url: "https://bangumi.tv/subject/332261"
+  sources:
+    - name: "BiliBili"
+      player_api: ""
+      episodes:
+        - title: "1"
+          url: "https://www.bilibili.com/bangumi/play/ep433947"
+   

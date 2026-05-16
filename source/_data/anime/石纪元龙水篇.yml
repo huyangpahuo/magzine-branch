@@ -1,0 +1,10 @@
+- title: 石纪元龙水篇
+  cover: https://i1.hdslb.com/bfs/bangumi/image/e7926dc69ec863ef0b36b46a18e3bbf0d04f26d7.png@660w_884h.webp
+  bangumi_url: "https://bangumi.tv/subject/331479"
+  sources:
+    - name: "BiliBili"
+      player_api: ""
+      episodes:
+        - title: "1"
+          url: "https://www.bilibili.com/bangumi/play/ep683341"
+    

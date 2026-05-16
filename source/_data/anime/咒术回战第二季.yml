@@ -1,0 +1,10 @@
+- title: 咒术回战第二季
+  cover: https://i1.hdslb.com/bfs/bangumi/image/69683aa3df3dbfc946afc0526296e8c80dfdfed3.png@660w_884h.webp
+  bangumi_url: "https://bangumi.tv/subject/369304"
+  sources:
+    - name: "BiliBili"
+      player_api: ""
+      episodes:
+        - title: "1"
+          url: "https://www.bilibili.com/bangumi/play/ep767950"
+   

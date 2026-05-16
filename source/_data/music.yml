@@ -1,0 +1,105 @@
+# - title: "本地歌曲示例"
+  #   artist: "示例艺术家"
+  #   src: /music/demo.mp3
+  #   cover: /music/cover/demo.jpg
+    
+# - title: "网络歌曲示例"
+  #   artist: "网易云音乐"
+  #   src: "https://pixabay.com/music/corporate-royalty-free-music-513424/" # 外链支持
+  #   cover: "https://p1.music.126.net/6y-UleORITEDbvrwqo3uHA==/5639395138885805.jpg"
+    
+
+- title: "Monsieur Melody" 
+  artist: "Vintage Sunshine"
+  src: "/music/Monsieur Melody.mp3"
+  cover: "https://i.audiomack.com/deep-east-music/8262885-01.webp?width=416"
+
+- title: "Suger"
+  artist: "Maroon 5"
+  src: "/music/Sugar - Maroon 5 (Audio).mp3"
+  cover: "https://i.scdn.co/image/ab67616d0000b273df8c14c6ac24390cffd9fea4"
+
+- title: "Sold Out"
+  artist: "Hawk Nelson"
+  src: "/music/Sold Out.mp3"
+  cover: "https://i.scdn.co/image/ab67616d0000b2731025fe6e557f173cf2a365ee"
+  
+- title: "unravel"
+  artist: "GARNiDELiA"
+  src: "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Tours/Enthusiast/Tours_-_01_-_Enthusiast.mp3"
+  cover: "https://picsum.photos/100/100?random=1"
+
+- title: "Only My Railgun"
+  artist: "fripSide"
+  src: "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/ccCommunity/Chad_Crouch/Arps/Chad_Crouch_-_Algorithms.mp3"
+  cover: "https://picsum.photos/100/100?random=2"
+
+- title: "怪物"
+  artist: "YOASOBI"
+  src: "/music/怪物 (Monster).mp3"
+  cover: "https://i.audiomack.com/drakewyattyler/7757ed65c2.webp?width=416"
+
+- title: "A Little Story"
+  artist: "Valentin"
+  src: "/music/A Little Story.mp3"
+  cover: "https://i.scdn.co/image/ab6765630000ba8a771bd30967481191e8b0d216"
+
+- title: "I Love You So"
+  artist: "The Walters"
+  src: "/music/The Walters -- I Love You So.mp3"
+  cover: "https://i.scdn.co/image/ab67616d00001e02a9ab24f62c01f4bd4a08571e"
+
+- title: "恋愛サーキュレーション"
+  artist: "花泽香菜"
+  src: "/music/恋愛サーキュレーション.mp3"
+  cover: "https://i.scdn.co/image/ab67616d00001e02168da2035a75e56b2f53c0d3"
+
+- title: "Waiting For Love"
+  artist: "Avicii"
+  src: "/music/Waiting For Love.mp3"
+  cover: "https://i.scdn.co/image/ab67616d00001e025393c5d3cac806092a9bc468"
+
+- title: "The way I still love you"
+  artist: "Reynard Silva"
+  src: "/music/The way I still love you.mp3"
+  cover: "https://i.scdn.co/image/ab67616d00001e020e9e76dd81b7e23925e66cce"
+
+- title: "color-X"
+  artist: "徐梦圆"
+  src: "/music/color-X.mp3"
+  cover: "https://i.scdn.co/image/ab67616d00001e026bb210e89f8f0a58d993ace1"
+
+- title: "可愛くてごめん"
+  artist: "HoneyWorks"
+  src: "/music/可愛くてごめん.mp3"
+  cover: "https://i.scdn.co/image/ab67616d00001e025ab8edf3cacc736fd4a62c63"
+
+- title: "SOUVENIR"
+  artist: "Spy x Family"
+  src: "/music/SOUVENIR.mp3"
+  cover: "https://i.scdn.co/image/ab67616d00001e0274f9c0770826b41f876a0b94"
+
+- title: "I Can't Wait"
+  artist: "d0tc0mmie"
+  src: "/music/I Can't Wait.mp3"
+  cover: "https://i.scdn.co/image/ab67616d00001e02a7b4bca0b4ae1f2be97ab557"
+
+- title: "Tek It"
+  artist: "Cafuné"
+  src: "/music/Tek It.mp3"
+  cover: "https://i.scdn.co/image/ab67616d00001e02fe6a76d5f75d1a8b83bd9317"
+
+- title: "Wet Hands"
+  artist: "C418"
+  src: "/music/Wet Hands.mp3"
+  cover: "https://i.scdn.co/image/ab67616d00001e02a6f6056c9ded5242ca245c56"
+
+- title: "愛♡スクリ～ム!"
+  artist: "AiScReam"
+  src: "/music/愛スクリ～ム.mp3"
+  cover: "https://i.scdn.co/image/ab67616d00001e022590b046b72d6ce5d6703ee7"
+
+- title: "Trip"
+  artist: "Axero"
+  src: "/music/Trip.mp3"
+  cover: "https://i.scdn.co/image/ab67616d0000b2736f044fae5568a72f7dfcd522"

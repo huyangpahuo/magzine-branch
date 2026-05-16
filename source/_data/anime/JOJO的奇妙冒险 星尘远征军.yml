@@ -1,0 +1,10 @@
+- title: JOJO的奇妙冒险 星尘远征军
+  cover: https://i1.hdslb.com/bfs/bangumi/image/47c0108259355d6d2c517ed97f6b90fb777f844f.png@660w_884h.webp
+  bangumi_url: "https://bangumi.tv/subject/85631"
+  sources:
+    - name: "BiliBili"
+      player_api: ""
+      episodes:
+        - title: "1"
+          url: "https://www.bilibili.com/bangumi/play/ep293053"
+    

@@ -1,0 +1,77 @@
+//- Index Page with Hero Section and Article List
+
+//- Hero Section
+if theme.hero && theme.hero.enable
+  section.hero-section
+    .hero-background
+      if theme.hero.background_image
+        img(src=url_for(theme.hero.background_image), alt="Hero Background")
+      .hero-overlay
+    .hero-content
+      .hero-typing
+        #typing-text(data-text=theme.hero.typing_text || 'Welcome to my blog', data-speed=theme.hero.typing_speed || 100, data-delete-speed=theme.hero.delete_speed || 50, data-pause=theme.hero.pause_duration || 2000, data-loop=theme.hero.typing_loop !== false)
+      .hero-scroll
+        .scroll-indicator
+          .scroll-mouse
+            .scroll-wheel
+          .scroll-arrow
+            span ↓
+        .scroll-text= theme.hero.scroll_hint || 'Scroll down to explore'
+
+//- Author Card Section
+include _partial/author-card.pug
+
+//- Article List Section
+section.articles-section
+  .articles-container
+    .articles-header
+      .articles-filter
+        if site.categories && site.categories.length
+          each category in site.categories
+            if category && category.name
+              button.filter-btn(data-filter=category.name)= category.name
+    
+    .articles-grid(class=theme.article_list.card_size === 'large' ? 'card-size-large' : '')
+      - var articles = page.posts.toArray()
+      - var sizes = ['large', 'medium', 'small', 'wide', 'tall']
+      each article, index in articles
+        - var size = sizes[index % sizes.length]
+        article.article-card(class="article-card--" + size)
+          if article.cover || (theme.theme_config.post && theme.theme_config.post.use_default_cover)
+            .article-image
+              a(href=url_for(article.path))
+                - function getCoverPath(cover, path) {
+                -   if (cover.startsWith('/')) return cover;
+                -   return path.replace(/\\/g, '/').split('/').slice(0, -1).join('/') + '/' + cover;
+                - }
+                - var defaultCover = theme.theme_config.post && theme.theme_config.post.default_cover ? theme.theme_config.post.default_cover : '/images/19.png'
+                - var coverPath = article.cover ? getCoverPath(article.cover, article.path) : defaultCover
+                img(src=url_for(coverPath), alt=article.title, loading="lazy")
+                //- ★★★ 新增：悬停遮罩层 ★★★
+                .read-overlay
+                  span.read-text(data-label="点击阅读->") 点击阅读->
+          .article-content
+            .article-meta
+              if article.categories.length
+                span.article-category
+                  a(href=url_for(article.categories.first().path))= article.categories.first().name
+              //- 日期 (保持之前的 data-date-standard 设置)
+              time.article-date(datetime=date_xml(article.date), data-date-standard=date(article.date, 'YYYY-MM-DD'))= date(article.date, "MMM DD, YYYY")
+            
+            h3.article-title
+              a(href=url_for(article.path))= article.title
+            
+            if theme.article_list.show_excerpt && article.excerpt
+              .article-excerpt
+                != article.excerpt
+                a.read-more(href=url_for(article.path)) Read more →
+            
+            .article-tags
+              if article.tags.length
+                each tag in article.tags.toArray().slice(0, 3)
+                  a.tag(href=url_for(tag.path))= tag.name
+
+//- Load More Button
+if page.total > 1
+  .load-more-container
+    button.load-more-btn(data-current-page=1, data-total-pages=page.total) 加载更多文章

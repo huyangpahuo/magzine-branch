@@ -1,0 +1,10 @@
+- title: JOJO的奇妙冒险 星尘远征军 埃及篇
+  cover: https://i1.hdslb.com/bfs/bangumi/image/f6709b76e88f50aa132d1e09e2d8de9663a09b3e.png@660w_884h.webp
+  bangumi_url: "https://bangumi.tv/subject/113292"
+  sources:
+    - name: "BiliBili"
+      player_api: ""
+      episodes:
+        - title: "1"
+          url: "https://www.bilibili.com/bangumi/play/ep293001"
+    

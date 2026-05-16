@@ -1,0 +1,10 @@
+- title: 石纪元第三季
+  cover: https://i1.hdslb.com/bfs/bangumi/image/1d72fab14c829f45bef5878c767bcca153018d3b.png@660w_884h.webp
+  bangumi_url: "https://bangumi.tv/subject/363101"
+  sources:
+    - name: "BiliBili"
+      player_api: ""
+      episodes:
+        - title: "1"
+          url: "https://www.bilibili.com/bangumi/play/ep743050"
+   

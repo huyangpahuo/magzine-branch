@@ -1,0 +1,10 @@
+- title: 石纪元第四季
+  cover: https://i1.hdslb.com/bfs/bangumi/image/834bdb5d36c401179b9e91fdc1de520a6664c2a7.png@660w_884h.webp
+  bangumi_url: "https://bangumi.tv/subject/471578"
+  sources:
+    - name: "BiliBili"
+      player_api: ""
+      episodes:
+        - title: "1"
+          url: "https://www.bilibili.com/bangumi/play/ep1404783"
+   

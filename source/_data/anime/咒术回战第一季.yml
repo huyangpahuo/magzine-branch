@@ -1,0 +1,9 @@
+- title: 咒术回战第一季
+  cover: https://i1.hdslb.com/bfs/bangumi/image/91e9534cc55aa1a6dc959e7d6d33bde970208232.png@660w_884h.webp
+  bangumi_url: "https://bangumi.tv/subject/294993"
+  sources:
+    - name: "BiliBili"
+      player_api: ""
+      episodes:
+        - title: "1"
+          url: "https://www.bilibili.com/bangumi/play/ep341309"

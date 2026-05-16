@@ -1,0 +1,206 @@
+doctype html
+html(lang=config.language)
+  head
+    meta(http-equiv="Content-Type", content="text/html; charset=UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1, maximum-scale=1")
+    meta(name="theme-color", content=theme.colors.primary)
+    meta(name="msapplication-navbutton-color", content=theme.colors.primary)
+    meta(name="apple-mobile-web-app-capable", content="yes")
+    meta(name="apple-mobile-web-app-status-bar-style", content="black-translucent")
+
+    title= page_title ? page_title + ' - ' + config.title : config.title
+
+    //- Dark mode script to prevent flash
+    if theme.features && theme.features.dark_mode
+      script.
+        (function() {
+          // 【修改点 1】头部脚本：如果本地存储为空(从未设置过)，默认开启暗色(true)
+          var savedDarkMode = localStorage.getItem('darkMode');
+          var shouldBeDark = savedDarkMode === null ? true : savedDarkMode === 'true';
+          
+          if (shouldBeDark) {
+            document.documentElement.classList.add('dark-mode');
+          }
+        })();
+
+    //- ★★★ 新增：检测当前页面是否在 iframe (模态窗口) 中运行，提前打上标签防止闪烁 ★★★
+    script.
+      if (window.parent !== window) {
+        document.documentElement.classList.add('is-iframe');
+      }
+
+    //- Fonts
+    link(rel="preconnect", href="https://fonts.googleapis.com")
+    link(rel="preconnect", href="https://fonts.gstatic.com", crossorigin)
+    link(href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap", rel="stylesheet")
+
+    //- Font Awesome Icons
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+
+    //- QR Code library for WeChat sharing
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js")
+
+    //- RSS
+    if feed
+      link(rel="alternate", href=feed, title=config.title, type="application/atom+xml")
+
+    //- Favicon
+    link(rel="icon", href=url_for(theme.favicon))
+
+    //- Styles
+    != css('css/main')
+    != css('css/tags')
+    != css('css/categories')
+    != css('css/categories-accordion')
+    != css('css/highlight')
+    != css('css/toc')
+    != css('css/image-zoom')
+    != css('css/share')
+    != css('css/mobile-nav')
+    != css('css/search')
+    != css('css/scrollbar')
+    != css('css/timeline')
+    != css('css/animations')
+    != css('css/ai-theme')
+    != css('css/loading-animation')
+    != css('css/article-modal')
+    != css('css/music-player')
+    //- 按需加载独立页面的 CSS，防止样式全局污染
+    if page.path === 'about/index.html'
+      != css('css/about')
+    if page.path === 'wall/index.html'
+      != css('css/wall')
+    if page.path === 'anime/index.html'
+      != css('css/anime')
+
+
+    //- Theme color variables from config
+    style.
+      :root {
+        --primary-color: #{theme.colors.primary};
+        --secondary-color: #{theme.colors.secondary};
+        --accent-color: #{theme.colors.accent};
+        --background-color: #{theme.colors.background};
+        --text-color: #{theme.colors.text};
+        --overlay-color: #{theme.colors.overlay};
+        --tag-background-color: #{theme.colors.tag_background};
+        --card-background-color: #{theme.colors.card_background};
+      }
+
+    //- Custom head
+    if theme.custom_head
+      != theme.custom_head
+
+    //- Inject head
+    if theme.inject && theme.inject.head
+      each item in theme.inject.head
+        != item
+
+  body
+    //- ★★★ 新增：通过配置文件判断是否开启封面 ★★★
+    if theme.cover && theme.cover.enable
+      != partial('_partial/cover')
+    #app
+      != partial('_partial/header')
+
+      //- ★★★ 修改为：通过配置文件判断是否开启右上角色卡 ★★★
+      if theme.color_picker && theme.color_picker.enable
+        != partial('_partial/color-picker')
+        
+      != partial('_partial/search')
+
+      main.main
+        != body
+
+      //- ★★★ 新增：通过配置文件判断是否开启 Sakana ★★★
+      if theme.sakana && theme.sakana.enable
+        != partial('_partial/sakana')
+
+
+      //- ★★★ 新增：波浪效果容器 (紧贴 Footer 上方) ★★★
+      #waves-container
+        svg.waves(xmlns="http://www.w3.org/2000/svg", xmlns:xlink="http://www.w3.org/1999/xlink", viewBox="0 24 150 28", preserveAspectRatio="none", shape-rendering="auto")
+          defs
+            path#gentle-wave(d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z")
+          g.parallax
+            use(xlink:href="#gentle-wave", x="48", y="0")
+            use(xlink:href="#gentle-wave", x="48", y="3")
+            use(xlink:href="#gentle-wave", x="48", y="5")
+            use(xlink:href="#gentle-wave", x="48", y="7")
+
+      != partial('_partial/footer')
+      //- ★★★ 桌面宠物 ★★★
+      if theme.pet && theme.pet.enable
+        != partial('_partial/pet')
+
+    if theme.music_player && theme.music_player.enable
+      != partial('_partial/music-player')
+      
+    // 立即应用暗色模式，避免页面闪烁
+    if theme.features && theme.features.dark_mode
+      script.
+        (function() {
+          // 【修改点 2】底部脚本：同样逻辑，默认为 true
+          var savedDarkMode = localStorage.getItem('darkMode');
+          var shouldBeDark = savedDarkMode === null ? true : savedDarkMode === 'true';
+
+          if (shouldBeDark) {
+            document.body.classList.add('dark-mode');
+          }
+
+          // 防止页面闪烁，在DOM加载完成前设置一个初始类
+          document.documentElement.style.visibility = 'hidden';
+          document.addEventListener('DOMContentLoaded', function() {
+            document.documentElement.style.visibility = 'visible';
+          });
+        })();
+
+    //- Scripts
+    != js('js/main')
+    != js('js/tags')
+    != js('js/categories-accordion')
+    != js('js/highlight')
+    != js('js/load-more')
+    != js('js/header-scroll')
+    != js('js/toc')
+    != js('js/image-zoom')
+    != js('js/share')
+    != js('js/search')
+    != js('js/hide-inline-interaction')
+    != js('js/hide-toggle-interaction')
+    != js('js/dark-mode-sync')
+    != js('js/animations')
+    != js('js/ai-theme')
+    != js('js/loading-animation')
+    != js('js/article-modal')
+    != js('js/music-player')  
+    != js('js/wall')
+    != js('js/anime') 
+    
+    // 传递图片配置给 JS
+    script.
+      window.photoWallImages = !{JSON.stringify(theme.photo_wall.images || [])};
+      window.twikooEnvId = '#{theme.comments.twikoo.envId}';
+      
+      
+
+    //- Theme configuration for JavaScript
+    script.
+      window.theme = {
+        features: !{JSON.stringify(theme.features)},
+        code_block: !{JSON.stringify(theme.code_block)},
+        ai_summary: !{JSON.stringify(theme.ai_summary)},
+        categories: !{JSON.stringify(theme.categories)},
+        article_list: !{JSON.stringify(theme.article_list)},
+        pet: !{JSON.stringify(theme.pet)},
+        anime: !{JSON.stringify(theme.anime)}
+      };
+
+    //- Custom scripts
+    if theme.custom_scripts
+      != theme.custom_scripts
+
+    //- Inject bottom
+    if theme.inject && theme.inject.bottom
+      each item in theme.inject.bottom
+        != item

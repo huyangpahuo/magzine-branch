@@ -8,12 +8,12 @@
 
 ## 使用说明
 
-使用方法:未完待续~~
+使用方法:会的都会~狗头
 
 打开你 Hexo 根目录下的 `_config.yml`，把主题改成：
 
 ```
-theme: koyou
+theme: magzine
 ```
 
 安装依赖

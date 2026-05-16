@@ -1,0 +1,10 @@
+- title: JOJO的奇妙冒险 不灭钻石
+  cover: https://i1.hdslb.com/bfs/bangumi/6a04c87e990ab74cd8d555ef45a863de0993b161.png@660w_884h.webp
+  bangumi_url: "https://bangumi.tv/subject/150490"
+  sources:
+    - name: "BiliBili"
+      player_api: ""
+      episodes:
+        - title: "1"
+          url: "https://www.bilibili.com/bangumi/play/ep251326"
+    
