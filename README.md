@@ -1,4 +1,4 @@
-# hexo-theme-koyou
+# magzine-branch
 
 大家好，这个项目是我基于原作者的 [hexo-theme-magzine](https://github.com/forever218/hexo-theme-magzine) 修改和发展出来的一个小版本 !!!
 
