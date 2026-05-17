@@ -463,14 +463,20 @@
     .cover-wrapper {
         border-radius: 50%;
         width: 100%;
-        height: 100%;
+        height: auto;
+        /* ★ 改为 auto */
     }
 
     .bili-card img {
+        width: 100%;
+        /* ★ 补充宽度100% */
+        height: auto;
+        /* ★ 覆盖掉之前的 height: 100% */
         aspect-ratio: 1 / 1;
         border-radius: 50%;
-        height: 100%;
         object-fit: cover;
+        display: block;
+        /* ★ 防止底部留白 */
     }
 
     .bili-card h3 {
