@@ -1,0 +1,9 @@
+- title: 进击的巨人第一季
+  cover: https://lain.bgm.tv/r/400/pic/cover/l/88/6b/285666_bS9Sw.jpg
+  bangumi_url: "https://bangumi.tv/subject/285666"
+  sources:
+    - name: "7sefun"
+      player_api: ""
+      episodes:
+        - title: "1"
+          url: "https://www.7sefun.top/vodplay/35865-1-1.html"

@@ -147,6 +147,19 @@ script(type="module").
       }
       return; 
     }
+
+    // 3. 移动端拦截：根据 config.yml 决定是否在手机端加载
+    // 通过屏幕宽度和 User-Agent 双重检测移动端设备
+    const isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    // 获取 Hexo 注入的配置，如果未配置则默认按 false (不启用) 处理
+    const mobileEnabled = window.theme && window.theme.pet && window.theme.pet.mobile_enable;
+
+    if (isMobile && !mobileEnabled) {
+      const root = document.getElementById('pet-root');
+      if (root) root.remove(); // 销毁 DOM，防止残留不可见的空容器阻挡点击
+      return; // 终止初始化，不执行后续的重度 Canvas 与动画逻辑
+    }
+
     window.__PET_IS_RUNNING__ = true;
 
     // ===== 常量与设置 =====

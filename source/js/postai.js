@@ -268,7 +268,7 @@ function ChucklePostAI(AI_option) {
       controller = new AbortController();
       signal = controller.signal;
 
-      const apiUrl = "cloudflare worker的API地址，需替换为实际可用的API端点";
+      const apiUrl = "请切换为你的worker地址";
 
       try {
         const response = await fetch(apiUrl, {

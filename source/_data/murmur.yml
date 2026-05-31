@@ -1,0 +1,86 @@
+#碎碎念部分，可以按照此格式填写
+
+#- date: "2024-6-4"
+#  content: ""
+#  location: ""
+#  images: []
+#  video: ""
+
+# 碎碎念 (Murmur) 数据配置
+# 支持的字段：date (日期), content (内容，支持HTML), location (定位), images (图片数组), video (视频iframe链接)
+
+# 示例 1：纯文本 + 简单定位
+- date: "2025-06-04 10:30"
+  content: "游戏使我快乐,但是我更喜欢看动漫 (๑•̀ㅂ•́)و✧"
+  location: "首尔"
+
+# 示例 2：富文本内容（支持HTML标签）+ 单张图片
+- date: "2025-06-05 14:20"
+  content: "今天天气真不错，出去散了散步，拍到了一只可爱的流浪猫！"
+  location: "上海"
+  images:
+    - "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQIHapIeCiwS7x6LmNiUMsGcyA3R8dgs-nSdQ&s"
+
+# 示例 3：多图网格布局（当图片大于1张时会自动触发网格样式）
+- date: "2025-06-06 18:00"
+  content: "分享几张美照~ ☕️🍰"
+  images:
+    - "https://picsum.photos/400/300?random=1"
+    - "https://picsum.photos/400/300?random=2"
+    - "https://picsum.photos/400/300?random=3"
+
+# 示例 4：嵌入视频（例如 Bilibili 或 YouTube 的 iframe 链接）
+- date: "2025-06-07 20:15"
+  content: "呜呜呜是花泽香菜🎧"
+  location: "冰岛"
+  video: "https://www.bilibili.com/video/BV1wp411o733?vd_source=8b64ea52b2b8f7ddafd25b28360cd6c0"
+
+# 示例 5：极简记录（只写必须的字段）
+- date: "2025-06-08 09:00"
+  content: "Good afternoon !"
+
+# 示例 6：自定义图片路径
+- date: "2025-6-1"
+  content: "夏天吃西瓜,冬天吃火锅,春天吃面包,秋天吃蛋挞"
+  location: "夏威夷"
+  images:
+    - /images/10.png
+    - /images/11.webp
+  video: "https://youtu.be/3aOzItICytI?si=JerEArWZ_iAr42jO"
+
+# 示例 6：自定义图片路径
+- date: "2025-6-7"
+  content: "秋天的风,染红了成片的枫叶"
+  location: "日本"
+  images:
+    - /images/23.png
+  video: "https://www.bilibili.com/video/BV12b4y147DE"
+
+# 示例 6：自定义图片路径
+- date: "2025-6-4"
+  content: "夏天感觉很清新"
+  location: "菲律宾"
+  images:
+    - /images/20.png
+    - /images/21.png
+  video: "https://www.bilibili.com/video/BV1edG66gECS"
+
+# 示例 6：自定义图片路径
+- date: "2025-6-5"
+  content: "多喝热水"
+  location: "菲律宾"
+  video: "https://youtu.be/HccBwBh5IGk?si=FldObwl_ykXhK5n4"
+
+# 示例 6：自定义图片路径
+- date: "2025-6-4"
+  content: "suger百听不厌(`・ω・´)"
+  location: "法国"
+  images:
+    - "https://img.vocus.cc/jTtVXMEIr-g0nIJaT4sz-UgsP8IDTtjW8u6qEGu8ZlM/w:740/f:webp/plain/https://images.vocus.cc/42806faf-bc9f-46ee-a0ea-c095be1afc19.jpg"
+  video: "https://youtu.be/09R8_2nJtjg?si=LUcvl0Z_OkpQ5bd0"
+
+# 示例 6：自定义图片路径
+- date: "2025-6-5"
+  content: "阿巴阿巴阿巴"
+  location: "菲律宾"
+  video: "https://youtu.be/GspDybPhOeY?si=mpcZlLkvjoLKSXJs"
