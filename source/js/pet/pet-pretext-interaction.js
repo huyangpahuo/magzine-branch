@@ -106,7 +106,11 @@ export class PetPretextInteraction {
         const block = blocks[i];
         i++;
 
-        if (block.closest("[data-pretext-ready]")) continue;
+        if (
+          block.closest("[data-pretext-ready]") ||
+          block.closest("blockquote")
+        )
+          continue;
 
         if (block.textContent && block.textContent.length > 800) {
           block.setAttribute("data-pretext-ready", "ignored");
