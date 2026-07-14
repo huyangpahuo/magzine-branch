@@ -128,11 +128,28 @@ document.addEventListener("DOMContentLoaded", function () {
     // 每当 iframe 加载新页面（包括点击上一篇/下一篇）都会触发
     modalIframe.addEventListener("load", updateModalTitleFromIframe);
 
+    // ★★★ 新增：监听文章页通过 postMessage 主动上报的标题 ★★★
+    // 解决点击文章内"上一篇/下一篇"后，iframe 的 load 事件时机不可靠、
+    // 导致模态框标题未同步更新的问题。只信任来自当前 modal iframe 的消息。
+    window.addEventListener("message", function (e) {
+      if (
+        !e.data ||
+        e.data.type !== "article-modal-title-update" ||
+        e.source !== modalIframe.contentWindow
+      ) {
+        return;
+      }
+      if (modal.classList.contains("active") && e.data.title) {
+        modalTitle.textContent = e.data.title;
+      }
+    });
+
     // 为主页文章链接添加点击事件的函数
     function addClickEventToLinks() {
       // ★★★ 新增：加入了 .search-result-link 选择器 ★★★
+      // ★★★ 新增：加入了 .archive-post-title a 选择器，修复归档页标题不触发模态窗口的问题 ★★★
       const articleLinks = document.querySelectorAll(
-        ".article-title a, .article-image a, .read-more, .search-result-link",
+        ".article-title a, .article-image a, .read-more, .search-result-link, .archive-post-title a",
       );
 
       articleLinks.forEach((link) => {
@@ -162,7 +179,10 @@ document.addEventListener("DOMContentLoaded", function () {
             }
           }
           // 1. 如果点击的是标题链接，直接取自己的文本
-          else if (this.parentElement.classList.contains("article-title")) {
+          else if (
+            this.parentElement.classList.contains("article-title") ||
+            this.parentElement.classList.contains("archive-post-title")
+          ) {
             initialTitle = this.textContent.trim();
           } else {
             // 2. 向上找到共同的卡片容器

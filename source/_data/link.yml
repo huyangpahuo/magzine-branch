@@ -15,10 +15,40 @@
 
 - name: 圆焰之庭
   link: http://madohomu.madokami.cn/
-  avatar: http://cdn.rain.madokami.cn/madokami/avatars/default.webp
+  avatar: https://weavatar.com/avatar/57f9b203c6e07e3cf3f7251af12cfb639bc4f0dacd60df6b5129782bdfc134b1?d=letter&letter=%E9%B9%BF
   description: 圆焰圆留言站
 
 - name: Makitoid
   link: https://makitoid.github.io
   avatar: https://makitoid.github.io/images/0.webp
   description: Somehow?
+
+- name: Eliauk’s Blog
+  link: https://eliauk312.top/
+  avatar: https://img.eliauk312.top/avatar/default-avatar.jpg
+  description: 一方天地，记录代码、生活和偶尔的奇思妙想。
+
+- name: 阿的宝藏之地
+  link: https://nothing-new.icu
+  avatar: https://bu.dusays.com/2026/06/20/6a361fc5c68ff.jpg
+  description: 记录项目、数学思考与杂谈。
+
+- name: miuo’s blog
+  link: https://miuo.me
+  avatar: https://miuo.me/avatar.avif
+  description: 记录文章、笔记、实验和暂时不想丢掉的内容。
+
+- name: SengokuCola
+  link: https://home.nibutupaopao.top
+  avatar: https://lsky.nibutupaopao.top/i/2026/07/09/6a4fc40211f69.png
+  description: 随着风的轨迹 在那耀眼的午后
+
+- name: 萤火虫之国
+  link: https://forum.hanakos.cc
+  avatar: https://forum.hanakos.cc/icons/icon-512.png
+  description: 分享想法·探索音乐
+
+- name: lvyneko
+  link: https://lvyovo-wiki.tech/bloggers
+  avatar: https://lvyovo-wiki.tech/images/blogger/8bef74996f3f1aeb.png
+  description: Good Afternoon I'm lvy , Nice to meet you!

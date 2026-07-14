@@ -87,6 +87,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 标签
     标签: "Tags",
+    相关标签: "Tag",
     暂无标签: "No Tags",
     开始为您的文章添加标签: "Start Adding Tags to Your Posts",
     探索与: "Discover",

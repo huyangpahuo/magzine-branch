@@ -42,26 +42,68 @@ export class PetPretextInteraction {
       textNodes.push(node);
     }
 
+    // 判断一个字符是否是"会被空白/CJK自然断行"的字符
+    // （用于决定是否需要把连续字符打包进一个不可断行的单词容器）
+    const isWordChar = (ch) => /[A-Za-z0-9'\-]/.test(ch);
+
     textNodes.forEach((textNode) => {
       const text = textNode.nodeValue;
       if (!text.trim()) return;
 
       const fragment = doc.createDocumentFragment();
-      for (let i = 0; i < text.length; i++) {
+
+      // 创建单个字符的 span（用于位移动画）
+      const makeCharSpan = (char) => {
+        const span = doc.createElement("span");
+        span.textContent = char;
+        span.style.display = "inline-block";
+        span.style.transition =
+          "transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)";
+        span.style.position = "relative";
+        spans.push(span);
+        return span;
+      };
+
+      let i = 0;
+      while (i < text.length) {
         const char = text[i];
+
         if (char.trim() === "") {
+          // 空白字符：保持为普通文本节点，允许在此处换行
           fragment.appendChild(doc.createTextNode(char));
+          i++;
+          continue;
+        }
+
+        if (isWordChar(char)) {
+          // ★★★ 关键修复 ★★★
+          // 英文/数字：把整个单词打包进一个 inline-block + white-space:nowrap
+          // 的容器里，让浏览器把这个容器当成"一个不可拆分的原子盒子"来换行，
+          // 而不是把每个字母单独当成一个可换行的原子盒子（这正是英文单词
+          // 被从中间截断的根本原因）。容器内部仍然拆成逐字符 span，
+          // 供桌宠位移动画使用，不影响换行逻辑。
+          let j = i;
+          let word = "";
+          while (j < text.length && isWordChar(text[j])) {
+            word += text[j];
+            j++;
+          }
+
+          const wordWrapper = doc.createElement("span");
+          wordWrapper.style.display = "inline-block";
+          wordWrapper.style.whiteSpace = "nowrap";
+          for (const wChar of word) {
+            wordWrapper.appendChild(makeCharSpan(wChar));
+          }
+          fragment.appendChild(wordWrapper);
+          i = j;
         } else {
-          const span = doc.createElement("span");
-          span.textContent = char;
-          span.style.display = "inline-block";
-          span.style.transition =
-            "transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)";
-          span.style.position = "relative";
-          fragment.appendChild(span);
-          spans.push(span);
+          // 中文 / 标点等：逐字符本身就是天然断行单元，保持原逻辑即可
+          fragment.appendChild(makeCharSpan(char));
+          i++;
         }
       }
+
       textNode.parentNode.replaceChild(fragment, textNode);
     });
 

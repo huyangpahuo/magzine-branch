@@ -62,6 +62,22 @@
 
       h1.post-title= page.title
 
+      //- ★★★ 新增：当本文章页在"文章模态窗口"的 iframe 中被打开/切换（点击上一篇/下一篇）时，
+      //- 主动通知父窗口更新模态框标题，避免依赖 iframe 的 load 事件时机不稳定的问题 ★★★
+      - var articleModalTitleJSON = JSON.stringify(page.title || '')
+      script.
+        (function () {
+          try {
+            var __articleModalTitle = !{articleModalTitleJSON};
+            if (window.self !== window.top && window.parent && typeof window.parent.postMessage === 'function') {
+              window.parent.postMessage(
+                { type: 'article-modal-title-update', title: __articleModalTitle },
+                window.location.origin
+              );
+            }
+          } catch (e) {}
+        })();
+
       .post-tags
         if page.tags && page.tags.length
           each tag in page.tags.toArray()
