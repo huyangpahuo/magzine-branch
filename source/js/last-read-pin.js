@@ -70,6 +70,8 @@
 
   // 在主页:把最后阅读的文章卡片置顶并加图钉徽章
   function pinOnHome() {
+    // ★ 只在主页第一页置顶;分页页(/page/N/)保持时间顺序
+    if (location.pathname !== "/") return;
     var grid = document.querySelector(".articles-grid");
     var raw = localStorage.getItem(STORAGE_KEY);
     if (!grid || !raw) return;

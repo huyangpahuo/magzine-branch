@@ -98,6 +98,7 @@
 
   // ---------- 前进/后退 ----------
   var currentKey = location.pathname + location.search;
+  var previousPath = location.pathname; // 上一个页面路径(判断"从文章返回主页")
 
   window.addEventListener("popstate", function () {
     var key = location.pathname + location.search;
@@ -132,7 +133,25 @@
     }, 10000);
 
     scrollMem[location.href] = window.scrollY;
-    currentKey = new URL(href, location.href).pathname + new URL(href, location.href).search;
+
+    // 离开主页列表前,记录分页进度与滚动位置(供手机端从文章返回时恢复)
+    if (location.pathname === "/" || /^\/page\/\d+\/$/.test(location.pathname)) {
+      var lmb = document.querySelector(".load-more-btn");
+      try {
+        sessionStorage.setItem(
+          "homeListState",
+          JSON.stringify({
+            page: lmb ? parseInt(lmb.getAttribute("data-current-page")) || 1 : 1,
+            scrollY: window.scrollY,
+          }),
+        );
+      } catch (err) {}
+    }
+
+    previousPath = location.pathname;
+    currentKey =
+      new URL(href, location.href).pathname +
+      new URL(href, location.href).search;
 
     var oldMain = document.querySelector(SWAP_SELECTOR);
     document.dispatchEvent(new CustomEvent("pjax:send"));
@@ -252,7 +271,26 @@
 
     // 滚动位置:新页面回顶部,后退则恢复原位置
     if (push) {
-      window.scrollTo(0, 0);
+      var restored = false;
+      // ★ 手机端:从文章返回主页(点 Logo/首页)时,恢复离开前的列表并定位
+      if (
+        location.pathname === "/" &&
+        window.innerWidth <= 768 &&
+        isPostPath(previousPath)
+      ) {
+        try {
+          var hs = JSON.parse(
+            sessionStorage.getItem("homeListState") || "null",
+          );
+          if (hs && ((hs.page || 1) > 1 || (hs.scrollY || 0) > 150)) {
+            document.dispatchEvent(
+              new CustomEvent("home:restore", { detail: hs }),
+            );
+            restored = true;
+          }
+        } catch (err) {}
+      }
+      if (!restored) window.scrollTo(0, 0);
     } else {
       var saved = scrollMem[location.href];
       window.scrollTo(0, typeof saved === "number" ? saved : 0);

@@ -76,6 +76,11 @@ function initLoadMore() {
   // 如果没有按钮，说明不需要加载更多逻辑，直接返回
   if (!loadMoreBtn) return;
 
+  // ★ 防止重复初始化:main.js 与本文件都定义并调用了 initLoadMore(同名函数,
+  //   后加载者覆盖前者,但两处 DOMContentLoaded 都会执行),不加守卫会绑定两次点击
+  if (loadMoreBtn.dataset.loadMoreInit) return;
+  loadMoreBtn.dataset.loadMoreInit = "1";
+
   // 2. 获取当前语言状态 (从 localStorage 读取)
   function isEnglish() {
     return localStorage.getItem("site_lang") === "en";
@@ -104,6 +109,107 @@ function initLoadMore() {
   // 获取辅助函数：根据当前语言返回文本
   const getText = (key) => (isEnglish() ? texts[key].en : texts[key].zh);
 
+  // ===== ‹ 页码 › 翻页器 =====
+  // 页码 = 当前已完整展示的页数;箭头直接翻到对应页(pjax 无感)
+  function basePath() {
+    return (
+      window.location.pathname.replace(/\/$/, "").replace(/\/page\/\d+$/, "") +
+      "/"
+    );
+  }
+
+  function pageUrl(p) {
+    return p <= 1 ? basePath() : basePath() + "page/" + p + "/";
+  }
+
+  function goPage(p) {
+    if (p < 1) return;
+    const url = pageUrl(p);
+    if (window.__magzinePjax && typeof window.__magzinePjax.load === "function") {
+      window.__magzinePjax.load(url, true);
+    } else {
+      location.href = url;
+    }
+  }
+
+  function renderPager() {
+    const container = loadMoreBtn.parentElement;
+    if (!container) return;
+    let pager = container.querySelector(".load-more-pager");
+    if (!pager) {
+      pager = document.createElement("div");
+      pager.className = "load-more-pager";
+      container.insertBefore(pager, loadMoreBtn);
+    }
+    const cur = parseInt(loadMoreBtn.getAttribute("data-current-page")) || 1;
+    const total = parseInt(loadMoreBtn.getAttribute("data-total-pages")) || 1;
+
+    pager.innerHTML = "";
+    const prev = document.createElement("button");
+    prev.className = "pager-arrow pager-prev";
+    prev.textContent = "‹";
+    prev.disabled = cur <= 1;
+    prev.setAttribute("aria-label", "上一页");
+    prev.addEventListener("click", () => goPage(cur - 1));
+
+    const num = document.createElement("span");
+    num.className = "pager-num";
+    num.textContent = cur;
+
+    const next = document.createElement("button");
+    next.className = "pager-arrow pager-next";
+    next.textContent = "›";
+    next.disabled = cur >= total;
+    next.setAttribute("aria-label", "下一页");
+    next.addEventListener("click", () => goPage(cur + 1));
+
+    pager.appendChild(prev);
+    pager.appendChild(num);
+    pager.appendChild(next);
+  }
+
+  renderPager();
+
+  // 手机端:从文章返回主页时,恢复离开前追加的页数并定位到原位置
+  document.addEventListener("home:restore", function (e) {
+    const detail = e.detail || {};
+    const targetPage = detail.page || 1;
+    const scrollY = detail.scrollY || 0;
+    const btn = document.querySelector(".load-more-btn");
+    const finish = () => setTimeout(() => window.scrollTo(0, scrollY), 400);
+
+    if (
+      !btn ||
+      targetPage <= (parseInt(btn.getAttribute("data-current-page")) || 1)
+    ) {
+      if (scrollY) finish();
+      return;
+    }
+
+    const appendStep = () => {
+      const cur = parseInt(btn.getAttribute("data-current-page")) || 1;
+      if (cur >= targetPage) {
+        finish();
+        return;
+      }
+      // 恢复流程的每次点击都应执行"追加"而不是"翻页",先清掉追加标记
+      delete btn.dataset.appended;
+      btn.click(); // 复用加载逻辑追加下一页
+      const check = setInterval(() => {
+        const now = parseInt(btn.getAttribute("data-current-page")) || 1;
+        if (now > cur) {
+          clearInterval(check);
+          appendStep();
+        } else if (btn.disabled) {
+          // 没有更多页了,直接定位
+          clearInterval(check);
+          finish();
+        }
+      }, 200);
+    };
+    appendStep();
+  });
+
   // 初始化按钮文字
   if (isEnglish()) {
     if (loadMoreBtn.innerText.trim() === "加载更多文章") {
@@ -125,6 +231,14 @@ function initLoadMore() {
       btn.disabled = true;
       return;
     }
+
+    // ★ 屏幕上已经追加过一页(超过一页的内容)后,再点"加载更多"就翻到下一页,
+    //   页码随之变化;首次点击仍然是在当前页追加
+    if (btn.dataset.appended === "1") {
+      goPage(nextPage);
+      return;
+    }
+    btn.dataset.appended = "1";
 
     // 显示加载状态
     btn.innerHTML = getText("loading");
@@ -218,6 +332,7 @@ function initLoadMore() {
             btn.innerHTML = getText("loadMore");
             btn.disabled = false;
             btn.setAttribute("data-current-page", nextPage);
+            renderPager(); // 页码随追加更新
           }
 
           // 如果有全局翻译插件，触发它

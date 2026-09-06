@@ -74,4 +74,4 @@ section.articles-section
 //- Load More Button
 if page.total > 1
   .load-more-container
-    button.load-more-btn(data-current-page=1, data-total-pages=page.total) 加载更多文章
+    button.load-more-btn(data-current-page=(page.current || 1), data-total-pages=page.total) 加载更多文章

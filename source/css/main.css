@@ -3514,3 +3514,45 @@ body.dark-mode .author-card-pull-cord .pull-cord-line {
   background: var(--text-color);
   opacity: 0.45;
 }
+
+
+/* ===== 加载更多:‹ 页码 › 翻页器 ===== */
+.load-more-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 1.25rem 0 0.75rem;
+}
+
+.load-more-pager .pager-arrow {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: var(--card-background-color);
+  color: var(--accent-color);
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.load-more-pager .pager-arrow:hover:not(:disabled) {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+.load-more-pager .pager-arrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.load-more-pager .pager-num {
+  min-width: 2.2em;
+  text-align: center;
+  font-weight: 600;
+  color: var(--text-color);
+}
