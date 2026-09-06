@@ -92,7 +92,13 @@ html.is-iframe .navbar,
 html.is-iframe .footer,
 html.is-iframe footer,
 html.is-iframe .music-player,
-html.is-iframe .theme-color-picker-container {
+html.is-iframe .theme-color-picker-container,
+html.is-iframe #waves-container,
+html.is-iframe .button-container,
+html.is-iframe #pet-root,
+html.is-iframe #sakana-widget-wrapper,
+html.is-iframe .author-card-section,
+html.is-iframe .hero-section {
   display: none !important;
 }
 

@@ -41,12 +41,16 @@
     pathname = normalizePath(pathname);
     if (pathname === "/" || /^\/page\/\d+\/$/.test(pathname)) return true; // 首页及其分页
     if (/\.[a-z0-9]+$/i.test(pathname)) return false; // 带扩展名的是资源文件
-    // 文章页(手机端点开文章也不断音;桌面端文章卡片仍走模态窗口)
-    if (/^\/\d{4}\/\d{1,2}\/\d{1,2}\/[^/]+\/$/.test(pathname)) return true;
+    if (isPostPath(pathname)) return true;
     // 关于/友链/追番/万花筒/照片墙/归档/分类/标签(含详情页与分页)
     return /^\/(about|link|anime|murmur|wall|archives|categories|tags)(\/|$)/.test(
       pathname,
     );
+  }
+
+  // 文章页路径(:year/:month/:day/:title/)
+  function isPostPath(pathname) {
+    return /^\/\d{4}\/\d{1,2}\/\d{1,2}\/[^/]+\/$/.test(normalizePath(pathname));
   }
 
   // ---------- 点击拦截 ----------
@@ -105,6 +109,12 @@
     }
     load(location.href, false);
   });
+
+  // ---------- 模态窗口 iframe 内的浏览 ----------
+  // 文章在模态窗口(iframe)里阅读时,点击文内的分类/标签徽章会由 iframe 自己的
+  // pjax 在模态内打开"相关分类/相关标签"页,再点文章则继续在当前模态内查看
+  // (article-modal.js 已禁止 iframe 内再创建第二层模态)。
+  // 这里不需要任何拦截——保持 iframe 内自然导航即可。
 
   // ---------- 加载与替换 ----------
   var abortCtrl = null;
@@ -269,4 +279,7 @@
       a.classList.toggle("active", active);
     });
   }
+
+  // 暴露编程式导航(供模态窗口 message 接管等使用)
+  window.__magzinePjax = { load: load };
 })();
