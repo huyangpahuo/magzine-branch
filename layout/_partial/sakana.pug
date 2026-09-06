@@ -84,6 +84,11 @@ if theme.sakana && theme.sakana.enable
       background-size: 20px 20px; box-shadow: 0 0 0 2px rgba(0,0,0,.05);
     }
 
+    /* 拖动小人期间,iframe 穿透鼠标事件(防止文章模态/视频 iframe 吞掉拖拽事件) */
+    body.sakana-dragging iframe {
+      pointer-events: none !important;
+    }
+
   script.
     document.addEventListener('DOMContentLoaded', function() {
       // 1. 移动端禁用
@@ -98,6 +103,22 @@ if theme.sakana && theme.sakana.enable
 
       if (window.sakanaInitialized) return;
       window.sakanaInitialized = true;
+
+      // ★ 拖拽修复:文章模态窗口/视频 iframe 会吞掉 mousemove/mouseup,
+      //   导致拖动小人时"卡住"(鼠标一离开小人区域,父页面就收不到事件)。
+      //   抓住小人期间让所有 iframe 穿透鼠标事件,松手恢复。
+      document.addEventListener('mousedown', function(e) {
+        var wrapper = document.getElementById('sakana-widget-wrapper');
+        if (wrapper && wrapper.contains(e.target)) {
+          document.body.classList.add('sakana-dragging');
+        }
+      }, true);
+      document.addEventListener('mouseup', function() {
+        document.body.classList.remove('sakana-dragging');
+      }, true);
+      window.addEventListener('blur', function() {
+        document.body.classList.remove('sakana-dragging');
+      });
 
       const script = document.createElement('script');
       script.src = '/js/sakana.min.js';

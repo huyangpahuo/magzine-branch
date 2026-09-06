@@ -148,8 +148,9 @@ document.addEventListener("DOMContentLoaded", function () {
     function addClickEventToLinks() {
       // ★★★ 新增：加入了 .search-result-link 选择器 ★★★
       // ★★★ 新增：加入了 .archive-post-title a 选择器，修复归档页标题不触发模态窗口的问题 ★★★
+      // ★★★ 新增：加入了 .post-item-title a 选择器，修复分类/相关标签/相关分类页标题不触发模态窗口的问题 ★★★
       const articleLinks = document.querySelectorAll(
-        ".article-title a, .article-image a, .read-more, .search-result-link, .archive-post-title a",
+        ".article-title a, .article-image a, .read-more, .search-result-link, .archive-post-title a, .post-item-title a",
       );
 
       articleLinks.forEach((link) => {
@@ -181,7 +182,8 @@ document.addEventListener("DOMContentLoaded", function () {
           // 1. 如果点击的是标题链接，直接取自己的文本
           else if (
             this.parentElement.classList.contains("article-title") ||
-            this.parentElement.classList.contains("archive-post-title")
+            this.parentElement.classList.contains("archive-post-title") ||
+            this.parentElement.classList.contains("post-item-title")
           ) {
             initialTitle = this.textContent.trim();
           } else {
