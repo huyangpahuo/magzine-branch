@@ -10,6 +10,11 @@
     const player = document.querySelector(".music-player");
     if (!player) return;
 
+    // pjax: 播放器常驻不替换,只绑定一次。
+    // 重复绑定会让播放/暂停一次点击触发两次(等于没按),播放状态也会被打断
+    if (player.dataset.playerBound) return;
+    player.dataset.playerBound = "1";
+
     const audio = document.querySelector(".music-player-audio");
     const toggleBtn = player.querySelector(".music-player-toggle");
     const toggleIcon = toggleBtn ? toggleBtn.querySelector("i") : null;

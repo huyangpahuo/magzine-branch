@@ -10,6 +10,8 @@ new ChucklePostAI({
   title_el: ".post-title",
   // 文章推荐方式，all：匹配数据库内所有文章进行推荐，web：仅当前站内的文章，默认all
   rec_method: "web",
+  // ★ pjax: 文章页无感刷新后重新挂载 AI 摘要(postai.js 内置该事件支持)
+  pjax: true,
   // 获取文章内容时，需要排除的元素及其子元素，默认如下
   exclude: [
     "highlight",

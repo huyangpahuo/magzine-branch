@@ -349,63 +349,59 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==========================================
   // 2. 核心逻辑
   // ==========================================
-  let currentLang = localStorage.getItem("site_lang") || "zh";
+  // 逆向词典(英文 → 中文),用于无刷新切回中文
+  const reverseTranslations = {};
+  Object.keys(translations).forEach((zh) => {
+    const en = translations[zh];
+    if (en && !(en in reverseTranslations)) reverseTranslations[en] = zh;
+  });
 
-  // 通用节点翻译函数
-  function translateNode(node) {
+  let currentLang = localStorage.getItem("site_lang") || "zh";
+  let langObserver = null;
+
+  // direction=false: 中文→英文;direction=true: 英文→中文(逆向词典)
+  function translateNode(node, direction) {
     if (!node) return;
+
+    const mapText = (text) =>
+      direction ? reverseTranslations[text] : translations[text];
 
     // 1. 处理纯文本节点
     if (node.nodeType === Node.TEXT_NODE) {
       const text = node.nodeValue.trim();
-      if (text && translations[text]) {
-        node.nodeValue = translations[text];
+      if (text) {
+        const mapped = mapText(text);
+        if (mapped) node.nodeValue = mapped;
       }
       return;
     }
 
     // 2. 处理元素节点
     if (node.nodeType === Node.ELEMENT_NODE) {
-      // (A) 翻译 data-label
-      const label = node.getAttribute("data-label");
-      if (label && translations[label]) {
-        node.setAttribute("data-label", translations[label]);
-      }
+      // (A) 翻译各类属性: data-label / data-title / title / data-text / aria-label
+      ["data-label", "data-title", "title", "data-text", "aria-label"].forEach(
+        (attr) => {
+          const val = node.getAttribute(attr);
+          if (val) {
+            const mapped = mapText(val);
+            if (mapped) node.setAttribute(attr, mapped);
+          }
+        },
+      );
 
-      // (B) ★★★ 关键修复：翻译 data-title ★★★
-      const dataTitle = node.getAttribute("data-title");
-      if (dataTitle && translations[dataTitle]) {
-        node.setAttribute("data-title", translations[dataTitle]);
-      }
-
-      // (C) 翻译 title 属性
-      const title = node.getAttribute("title");
-      if (title && translations[title]) {
-        node.setAttribute("title", translations[title]);
-      }
-
-      // (D) 翻译 placeholder
+      // (B) 翻译 placeholder
       if (["INPUT", "TEXTAREA"].includes(node.tagName)) {
         const placeholder = node.getAttribute("placeholder");
-        if (placeholder && translations[placeholder]) {
-          node.setAttribute("placeholder", translations[placeholder]);
+        if (placeholder) {
+          const mapped = mapText(placeholder);
+          if (mapped) node.setAttribute("placeholder", mapped);
         }
       }
 
-      // (E) 翻译 data-text (用于 CSS content)
-      const dataText = node.getAttribute("data-text");
-      if (dataText && translations[dataText]) {
-        node.setAttribute("data-text", translations[dataText]);
-      }
-
-      // (F) 翻译 aria-label
-      const ariaLabel = node.getAttribute("aria-label");
-      if (ariaLabel && translations[ariaLabel]) {
-        node.setAttribute("aria-label", translations[ariaLabel]);
-      }
-
       // 递归处理子节点
-      Array.from(node.childNodes).forEach(translateNode);
+      Array.from(node.childNodes).forEach((child) =>
+        translateNode(child, direction),
+      );
     }
   }
 
@@ -484,7 +480,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function setupObservers() {
     if (currentLang !== "en") return;
-    const observer = new MutationObserver((mutations) => {
+    if (langObserver) return; // pjax 换页/重复初始化时不叠加观察器
+    langObserver = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         // 监听到属性变化时，触发翻译
         if (mutation.type === "attributes") {
@@ -492,15 +489,15 @@ document.addEventListener("DOMContentLoaded", function () {
           return;
         }
 
-        mutation.addedNodes.forEach(translateNode);
+        mutation.addedNodes.forEach((n) => translateNode(n));
         if (mutation.type === "characterData") translateNode(mutation.target);
         if (mutation.type === "childList") {
-          mutation.target.childNodes.forEach(translateNode);
+          mutation.target.childNodes.forEach((n) => translateNode(n));
         }
       });
     });
 
-    observer.observe(document.body, {
+    langObserver.observe(document.body, {
       childList: true,
       subtree: true,
       characterData: true,
@@ -510,18 +507,54 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  function disconnectObserver() {
+    if (langObserver) {
+      langObserver.disconnect();
+      langObserver = null;
+    }
+  }
+
+  // ★ 无刷新语言切换:在当前页面原地翻译,不再 location.reload()
+  function applyLanguage(lang) {
+    if (lang === currentLang) {
+      updateLangButtons();
+      return;
+    }
+
+    if (lang === "en") {
+      currentLang = "en";
+      localStorage.setItem("site_lang", "en");
+      translatePage(); // 中文 → 英文
+      setupObservers(); // 观察器在翻译完成后开启,避免与翻译互相触发
+    } else {
+      // ★ 必须先断开观察器,否则还原出来的中文会被立刻翻回英文
+      disconnectObserver();
+      currentLang = "zh";
+      localStorage.setItem("site_lang", "zh");
+      translateNode(document.body, true); // 英文 → 中文(逆向词典)
+      translateDates(); // 日期还原为原始中文格式
+    }
+
+    updateLangButtons();
+  }
+
+  function updateLangButtons() {
+    document.querySelectorAll("[data-lang-switch-btn]").forEach((btn) => {
+      btn.innerText = currentLang === "en" ? "🇨🇳 中文" : "🇺🇸 English";
+    });
+  }
+
   function setupLanguageButton() {
     const buttons = document.querySelectorAll('a[href*="#lang-switch"]');
     buttons.forEach((btn) => {
-      btn.innerText = currentLang === "en" ? "🇨🇳 中文" : "🇺🇸 English";
       btn.removeAttribute("href");
       btn.style.cursor = "pointer";
+      btn.setAttribute("data-lang-switch-btn", "1");
       btn.onclick = (e) => {
         e.preventDefault();
-        const newLang = currentLang === "en" ? "zh" : "en";
-        localStorage.setItem("site_lang", newLang);
-        location.reload();
+        applyLanguage(currentLang === "en" ? "zh" : "en");
       };
+      updateLangButtons();
     });
   }
 

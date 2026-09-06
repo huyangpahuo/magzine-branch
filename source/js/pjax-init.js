@@ -1,56 +1,272 @@
-document.addEventListener("DOMContentLoaded", function () {
-  if (typeof Pjax === "undefined") return;
+/**
+ * PJAX 无感刷新 (自研轻量实现,无第三方依赖)
+ *
+ * 核心原则:导航时只替换 <main.main> 与 <title>,页面其余部分
+ * (导航栏、音乐播放器、桌宠、Sakana、封面、波浪、页脚)全部保留。
+ * 因此:
+ *   - 切换页面时音乐不会中断(含移动端);
+ *   - 桌宠不会重置位置;
+ *   - 搜索框、语言切换按钮等头部元素只需绑定一次。
+ *
+ * 仅对白名单内的页面启用 pjax(首页/关于/友链/追番/照片墙/万花筒/
+ * 归档/分类/标签 及其分页、分类/标签详情页)。文章页等重脚本页面
+ * 自动回退为整页加载,保证评论区、TOC、AI 摘要等不受影响。
+ *
+ * 换页完成后做三件事:
+ *   1. 重放新内容里的 <script>(about 页的几何背景动画等);
+ *   2. 更新导航栏 active 状态;
+ *   3. 在 document 上重新派发 DOMContentLoaded,唤醒所有页面脚本
+ *      (main.js/search.js 等已加幂等守卫,不会重复绑定)。
+ */
+(function () {
+  "use strict";
 
-  const pjax = new Pjax({
-    // 拦截普通链接
-    elements:
-      "a:not([target='_blank']):not([href^='#']):not([data-pjax-state=''])",
-    selectors: [
-      "title", // 更新标题
-      "main.main", // 只替换主内容区
-      ".nav-menu", // 更新导航栏状态
-    ],
-    cacheBust: false,
-    timeout: 5000,
+  if (window.__magzinePjax) return;
+  window.__magzinePjax = true;
+
+  // 历史滚动交给 pjax 管理,避免浏览器自动恢复与我们的 swap 打架
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+
+  var SWAP_SELECTOR = "main.main";
+  // 音乐播放器元素引用(它是 body 常驻元素,需防意外脱离文档)
+  var playerRef = document.querySelector(".music-player");
+
+  // ---------- 白名单 ----------
+  function normalizePath(p) {
+    if (p.length > 1 && p.charAt(p.length - 1) !== "/") return p + "/";
+    return p;
+  }
+
+  function isPjaxPath(pathname) {
+    pathname = normalizePath(pathname);
+    if (pathname === "/" || /^\/page\/\d+\/$/.test(pathname)) return true; // 首页及其分页
+    if (/\.[a-z0-9]+$/i.test(pathname)) return false; // 带扩展名的是资源文件
+    // 文章页(手机端点开文章也不断音;桌面端文章卡片仍走模态窗口)
+    if (/^\/\d{4}\/\d{1,2}\/\d{1,2}\/[^/]+\/$/.test(pathname)) return true;
+    // 关于/友链/追番/万花筒/照片墙/归档/分类/标签(含详情页与分页)
+    return /^\/(about|link|anime|murmur|wall|archives|categories|tags)(\/|$)/.test(
+      pathname,
+    );
+  }
+
+  // ---------- 点击拦截 ----------
+  document.addEventListener("click", function (e) {
+    if (
+      e.defaultPrevented ||
+      e.button !== 0 ||
+      e.metaKey ||
+      e.ctrlKey ||
+      e.shiftKey ||
+      e.altKey
+    )
+      return;
+
+    var a = e.target && e.target.closest ? e.target.closest("a") : null;
+    if (!a || a.dataset.pjax === "off") return;
+    if (a.target && a.target !== "_self") return;
+    if (a.hasAttribute("download")) return;
+
+    var href = a.getAttribute("href") || "";
+    if (!href || href.charAt(0) === "#" || /^(mailto|tel|javascript):/i.test(href))
+      return;
+
+    var url;
+    try {
+      url = new URL(a.href, location.href);
+    } catch (err) {
+      return;
+    }
+    if (url.origin !== location.origin) return;
+    if (!isPjaxPath(url.pathname)) return;
+
+    // 同一页面:仅滚动回顶部,不重新加载
+    if (url.pathname === location.pathname && url.search === location.search) {
+      if (!url.hash) {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+      return; // 同页锚点交给浏览器
+    }
+
+    e.preventDefault();
+    load(url.href, true);
   });
 
-  // 1. 页面开始请求：可以加个透明度过渡动画
-  document.addEventListener("pjax:send", function () {
-    const main = document.querySelector("main.main");
-    if (main) {
-      main.style.transition = "opacity 0.3s ease";
-      main.style.opacity = "0.4";
+  // ---------- 前进/后退 ----------
+  var currentKey = location.pathname + location.search;
+
+  window.addEventListener("popstate", function () {
+    var key = location.pathname + location.search;
+    if (key === currentKey) return; // 仅 hash 变化,浏览器已自行处理
+    currentKey = key;
+    if (!isPjaxPath(location.pathname)) {
+      location.reload();
+      return;
     }
+    load(location.href, false);
   });
 
-  // 2. ★★★ 黑魔法：页面替换完成后的全局唤醒 ★★★
-  document.addEventListener("pjax:complete", function () {
-    const main = document.querySelector("main.main");
-    if (main) main.style.opacity = "1";
+  // ---------- 加载与替换 ----------
+  var abortCtrl = null;
+  var timedOut = false;
+  var scrollMem = {};
 
-    // 魔法 1：重新触发所有的 DOMContentLoaded 事件
-    // 绝大多数的普通脚本（比如你的 tags.js、部分主题自带 JS）只要收到这个事件就会重新干活
-    window.dispatchEvent(new Event("DOMContentLoaded"));
+  function load(href, push) {
+    if (abortCtrl) abortCtrl.abort();
+    timedOut = false;
+    abortCtrl =
+      typeof AbortController !== "undefined" ? new AbortController() : null;
+    var timer = setTimeout(function () {
+      timedOut = true;
+      if (abortCtrl) abortCtrl.abort();
+    }, 10000);
 
-    // 魔法 2：触发 load 事件，部分依赖页面完全加载的脚本需要这个
-    window.dispatchEvent(new Event("load"));
+    scrollMem[location.href] = window.scrollY;
+    currentKey = new URL(href, location.href).pathname + new URL(href, location.href).search;
 
-    // 魔法 3：重新执行 AI 脚本或特定的外部依赖
-    // 如果你有 MathJax (数学公式)
-    if (typeof MathJax !== "undefined" && MathJax.typesetPromise) {
-      MathJax.typesetPromise();
+    var oldMain = document.querySelector(SWAP_SELECTOR);
+    document.dispatchEvent(new CustomEvent("pjax:send"));
+    if (oldMain) {
+      oldMain.style.transition = "opacity 0.25s ease";
+      oldMain.style.opacity = "0.3";
     }
 
-    // 如果你有 Twikoo 评论，强制它在新的容器里重新加载
-    if (typeof twikoo !== "undefined") {
-      try {
-        twikoo.init({
-          envId: window.theme.comments.twikoo.envId, // 你的envId
-          el: "#twikoo", // 评论容器
+    fetch(href, { signal: abortCtrl ? abortCtrl.signal : undefined })
+      .then(function (res) {
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return res.text();
+      })
+      .then(function (html) {
+        var doc = new DOMParser().parseFromString(html, "text/html");
+        var newMain = doc.querySelector(SWAP_SELECTOR);
+        var oldMain = document.querySelector(SWAP_SELECTOR);
+        if (!newMain || !oldMain)
+          throw new Error("pjax: 目标页面缺少 " + SWAP_SELECTOR);
+
+        // ★ 先更新地址栏,再替换内容并重建脚本:
+        //   页面内嵌脚本(twikoo 等)重建执行时会用 location.pathname
+        //   决定拉取哪个页面的评论,此刻 URL 必须已经是新页面,
+        //   否则会把上一个页面的评论拉进来。
+        var newTitle = doc.title || document.title;
+        var detachedScripts = [];
+        var found = newMain.querySelectorAll("script");
+        for (var i = 0; i < found.length; i++) {
+          detachedScripts.push(found[i]);
+          found[i].parentNode.removeChild(found[i]);
+        }
+
+        if (push) history.pushState({ pjax: true }, "", href);
+
+        document.title = newTitle;
+        oldMain.replaceWith(newMain); // 跨 document 节点会被自动 adopt
+        reexecuteScripts(detachedScripts, newMain);
+
+        // 淡入
+        newMain.style.transition = "opacity 0.25s ease";
+        newMain.style.opacity = "0.3";
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            newMain.style.opacity = "1";
+          });
         });
+
+        afterSwap(push);
+        document.dispatchEvent(new CustomEvent("pjax:complete"));
+      })
+      .catch(function (err) {
+        if (err && err.name === "AbortError" && !timedOut) return; // 被更新的导航取代
+        location.href = href; // 出错兜底:整页跳转
+      })
+      .finally(function () {
+        clearTimeout(timer);
+      });
+  }
+
+  // 按原顺序重建 <script> 才会执行(about 页几何动画、anime 页 Artplayer/HLS、
+  // 各页面内嵌的 twikoo 初始化等)。src 脚本必须 async=false:
+  // 动态插入的脚本默认 async,会出现"初始化脚本先于库执行"导致评论加载失败。
+  function reexecuteScripts(detached, root) {
+    detached.forEach(function (old) {
+      var s = document.createElement("script");
+      for (var i = 0; i < old.attributes.length; i++) {
+        s.setAttribute(old.attributes[i].name, old.attributes[i].value);
+      }
+      if (old.src) s.async = false;
+      s.textContent = old.textContent;
+      root.appendChild(s);
+    });
+  }
+
+  function afterSwap(push) {
+    updateNavActive();
+
+    // 语言包:为新内容补充日期翻译(英文模式下的文本由 MutationObserver 自动翻译)
+    if (window.i18n && typeof window.i18n.translateDates === "function") {
+      try {
+        window.i18n.translateDates();
       } catch (e) {}
     }
 
-    // 如果你引用的 AI 摘要脚本暴露了重载方法，直接调用（大部分会自动响应 DOMContentLoaded）
-  });
-});
+    // 唤醒所有依赖 DOMContentLoaded 的页面脚本
+    document.dispatchEvent(new Event("DOMContentLoaded"));
+
+    // ★ 兜底规则(承袭旧 ojax-init):评论/数学公式在新容器中重新加载
+    setTimeout(function () {
+      var twikooEl = document.getElementById("twikoo");
+      if (
+        twikooEl &&
+        twikooEl.childElementCount === 0 &&
+        typeof window.twikoo !== "undefined" &&
+        window.twikooEnvId
+      ) {
+        try {
+          window.twikoo.init({
+            envId: window.twikooEnvId,
+            el: "#twikoo",
+            path: location.pathname, // 显式指定当前页路径
+          });
+        } catch (e) {}
+      }
+    }, 1500);
+    if (window.MathJax && typeof window.MathJax.typesetPromise === "function") {
+      try {
+        window.MathJax.typesetPromise();
+      } catch (e) {}
+    }
+
+    // ★ 音乐播放器防丢失:文章模态窗口等逻辑可能移动过播放器,
+    //   若它意外脱离了文档,放回 body(音频不会断)
+    if (playerRef && !document.body.contains(playerRef)) {
+      document.body.appendChild(playerRef);
+    }
+
+    // 滚动位置:新页面回顶部,后退则恢复原位置
+    if (push) {
+      window.scrollTo(0, 0);
+    } else {
+      var saved = scrollMem[location.href];
+      window.scrollTo(0, typeof saved === "number" ? saved : 0);
+    }
+  }
+
+  // ---------- 导航栏 active 状态 ----------
+  function updateNavActive() {
+    var path = normalizePath(location.pathname);
+    var items = document.querySelectorAll(
+      ".nav-menu a.nav-item, .nav-menu a.submenu-item",
+    );
+    Array.prototype.forEach.call(items, function (a) {
+      var href = a.getAttribute("href") || "";
+      var active = false;
+      if (href.charAt(0) === "/" && href.indexOf("//") !== 0) {
+        var link = normalizePath(href.split("#")[0].split("?")[0]);
+        if (link === "/") {
+          active = path === "/" || /^\/page\/\d+\/$/.test(path);
+        } else {
+          active = path === link || path.indexOf(link) === 0;
+        }
+      }
+      a.classList.toggle("active", active);
+    });
+  }
+})();

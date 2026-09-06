@@ -5,6 +5,10 @@
 document.addEventListener('DOMContentLoaded', function() {
   // 检查是否启用了加载动画
   if (window.theme && window.theme.features && window.theme.features.loading_animation) {
+    // pjax: 遮罩只创建一次,否则换页后新遮罩永远不会被移除(页面会被盖住)
+    if (window.__loadingOverlayDone) return;
+    window.__loadingOverlayDone = true;
+
     // 创建加载动画元素
     const loadingOverlay = document.createElement('div');
     loadingOverlay.className = 'loading-overlay';

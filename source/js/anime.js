@@ -1,15 +1,26 @@
 document.addEventListener("DOMContentLoaded", function () {
   // ==========================================
-  // ★ 1. 全局解除防盗链 (绕过腾讯、B站等视频直链限制)
+  // ★ 1. 解除防盗链 (绕过腾讯、B站等视频直链限制)
+  // ★ pjax: no-referrer 只在追番页生效。整页加载时 meta 是在 iframe
+  //   开始加载后才注入的,影响不大;但 pjax 换页时 meta 会一直残留,
+  //   导致万花筒等页面的 YouTube/B站 嵌入拿不到 referrer 而解析异常。
   // ==========================================
+  const isAnimePage =
+    location.pathname.indexOf("/anime") === 0 ||
+    !!document.querySelector(".bili-grid");
   let metaReferrer = document.querySelector('meta[name="referrer"]');
-  if (!metaReferrer) {
-    metaReferrer = document.createElement("meta");
-    metaReferrer.name = "referrer";
-    metaReferrer.content = "no-referrer";
-    document.head.appendChild(metaReferrer);
-  } else {
-    metaReferrer.content = "no-referrer";
+  if (isAnimePage) {
+    if (!metaReferrer) {
+      metaReferrer = document.createElement("meta");
+      metaReferrer.name = "referrer";
+      metaReferrer.content = "no-referrer";
+      document.head.appendChild(metaReferrer);
+    } else {
+      metaReferrer.content = "no-referrer";
+    }
+  } else if (metaReferrer && metaReferrer.content === "no-referrer") {
+    metaReferrer.remove();
+    metaReferrer = null;
   }
 
   // ==========================================
@@ -20,6 +31,16 @@ document.addEventListener("DOMContentLoaded", function () {
   const isHistoryEnabled = animeConfig.history !== false;
   const globalApi = animeConfig.player_api || "";
   let art = null; // 全局 Artplayer 实例
+
+  // pjax: 离开追番页时销毁播放器,否则视频被换出 DOM 后声音仍会在后台继续播放
+  document.addEventListener("pjax:send", function () {
+    if (art && !art.isDestroy) {
+      try {
+        art.destroy(false);
+      } catch (e) {}
+    }
+    art = null;
+  });
 
   // 提取 B站 BVID
   function extractBvid(url) {

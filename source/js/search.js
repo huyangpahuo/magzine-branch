@@ -13,6 +13,11 @@ function initSearch() {
 
   if (!searchToggle || !searchOverlay) return;
 
+  // pjax: 搜索框(导航栏+遮罩层)常驻不替换,只绑定一次,
+  // 否则重复绑定会导致每次按键重复搜索、重复 fetch 索引
+  if (searchOverlay.dataset.searchBound) return;
+  searchOverlay.dataset.searchBound = "1";
+
   // 1. 辅助翻译函数
   function t(text) {
     if (window.i18n && typeof window.i18n.get === "function") {

@@ -67,13 +67,13 @@ html(lang=config.language)
     != css('css/article-modal')
     != css('css/music-player')
     != css('css/table')
-    //- 按需加载独立页面的 CSS，防止样式全局污染
+    //- 独立页面样式全局加载(均以页面级 class 作作用域,不会互相污染)。
+    //- pjax 只替换 main.main,不替换 <head>,这些样式必须常驻,
+    //- 否则关于/照片墙/追番页面无感刷新后会丢失样式(关于页背景会错乱)
     if page.path === 'about/index.html'
       != css('css/about')
-    if page.path === 'wall/index.html'
-      != css('css/wall')
-    if page.path === 'anime/index.html'
-      != css('css/anime')
+    != css('css/wall')
+    != css('css/anime')
 
 
     //- Theme color variables from config
@@ -180,6 +180,9 @@ html(lang=config.language)
     != js('js/wall')
     != js('js/anime') 
     != js('js/table')
+
+    //- PJAX 无感刷新(自研实现,放最后加载)
+    != js('js/pjax-init')
     
     // 传递图片配置给 JS
     script.

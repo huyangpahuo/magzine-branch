@@ -21,6 +21,9 @@ document.addEventListener("DOMContentLoaded", function () {
 function initTypingEffect() {
   const typingElement = document.getElementById("typing-text");
   if (!typingElement) return;
+  // pjax: 封面元素常驻不替换,只允许启动一次,否则多个打字循环会互相覆盖
+  if (typingElement.dataset.typingBound) return;
+  typingElement.dataset.typingBound = "1";
 
   // Get typing text from theme config or use default
   const typingText =
@@ -111,6 +114,10 @@ function initMobileMenu() {
   const navMenu = document.querySelector(".nav-menu");
 
   if (!navToggle || !navMenu) return;
+
+  // pjax: 导航栏常驻不替换,重复绑定会让开关互相抵消(点一下开又立刻关)
+  if (navToggle.dataset.menuBound) return;
+  navToggle.dataset.menuBound = "1";
 
   navToggle.addEventListener("click", function () {
     navMenu.classList.toggle("active");
@@ -298,6 +305,9 @@ function initButtonContainer() {
 
 // ===== Back to Top =====
 function initBackToTop() {
+  // pjax: 按钮挂在 body 上常驻,不重复创建,否则会叠出一摞按钮
+  if (document.querySelector(".back-to-top")) return;
+
   const buttonContainer =
     document.querySelector(".button-container") || initButtonContainer();
 
@@ -382,6 +392,10 @@ function initHeaderScroll() {
   const header = document.querySelector(".header");
   if (!header) return;
 
+  // pjax: 头部常驻,滚动监听只绑一次
+  if (header.dataset.scrollBound) return;
+  header.dataset.scrollBound = "1";
+
   let lastScroll = 0;
 
   window.addEventListener("scroll", function () {
@@ -443,11 +457,18 @@ function initFormValidation() {
 
 // ===== Go to Comments =====
 function initGoToComments() {
-  // 只在文章页面显示评论按钮
-  if (!document.querySelector(".post-content")) return;
+  // pjax: 从文章页切走时,移除遗留在 body 上的悬浮按钮
+  if (!document.querySelector(".post-content")) {
+    const staleBtn = document.querySelector(".go-to-comments");
+    if (staleBtn) staleBtn.remove();
+    return;
+  }
 
   // 只在有评论区域时显示按钮
   if (!document.querySelector(".comments-section")) return;
+
+  // pjax: 按钮挂在 body 上常驻,不重复创建
+  if (document.querySelector(".go-to-comments")) return;
 
   const buttonContainer =
     document.querySelector(".button-container") || initButtonContainer();
@@ -494,6 +515,9 @@ function initGoToComments() {
 
 // ===== Dark Mode Toggle =====
 function initDarkMode() {
+  // pjax: 按钮挂在 body 上常驻,不重复创建
+  if (document.querySelector(".dark-mode-toggle")) return;
+
   const buttonContainer =
     document.querySelector(".button-container") || initButtonContainer();
 
