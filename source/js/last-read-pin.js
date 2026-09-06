@@ -73,6 +73,13 @@
     data.category = catEl
       ? { name: catEl.textContent.trim(), url: catEl.getAttribute("href") }
       : null;
+    // 标签(最多 3 个,与主页卡片展示数量一致)
+    data.tags = Array.prototype.slice
+      .call(document.querySelectorAll(".post-tags a"))
+      .slice(0, 3)
+      .map(function (a) {
+        return { name: a.textContent.trim(), url: a.getAttribute("href") };
+      });
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     return true;
   }
@@ -139,6 +146,21 @@
     titleA.textContent = record.title || "";
     h3.appendChild(titleA);
     content.appendChild(h3);
+
+    // 标签(与主页卡片同款 .article-tags > a.tag)
+    if (record.tags && record.tags.length) {
+      var tagsBox = document.createElement("div");
+      tagsBox.className = "article-tags";
+      record.tags.forEach(function (tag) {
+        if (!tag || !tag.url) return;
+        var tagA = document.createElement("a");
+        tagA.className = "tag";
+        tagA.href = tag.url;
+        tagA.textContent = tag.name || "";
+        tagsBox.appendChild(tagA);
+      });
+      content.appendChild(tagsBox);
+    }
 
     card.appendChild(image);
     card.appendChild(content);

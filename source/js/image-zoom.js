@@ -381,7 +381,10 @@
     /* ============ 电脑端工具栏自动隐藏 ============ */
     let toolbarTimer = null;
     function showToolbar() {
+      clearTimeout(toolbarTimer); // 悬停期间保持显示
       toolbar.classList.add("visible");
+    }
+    function scheduleHide() {
       clearTimeout(toolbarTimer);
       toolbarTimer = setTimeout(() => {
         toolbar.classList.remove("visible");
@@ -393,18 +396,15 @@
       if (e.clientY <= 130) {
         showToolbar();
       } else {
-        clearTimeout(toolbarTimer);
-        toolbarTimer = setTimeout(() => {
-          toolbar.classList.remove("visible");
-        }, 1000);
+        scheduleHide();
       }
     });
+    // 鼠标停在工具栏上(即使不再移动)也保持显示;离开工具栏才渐隐
+    toolbar.addEventListener("mouseenter", showToolbar);
+    toolbar.addEventListener("mouseleave", scheduleHide);
     imageViewer.addEventListener("mouseleave", () => {
       if (isMobile()) return;
-      clearTimeout(toolbarTimer);
-      toolbarTimer = setTimeout(() => {
-        toolbar.classList.remove("visible");
-      }, 1000);
+      scheduleHide();
     });
 
     /* ============ 手机端触摸:滑动切换 / 单击控件 / 双击缩放 / 双指放大 / 缩小进入胶片模式 ============ */
@@ -451,6 +451,14 @@
         if (!imageViewer.classList.contains("active")) return;
         if (e.target.closest(".viewer-toolbar, .nav-btn, .viewer-thumbs"))
           return;
+        if (e.target.closest(".viewer-toolbar, .nav-btn, .viewer-thumbs")) {
+          // 触摸起点在控件上:重置滑动状态,避免随后的点击被当成滑动
+          touch.moved = false;
+          touch.onControls = true;
+          return;
+        }
+        touch.onControls = false;
+
         if (e.touches.length === 1) {
           touch.startX = e.touches[0].clientX;
           touch.startY = e.touches[0].clientY;
@@ -463,6 +471,9 @@
             x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
             y: (e.touches[0].clientY + e.touches[1].clientY) / 2,
           };
+          // ★ 缩放中心只在双指按下时计算一次(每帧重算会导致图片乱飘)
+          const startRect = viewImage.getBoundingClientRect();
+          touch.pinchOrigin = `${touch.pinchMid.x - startRect.left}px ${touch.pinchMid.y - startRect.top}px`;
         }
       },
       { passive: false },
@@ -492,11 +503,10 @@
             enterFilmstrip();
             touch.lastX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
           } else if (ratio > 1.02) {
-            // 仅允许放大
+            // 仅允许放大,倍率限制在 3 倍内;缩放中心固定为双指按下时的位置
             state.zoomed = true;
-            const rect = viewImage.getBoundingClientRect();
-            state.origin = `${touch.pinchMid.x - rect.left}px ${touch.pinchMid.y - rect.top}px`;
-            state.scale = Math.min(4, Math.max(1, touch.startScale * ratio));
+            state.origin = touch.pinchOrigin || "center";
+            state.scale = Math.min(3, Math.max(1, touch.startScale * ratio));
             applyTransform(false);
           }
           return;
@@ -555,24 +565,15 @@
 
         // 双指结束后不处理单击逻辑
         if (e.touches.length > 0) return;
-
-        if (window.__izTapLog)
-          window.__izTapLog.push({
-            touches: e.touches.length,
-            changed: e.changedTouches.length,
-            filmstrip: filmstrip,
-          });
+        // 触摸起点在控件上(旋转/锁定/保存按钮):不执行滑动/单击逻辑
+        if (touch.onControls) {
+          touch.onControls = false;
+          return;
+        }
 
         const dxTotal = e.changedTouches[0].clientX - touch.startX;
         const dyTotal = e.changedTouches[0].clientY - touch.startY;
         const isTap = !touch.moved && Math.abs(dxTotal) < 10 && Math.abs(dyTotal) < 10;
-
-        if (window.__izTapLog)
-          window.__izTapLog.push({
-            moved: touch.moved,
-            dxTotal: dxTotal,
-            isTap: isTap,
-          });
 
         if (touch.moved && Math.abs(dxTotal) > 60) {
           // 滑动切换

@@ -3516,6 +3516,11 @@ body.dark-mode .author-card-pull-cord .pull-cord-line {
 }
 
 
+/* 文章封面图与内容图圆角保持一致 */
+.post-cover img {
+  border-radius: 4px;
+}
+
 /* ===== 加载更多:‹ 页码 › 翻页器 ===== */
 .load-more-pager {
   display: flex;

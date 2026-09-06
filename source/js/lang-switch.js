@@ -364,7 +364,10 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   let currentLang = localStorage.getItem("site_lang") || "zh";
-  let langObserver = null;
+  // ★ 观察器挂在 window 上:pjax 换页会重复执行整个初始化回调,
+  //   若用闭包变量,每次都会新建一个观察器且旧的永不释放,
+  //   切回中文时只断开最新一个,其余观察器会把中文又翻回英文
+  if (!window.__langObserverRef) window.__langObserverRef = { observer: null };
 
   // direction=false: 中文→英文;direction=true: 英文→中文(逆向词典)
   function translateNode(node, direction) {
@@ -487,8 +490,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function setupObservers() {
     if (currentLang !== "en") return;
-    if (langObserver) return; // pjax 换页/重复初始化时不叠加观察器
-    langObserver = new MutationObserver((mutations) => {
+    if (window.__langObserverRef.observer) return; // pjax 换页/重复初始化时不叠加观察器
+    window.__langObserverRef.observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         // 监听到属性变化时，触发翻译
         if (mutation.type === "attributes") {
@@ -504,7 +507,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
 
-    langObserver.observe(document.body, {
+    window.__langObserverRef.observer.observe(document.body, {
       childList: true,
       subtree: true,
       characterData: true,
@@ -515,9 +518,9 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function disconnectObserver() {
-    if (langObserver) {
-      langObserver.disconnect();
-      langObserver = null;
+    if (window.__langObserverRef.observer) {
+      window.__langObserverRef.observer.disconnect();
+      window.__langObserverRef.observer = null;
     }
   }
 
