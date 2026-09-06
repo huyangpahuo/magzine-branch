@@ -197,6 +197,7 @@ html(lang=config.language)
     //- Theme configuration for JavaScript
     script.
       window.theme = {
+        image_viewer: !{JSON.stringify(theme.image_viewer || {})},
         features: !{JSON.stringify(theme.features)},
         code_block: !{JSON.stringify(theme.code_block)},
         ai_summary: !{JSON.stringify(theme.ai_summary)},

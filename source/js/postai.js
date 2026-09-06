@@ -268,7 +268,7 @@ function ChucklePostAI(AI_option) {
       controller = new AbortController();
       signal = controller.signal;
 
-      const apiUrl = "";
+      const apiUrl = "https://deepseek.3930088367.workers.dev/";
 
       try {
         const response = await fetch(apiUrl, {

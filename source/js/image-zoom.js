@@ -1,253 +1,651 @@
-function getDist(t1, t2) {
-  return Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
-}
+/**
+ * ============================================
+ * 图片查看器 (image-zoom.js)
+ *
+ * 电脑端:
+ *   - 背景随明暗模式变化(暗:透明黑 / 亮:模糊透明白)
+ *   - 两种切换方式(config.yml image_viewer.desktop_switch_mode):
+ *       "buttons" 上一张/下一张按钮
+ *       "peek"    两侧半透明预览图,点击后贝塞尔曲线丝滑切换
+ *   - 旋转/锁定/保存按钮位于正上方,默认隐藏,鼠标靠近出现,离开 1 秒后隐藏
+ *   - 底部缩略图:本图 + 前 3 张 + 后 3 张(圆角,固定高度,随图切换)
+ *   - 滚轮切换图片;双击以点击位置为中心放大,再双击复原;点击空白处关闭
+ *   - 按住左右拖动可切换图片(不支持自由拖动)
+ *
+ * 手机端:
+ *   - 相册式左右滑动翻阅,图片等比铺满屏幕(上下留空白用于点击退出)
+ *   - 单击图片显示/隐藏 工具栏+缩略图;点击上下空白退出
+ *   - 双击以点击位置为中心放大,再双击复原
+ *   - 双指仅允许放大;做缩小手势时进入胶片模式(显示前后图片,可左右滚动查看)
+ *
+ * 锁定按钮:锁定后,当前旋转角度会应用到之后切换的所有图片。
+ * ============================================
+ */
 
-document.addEventListener("DOMContentLoaded", function () {
-  const icons = {
-    rotate:
-      '<svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>',
-    lock: '<svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>',
-    download:
-      '<svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>',
-  };
+(function () {
+  "use strict";
 
-  const imageViewer = document.createElement("div");
-  imageViewer.className = "image-viewer";
+  function getDist(t1, t2) {
+    return Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+  }
 
-  // 关键修正：这里必须用 data-title，因为你的 CSS 是靠这个属性显示的
-  imageViewer.innerHTML = `
-    <div class="image-viewer-container">
-      <img src="" alt="" class="view-image">
-    </div>
-    <div class="close-btn">&times;</div>
-    <div class="nav-btn prev" data-title="上一张">❮</div>
-    <div class="nav-btn next" data-title="下一张">❯</div>
-    <div class="viewer-toolbar">
-      <button class="toolbar-btn rotate-btn" data-title="旋转90°">${icons.rotate}</button>
-      <button class="toolbar-btn lock-btn" data-title="锁定方向">${icons.lock}</button>
-      <button class="toolbar-btn download-btn" data-title="保存图片">${icons.download}</button>
-    </div>
-  `;
-  document.body.appendChild(imageViewer);
+  document.addEventListener("DOMContentLoaded", function () {
+    /* ============ 配置 ============ */
+    const cfg = Object.assign(
+      {
+        desktop_thumbnails: true,
+        mobile_thumbnails: true,
+        desktop_switch_mode: "peek",
+      },
+      (window.theme && window.theme.image_viewer) || {},
+    );
 
-  // ★★★ 核心修复：手动触发翻译 ★★★
-  // 因为这是动态插入的，有时候 MutationObserver 反应慢，或者加载顺序问题
-  // 我们手动检查全局是否有翻译函数，有的话直接跑一遍
-  if (window.i18n && window.i18n.translateNode) {
-    window.i18n.translateNode(imageViewer);
-  } else {
-    // 如果翻译脚本还没加载完，就尝试通过事件触发
-    setTimeout(() => {
-      if (window.i18n && window.i18n.translateNode) {
-        window.i18n.translateNode(imageViewer);
+    const isMobile = () => window.innerWidth <= 768;
+    const usePeekMode = () => !isMobile() && cfg.desktop_switch_mode === "peek";
+    const useButtonsMode = () => !isMobile() && cfg.desktop_switch_mode !== "peek";
+    const showThumbs = () => (isMobile() ? !!cfg.mobile_thumbnails : !!cfg.desktop_thumbnails);
+
+    /* ============ 图标 ============ */
+    const icons = {
+      rotate:
+        '<svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>',
+      lock: '<svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>',
+      unlock:
+        '<svg viewBox="0 0 24 24"><path d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6h1.9c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm0 12H6V10h12v10z"/></svg>',
+      download:
+        '<svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>',
+    };
+
+    /* ============ DOM ============ */
+    const imageViewer = document.createElement("div");
+    imageViewer.className = "image-viewer";
+    imageViewer.innerHTML = `
+      <div class="viewer-stage">
+        <img src="" alt="" class="view-image" draggable="false">
+      </div>
+      <div class="viewer-peek prev"><img src="" alt="" draggable="false"></div>
+      <div class="viewer-peek next"><img src="" alt="" draggable="false"></div>
+      <div class="nav-btn prev" data-title="上一张">❮</div>
+      <div class="nav-btn next" data-title="下一张">❯</div>
+      <div class="viewer-toolbar">
+        <button class="toolbar-btn rotate-btn" data-title="旋转90°">${icons.rotate}</button>
+        <button class="toolbar-btn lock-btn" data-title="锁定方向">${icons.lock}</button>
+        <button class="toolbar-btn download-btn" data-title="保存图片">${icons.download}</button>
+      </div>
+      <div class="viewer-thumbs"></div>
+    `;
+    document.body.appendChild(imageViewer);
+
+    const stage = imageViewer.querySelector(".viewer-stage");
+    const viewImage = imageViewer.querySelector(".view-image");
+    const peekPrev = imageViewer.querySelector(".viewer-peek.prev");
+    const peekNext = imageViewer.querySelector(".viewer-peek.next");
+    const peekPrevImg = peekPrev.querySelector("img");
+    const peekNextImg = peekNext.querySelector("img");
+    const navPrev = imageViewer.querySelector(".nav-btn.prev");
+    const navNext = imageViewer.querySelector(".nav-btn.next");
+    const toolbar = imageViewer.querySelector(".viewer-toolbar");
+    const btnRotate = imageViewer.querySelector(".rotate-btn");
+    const btnLock = imageViewer.querySelector(".lock-btn");
+    const btnDownload = imageViewer.querySelector(".download-btn");
+    const thumbsEl = imageViewer.querySelector(".viewer-thumbs");
+
+    // 手动触发一次翻译(动态插入的元素)
+    if (window.i18n && window.i18n.translateNode) {
+      window.i18n.translateNode(imageViewer);
+    }
+
+    /* ============ 状态 ============ */
+    const state = {
+      images: [], // 可查看的图片元素列表
+      index: 0,
+      rotation: 0, // 当前旋转角度
+      locked: false, // 锁定:切换图片时保留旋转角度
+      scale: 1,
+      origin: "center", // 缩放中心
+      zoomed: false, // 双击放大状态
+    };
+
+    let slideBusy = false; // 切换动画进行中(防连点)
+
+    /* ============ 变换应用 ============ */
+    function applyTransform(anim) {
+      viewImage.style.transition = anim
+        ? "transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)"
+        : "none";
+      viewImage.style.transformOrigin = state.origin;
+      viewImage.style.transform = `rotate(${state.rotation}deg) scale(${state.scale})`;
+    }
+
+    /* ============ 加载某一张图(立即切换,无黑闪;状态按锁定规则处理) ============ */
+    function loadImage(index) {
+      if (index < 0 || index >= state.images.length) return;
+      state.index = index;
+      // 立即换图,不做透明度过渡
+      const target = state.images[index];
+      viewImage.src = target.currentSrc || target.src;
+      viewImage.alt = target.alt || "";
+      // 切换后的状态:缩放/位移复原;旋转按锁定规则处理
+      state.scale = 1;
+      state.zoomed = false;
+      state.origin = "center";
+      if (!state.locked) state.rotation = 0;
+      applyTransform(false);
+      updateNavDisabled();
+      updatePeek();
+      renderThumbs();
+    }
+
+    function updateNavDisabled() {
+      navPrev.classList.toggle("disabled", state.index <= 0);
+      navNext.classList.toggle(
+        "disabled",
+        state.index >= state.images.length - 1,
+      );
+    }
+
+    /* ============ 两侧半透明预览图(peek 模式 / 手机胶片模式) ============ */
+    function updatePeek() {
+      const showPeek = usePeekMode() || filmstrip;
+      peekPrev.style.display = showPeek && state.index > 0 ? "flex" : "none";
+      peekNext.style.display =
+        showPeek && state.index < state.images.length - 1 ? "flex" : "none";
+      if (state.index > 0)
+        peekPrevImg.src = state.images[state.index - 1].currentSrc || state.images[state.index - 1].src;
+      if (state.index < state.images.length - 1)
+        peekNextImg.src =
+          state.images[state.index + 1].currentSrc ||
+          state.images[state.index + 1].src;
+      if (filmstrip) {
+        peekPrev.style.opacity = "0.6";
+        peekNext.style.opacity = "0.6";
       }
-    }, 500);
-  }
-
-  // --- 以下逻辑保持不变 ---
-  const viewImage = imageViewer.querySelector(".view-image");
-  const btnClose = imageViewer.querySelector(".close-btn");
-  const btnPrev = imageViewer.querySelector(".prev");
-  const btnNext = imageViewer.querySelector(".next");
-  const btnRotate = imageViewer.querySelector(".rotate-btn");
-  const btnLock = imageViewer.querySelector(".lock-btn");
-  const btnDownload = imageViewer.querySelector(".download-btn");
-  const allImages = Array.from(document.querySelectorAll(".post-content img"));
-
-  if (allImages.length === 0) return;
-
-  let currentIndex = 0;
-  let scale = 1;
-  let translateX = 0;
-  let translateY = 0;
-  let rotation = 0;
-  let isLocked = false;
-  let isDragging = false;
-  let startX = 0,
-    startY = 0;
-  let lastTouchX = 0,
-    lastTouchY = 0;
-  let startDist = 0,
-    startScale = 1;
-
-  function updateTransform(useAnim = false) {
-    viewImage.style.transition = useAnim
-      ? "transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)"
-      : "none";
-    viewImage.style.transform = `translate(${translateX}px, ${translateY}px) rotate(${rotation}deg) scale(${scale})`;
-  }
-
-  function resetState() {
-    scale = 1;
-    translateX = 0;
-    translateY = 0;
-    rotation = 0;
-    updateTransform(true);
-  }
-
-  function loadImage(index) {
-    if (index < 0 || index >= allImages.length) return;
-    currentIndex = index;
-    viewImage.style.opacity = "0.5";
-    setTimeout(() => (viewImage.style.opacity = "1"), 150);
-    const target = allImages[currentIndex];
-    viewImage.src = target.src;
-    viewImage.alt = target.alt || "";
-    if (currentIndex === 0) btnPrev.classList.add("disabled");
-    else btnPrev.classList.remove("disabled");
-    if (currentIndex === allImages.length - 1)
-      btnNext.classList.add("disabled");
-    else btnNext.classList.remove("disabled");
-    resetState();
-  }
-
-  function openViewer(index) {
-    loadImage(index);
-    imageViewer.classList.add("active");
-    document.body.style.overflow = "hidden";
-  }
-
-  function closeViewer() {
-    imageViewer.classList.remove("active");
-    document.body.style.overflow = "";
-  }
-
-  allImages.forEach((img, idx) => {
-    img.addEventListener("click", () => openViewer(idx));
-  });
-
-  btnClose.addEventListener("click", closeViewer);
-  imageViewer.addEventListener("click", (e) => {
-    if (
-      e.target === imageViewer ||
-      e.target.classList.contains("image-viewer-container")
-    ) {
-      closeViewer();
     }
-  });
 
-  btnPrev.addEventListener("click", (e) => {
-    e.stopPropagation();
-    if (!btnPrev.classList.contains("disabled")) loadImage(currentIndex - 1);
-  });
+    /* ============ 底部缩略图(本图 + 前/后各 N 张) ============ */
+    function renderThumbs() {
+      const range = isMobile() ? 2 : 3;
+      const show = showThumbs();
+      thumbsEl.style.display = show ? "flex" : "none";
+      if (!show) return;
 
-  btnNext.addEventListener("click", (e) => {
-    e.stopPropagation();
-    if (!btnNext.classList.contains("disabled")) loadImage(currentIndex + 1);
-  });
+      thumbsEl.innerHTML = "";
+      const start = Math.max(0, state.index - range);
+      const end = Math.min(state.images.length - 1, state.index + range);
 
-  btnRotate.addEventListener("click", (e) => {
-    e.stopPropagation();
-    rotation += 90;
-    updateTransform(true);
-  });
-
-  btnLock.addEventListener("click", (e) => {
-    e.stopPropagation();
-    isLocked = !isLocked;
-    btnLock.classList.toggle("active", isLocked);
-  });
-
-  btnDownload.addEventListener("click", (e) => {
-    e.stopPropagation();
-    const link = document.createElement("a");
-    link.href = viewImage.src;
-    link.download =
-      viewImage.src.split("/").pop().split("?")[0] || `image-${Date.now()}.jpg`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-  });
-
-  document.addEventListener("keydown", (e) => {
-    if (!imageViewer.classList.contains("active")) return;
-    if (e.key === "Escape") closeViewer();
-    if (e.key === "ArrowLeft") {
-      if (!btnPrev.classList.contains("disabled")) loadImage(currentIndex - 1);
-    }
-    if (e.key === "ArrowRight") {
-      if (!btnNext.classList.contains("disabled")) loadImage(currentIndex + 1);
-    }
-  });
-
-  globalThis.addEventListener("orientationchange", () => {
-    if (isLocked) return;
-    setTimeout(resetState, 300);
-  });
-
-  imageViewer.addEventListener("wheel", (e) => {
-    if (!imageViewer.classList.contains("active")) return;
-    e.preventDefault();
-    const delta = e.deltaY * -0.001;
-    scale = Math.min(Math.max(0.1, scale + delta), 10);
-    updateTransform();
-  });
-
-  viewImage.addEventListener("mousedown", (e) => {
-    if (e.button !== 0) return;
-    isDragging = true;
-    startX = e.clientX - translateX;
-    startY = e.clientY - translateY;
-    viewImage.style.cursor = "grabbing";
-    e.preventDefault();
-  });
-
-  document.addEventListener("mousemove", (e) => {
-    if (!isDragging) return;
-    e.preventDefault();
-    translateX = e.clientX - startX;
-    translateY = e.clientY - startY;
-    updateTransform();
-  });
-
-  document.addEventListener("mouseup", () => {
-    if (isDragging) {
-      isDragging = false;
-      viewImage.style.cursor = "grab";
-    }
-  });
-
-  // Touch listeners on the overlay so pan/pinch-zoom works even when
-  // fingers start on the dark background outside the image (mirrors mermaid.js).
-  imageViewer.addEventListener(
-    "touchstart",
-    (e) => {
-      if (e.target.closest(".viewer-toolbar, .close-btn, .nav-btn")) return;
-      if (e.touches.length === 1) {
-        lastTouchX = e.touches[0].clientX;
-        lastTouchY = e.touches[0].clientY;
-      } else if (e.touches.length === 2) {
-        startDist = getDist(e.touches[0], e.touches[1]);
-        startScale = scale;
+      for (let i = start; i <= end; i++) {
+        const t = document.createElement("div");
+        t.className = "thumb" + (i === state.index ? " active" : "");
+        const img = document.createElement("img");
+        img.src = state.images[i].currentSrc || state.images[i].src;
+        img.draggable = false;
+        t.appendChild(img);
+        // 距离越远透明度越低
+        const dist = Math.abs(i - state.index);
+        t.style.opacity = String(Math.max(0.3, 1 - dist * 0.18));
+        if (i === state.index) t.classList.add("active");
+        t.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (i !== state.index) switchTo(i);
+        });
+        thumbsEl.appendChild(t);
       }
-    },
-    { passive: false },
-  );
 
-  imageViewer.addEventListener(
-    "touchmove",
-    (e) => {
-      if (e.target.closest(".viewer-toolbar, .close-btn, .nav-btn")) return;
+      // 手机端:当前缩略图滚动居中
+      const active = thumbsEl.querySelector(".thumb.active");
+      if (active && isMobile()) {
+        active.scrollIntoView({ block: "nearest", inline: "center" });
+      }
+    }
+
+    /* ============ 丝滑切换(贝塞尔曲线滑动) ============ */
+    function switchTo(index, animate = true) {
+      if (index < 0 || index >= state.images.length) return;
+      if (index === state.index) return;
+      const dir = index > state.index ? 1 : -1;
+
+      if (!animate || slideBusy) {
+        loadImage(index);
+        return;
+      }
+      slideBusy = true;
+      // 当前图滑出
+      stage.style.transition =
+        "transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.4s ease";
+      stage.style.transform = `translateX(${dir * -18}%) scale(0.94)`;
+      stage.style.opacity = "0";
+      setTimeout(() => {
+        loadImage(index);
+        // 新图从另一侧滑入
+        stage.style.transition = "none";
+        stage.style.transform = `translateX(${dir * 18}%) scale(0.94)`;
+        stage.style.opacity = "0";
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            stage.style.transition =
+              "transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.4s ease";
+            stage.style.transform = "translateX(0) scale(1)";
+            stage.style.opacity = "1";
+            setTimeout(() => {
+              stage.style.transition = "none";
+              slideBusy = false;
+            }, 420);
+          });
+        });
+      }, 240);
+    }
+
+    /* ============ 打开 / 关闭 ============ */
+    function openViewer(clickedImg) {
+      const imgs = Array.from(document.querySelectorAll(".post-content img"));
+      if (imgs.length === 0) return;
+      state.images = imgs;
+      const idx = Math.max(
+        0,
+        imgs.findIndex((im) => im === clickedImg),
+      );
+      // 依据端别应用配置类
+      imageViewer.classList.toggle("mobile", isMobile());
+      imageViewer.classList.toggle("mode-buttons", useButtonsMode());
+      imageViewer.classList.toggle("mode-peek", usePeekMode());
+      imageViewer.classList.remove("controls-hidden", "filmstrip");
+      loadImage(idx);
+      imageViewer.classList.add("active");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeViewer() {
+      imageViewer.classList.remove("active");
+      document.body.style.overflow = "";
+      stage.style.transform = "";
+      stage.style.opacity = "";
+      slideBusy = false;
+    }
+
+    // 事件委托:点击文章内图片打开(pjax 换页后依旧有效)
+    document.addEventListener("click", function (e) {
+      const img = e.target.closest(".post-content img");
+      if (img) openViewer(img);
+    });
+
+    // 点击空白处(stage/viewer 自身)关闭
+    imageViewer.addEventListener("click", (e) => {
+      if (e.target === stage || e.target === imageViewer) closeViewer();
+    });
+
+    // 点击两侧半透明预览图 → 丝滑切换
+    peekPrev.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (!slideBusy && state.index > 0) switchTo(state.index - 1);
+    });
+    peekNext.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (!slideBusy && state.index < state.images.length - 1)
+        switchTo(state.index + 1);
+    });
+
+    /* ============ 工具栏:旋转 / 锁定 / 保存 ============ */
+    btnRotate.addEventListener("click", (e) => {
+      e.stopPropagation();
+      state.rotation += 90;
+      applyTransform(true);
+    });
+
+    // 锁定:锁定后当前旋转角度应用到之后切换的所有图片
+    btnLock.addEventListener("click", (e) => {
+      e.stopPropagation();
+      state.locked = !state.locked;
+      btnLock.classList.toggle("active", state.locked);
+      btnLock.innerHTML = state.locked ? icons.unlock : icons.lock;
+      btnLock.dataset.title = state.locked ? "解除锁定" : "锁定方向";
+    });
+
+    btnDownload.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const link = document.createElement("a");
+      link.href = viewImage.src;
+      link.download =
+        viewImage.src.split("/").pop().split("?")[0] ||
+        `image-${Date.now()}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    });
+
+    /* ============ 双击缩放(点击哪里放大哪里) ============ */
+    function toggleZoomAt(clientX, clientY) {
+      if (state.zoomed) {
+        state.zoomed = false;
+        state.scale = 1;
+        state.origin = "center";
+      } else {
+        const rect = viewImage.getBoundingClientRect();
+        state.origin = `${clientX - rect.left}px ${clientY - rect.top}px`;
+        state.scale = 2.2;
+        state.zoomed = true;
+      }
+      applyTransform(true);
+    }
+
+    viewImage.addEventListener("dblclick", (e) => {
       e.preventDefault();
-      if (e.touches.length === 1) {
-        const dx = e.touches[0].clientX - lastTouchX;
-        const dy = e.touches[0].clientY - lastTouchY;
-        translateX += dx;
-        translateY += dy;
-        lastTouchX = e.touches[0].clientX;
-        lastTouchY = e.touches[0].clientY;
-        updateTransform();
-      } else if (e.touches.length === 2) {
-        const newDist = getDist(e.touches[0], e.touches[1]);
-        if (newDist > 0 && startDist > 0) {
-          scale = Math.min(
-            Math.max(0.1, startScale * (newDist / startDist)),
-            10,
-          );
-          updateTransform();
-        }
+      toggleZoomAt(e.clientX, e.clientY);
+    });
+
+    /* ============ 滚轮:切换图片 ============ */
+    imageViewer.addEventListener(
+      "wheel",
+      (e) => {
+        if (!imageViewer.classList.contains("active")) return;
+        e.preventDefault();
+        if (slideBusy) return;
+        if (e.deltaY > 0 && state.index < state.images.length - 1)
+          switchTo(state.index + 1);
+        else if (e.deltaY < 0 && state.index > 0) switchTo(state.index - 1);
+      },
+      { passive: false },
+    );
+
+    /* ============ 电脑端:左右拖动切换图片 ============ */
+    let drag = null;
+    imageViewer.addEventListener("mousedown", (e) => {
+      if (!imageViewer.classList.contains("active")) return;
+      if (e.target.closest(".viewer-toolbar, .nav-btn, .viewer-thumbs, .viewer-peek"))
+        return;
+      drag = { startX: e.clientX, dx: 0 };
+    });
+    document.addEventListener("mousemove", (e) => {
+      if (!drag) return;
+      drag.dx = e.clientX - drag.startX;
+      // 跟手预览(阻尼),不支持自由拖动
+      if (!slideBusy) {
+        stage.style.transition = "none";
+        stage.style.transform = `translateX(${drag.dx * 0.35}px)`;
       }
-    },
-    { passive: false },
-  );
-});
+    });
+    document.addEventListener("mouseup", () => {
+      if (!drag) return;
+      const dx = drag.dx;
+      drag = null;
+      if (slideBusy) return;
+      stage.style.transition =
+        "transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1)";
+      stage.style.transform = "translateX(0) scale(1)";
+      if (dx < -60 && state.index < state.images.length - 1) {
+        switchTo(state.index + 1);
+      } else if (dx > 60 && state.index > 0) {
+        switchTo(state.index - 1);
+      }
+    });
+
+    /* ============ 电脑端工具栏自动隐藏 ============ */
+    let toolbarTimer = null;
+    function showToolbar() {
+      toolbar.classList.add("visible");
+      clearTimeout(toolbarTimer);
+      toolbarTimer = setTimeout(() => {
+        toolbar.classList.remove("visible");
+      }, 1000); // 离开 1 秒后自然隐藏
+    }
+    imageViewer.addEventListener("mousemove", (e) => {
+      if (isMobile()) return;
+      // 鼠标靠近查看界面正上方区域时出现
+      if (e.clientY <= 130) {
+        showToolbar();
+      } else {
+        clearTimeout(toolbarTimer);
+        toolbarTimer = setTimeout(() => {
+          toolbar.classList.remove("visible");
+        }, 1000);
+      }
+    });
+    imageViewer.addEventListener("mouseleave", () => {
+      if (isMobile()) return;
+      clearTimeout(toolbarTimer);
+      toolbarTimer = setTimeout(() => {
+        toolbar.classList.remove("visible");
+      }, 1000);
+    });
+
+    /* ============ 手机端触摸:滑动切换 / 单击控件 / 双击缩放 / 双指放大 / 缩小进入胶片模式 ============ */
+    let touch = {
+      startX: 0,
+      startY: 0,
+      lastX: 0,
+      moved: false,
+      startDist: 0,
+      startScale: 1,
+      pinchMid: { x: 0, y: 0 },
+      lastTapTime: 0,
+      lastTapX: 0,
+      lastTapY: 0,
+      tapTimer: null,
+      filmstripOffset: 0,
+    };
+    let filmstrip = false;
+
+    function enterFilmstrip() {
+      filmstrip = true;
+      imageViewer.classList.add("filmstrip");
+      touch.filmstripOffset = 0;
+      // 胶片模式:左右两侧露出前后图片
+      stage.style.transform = "scale(0.62)";
+      updatePeek();
+    }
+
+    function applyPeekInFilmstrip() {
+      updatePeek();
+    }
+
+    function exitFilmstrip() {
+      filmstrip = false;
+      imageViewer.classList.remove("filmstrip");
+      touch.filmstripOffset = 0;
+      stage.style.transform = "";
+      updatePeek();
+    }
+
+    imageViewer.addEventListener(
+      "touchstart",
+      (e) => {
+        if (!imageViewer.classList.contains("active")) return;
+        if (e.target.closest(".viewer-toolbar, .nav-btn, .viewer-thumbs"))
+          return;
+        if (e.touches.length === 1) {
+          touch.startX = e.touches[0].clientX;
+          touch.startY = e.touches[0].clientY;
+          touch.lastX = e.touches[0].clientX;
+          touch.moved = false;
+        } else if (e.touches.length === 2) {
+          touch.startDist = getDist(e.touches[0], e.touches[1]);
+          touch.startScale = state.zoomed ? state.scale : 1;
+          touch.pinchMid = {
+            x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
+            y: (e.touches[0].clientY + e.touches[1].clientY) / 2,
+          };
+        }
+      },
+      { passive: false },
+    );
+
+    imageViewer.addEventListener(
+      "touchmove",
+      (e) => {
+        if (!imageViewer.classList.contains("active")) return;
+        if (e.target.closest(".viewer-toolbar, .nav-btn, .viewer-thumbs"))
+          return;
+        e.preventDefault();
+
+        if (e.touches.length === 2) {
+          const dist = getDist(e.touches[0], e.touches[1]);
+          const ratio = dist / (touch.startDist || 1);
+
+          if (filmstrip) {
+            // 胶片模式:跟随手指左右滚动
+            const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+            // 记录起点由 touchstart 处理;这里直接用增量
+            touch.filmstripOffset += midX - (touch.lastX || midX);
+            touch.lastX = midX;
+            stage.style.transform = `scale(0.62) translateX(${touch.filmstripOffset * 0.6}px)`;
+          } else if (ratio < 0.92) {
+            // 缩小手势 → 进入胶片模式(显示前后图片)
+            enterFilmstrip();
+            touch.lastX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+          } else if (ratio > 1.02) {
+            // 仅允许放大
+            state.zoomed = true;
+            const rect = viewImage.getBoundingClientRect();
+            state.origin = `${touch.pinchMid.x - rect.left}px ${touch.pinchMid.y - rect.top}px`;
+            state.scale = Math.min(4, Math.max(1, touch.startScale * ratio));
+            applyTransform(false);
+          }
+          return;
+        }
+
+        // 单指
+        const dx = e.touches[0].clientX - touch.lastX;
+        touch.lastX = e.touches[0].clientX;
+        if (
+          Math.abs(e.touches[0].clientX - touch.startX) > 10 ||
+          Math.abs(e.touches[0].clientY - touch.startY) > 10
+        )
+          touch.moved = true;
+
+        if (filmstrip) {
+          touch.filmstripOffset += dx;
+          stage.style.transform = `scale(0.62) translateX(${touch.filmstripOffset * 0.6}px)`;
+        } else if (!touch.moved || Math.abs(e.touches[0].clientX - touch.startX) > 10) {
+          // 左右滑动预览(阻尼跟随)
+          const dxTotal = e.touches[0].clientX - touch.startX;
+          if (Math.abs(dxTotal) > 6 && !slideBusy) {
+            stage.style.transition = "none";
+            stage.style.transform = `translateX(${dxTotal * 0.4}px)`;
+          }
+        }
+      },
+      { passive: false },
+    );
+
+    imageViewer.addEventListener(
+      "touchend",
+      (e) => {
+        if (!imageViewer.classList.contains("active")) return;
+
+        if (filmstrip) {
+          // 松手:根据位移决定切换或弹回
+          const offset = touch.filmstripOffset;
+          filmstrip = false;
+          imageViewer.classList.remove("filmstrip");
+          peekPrev.style.opacity = "";
+          peekNext.style.opacity = "";
+          if (offset < -50 && state.index < state.images.length - 1) {
+            switchTo(state.index + 1);
+          } else if (offset > 50 && state.index > 0) {
+            switchTo(state.index - 1);
+          } else {
+            stage.style.transition =
+              "transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1)";
+            stage.style.transform = "";
+            setTimeout(() => (stage.style.transition = "none"), 400);
+            updatePeek();
+          }
+          touch.filmstripOffset = 0;
+          return;
+        }
+
+        // 双指结束后不处理单击逻辑
+        if (e.touches.length > 0) return;
+
+        if (window.__izTapLog)
+          window.__izTapLog.push({
+            touches: e.touches.length,
+            changed: e.changedTouches.length,
+            filmstrip: filmstrip,
+          });
+
+        const dxTotal = e.changedTouches[0].clientX - touch.startX;
+        const dyTotal = e.changedTouches[0].clientY - touch.startY;
+        const isTap = !touch.moved && Math.abs(dxTotal) < 10 && Math.abs(dyTotal) < 10;
+
+        if (window.__izTapLog)
+          window.__izTapLog.push({
+            moved: touch.moved,
+            dxTotal: dxTotal,
+            isTap: isTap,
+          });
+
+        if (touch.moved && Math.abs(dxTotal) > 60) {
+          // 滑动切换
+          if (dxTotal < 0 && state.index < state.images.length - 1)
+            switchTo(state.index + 1);
+          else if (dxTotal > 0 && state.index > 0) switchTo(state.index - 1);
+          else {
+            stage.style.transition =
+              "transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1)";
+            stage.style.transform = "";
+          }
+          return;
+        }
+
+        // 滑动幅度不足:弹回
+        if (touch.moved) {
+          stage.style.transition =
+            "transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1)";
+          stage.style.transform = "";
+          return;
+        }
+
+        if (!isTap) return;
+
+        // 单击/双击判定(300ms 内两次点击同一位置 = 双击)
+        const now = Date.now();
+        const x = e.changedTouches[0].clientX;
+        const y = e.changedTouches[0].clientY;
+        const isDoubleTap =
+          now - touch.lastTapTime < 300 &&
+          Math.abs(x - touch.lastTapX) < 40 &&
+          Math.abs(y - touch.lastTapY) < 40;
+
+        if (isDoubleTap) {
+          clearTimeout(touch.tapTimer);
+          touch.lastTapTime = 0;
+          toggleZoomAt(x, y); // 双击:点击哪里放大哪里
+          return;
+        }
+
+        touch.lastTapTime = now;
+        touch.lastTapX = x;
+        touch.lastTapY = y;
+        // 单击:图片上 → 显示/隐藏控件;空白处 → 关闭
+        touch.tapTimer = setTimeout(() => {
+          const hit = document.elementFromPoint(x, y);
+          if (hit && (hit.classList.contains("view-image") || hit.closest(".viewer-stage"))) {
+            // 图片上单击:切换控件显示
+            if (state.zoomed) {
+              state.zoomed = false;
+              state.scale = 1;
+              state.origin = "center";
+              applyTransform(true);
+            }
+            imageViewer.classList.toggle("controls-hidden");
+          } else if (hit && (hit === imageViewer || hit === stage || hit.classList.contains("viewer-stage"))) {
+            closeViewer(); // 上下空白处单击退出
+          }
+        }, 260);
+      },
+      { passive: false },
+    );
+
+    /* ============ 键盘 ============ */
+    document.addEventListener("keydown", (e) => {
+      if (!imageViewer.classList.contains("active")) return;
+      if (e.key === "Escape") closeViewer();
+      if (e.key === "ArrowLeft" && state.index > 0) switchTo(state.index - 1);
+      if (
+        e.key === "ArrowRight" &&
+        state.index < state.images.length - 1
+      )
+        switchTo(state.index + 1);
+    });
+  });
+})();
