@@ -270,6 +270,13 @@ document.addEventListener("DOMContentLoaded", function () {
     欢迎来到我的奇妙世界: "Welcome to my wonderful world",
     开始你的旅行: "Start Your Journey",
 
+    //主页作者名片拉绳
+    收起名片: "Hide Card",
+    展开名片: "Show Card",
+
+    //最后阅读置顶徽章
+    置顶: "Pinned",
+
     //调色盘
     自定义主题色: "Custom Theme Color",
 

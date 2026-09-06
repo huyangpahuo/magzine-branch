@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initCodeBlockFolding();
   initAuthorCardAnimation();
   initCodeBlockScroll();
+  initAuthorCardPullCord();
 });
 
 // ===== Typing Effect =====
@@ -347,6 +348,77 @@ function initBackToTop() {
       top: 0,
       behavior: "smooth",
     });
+  });
+}
+
+// ===== Author Card Pull Cord (拉绳台灯式收起/展开名片) =====
+function initAuthorCardPullCord() {
+  const section = document.querySelector(".author-card-section");
+  if (!section) return;
+
+  const foldable = section.querySelector(".author-card-foldable");
+  const cord = section.querySelector(".author-card-pull-cord");
+  if (!foldable || !cord || cord.dataset.cordBound) return;
+  cord.dataset.cordBound = "1";
+
+  const setLabel = (folded) => {
+    const text = folded ? "展开名片" : "收起名片";
+    cord.dataset.title = text;
+    cord.setAttribute("aria-label", text);
+  };
+
+  // 折叠/展开:max-height 过渡需要先固定当前高度再归零/展开才会平滑
+  const setFolded = (folded) => {
+    if (folded) {
+      foldable.style.maxHeight = foldable.scrollHeight + "px";
+      void foldable.offsetHeight; // 强制回流,让过渡有起点
+      foldable.classList.add("folded");
+      foldable.style.maxHeight = "0px";
+    } else {
+      foldable.classList.remove("folded");
+      foldable.style.maxHeight = foldable.scrollHeight + "px";
+      clearTimeout(foldable._mhTimer);
+      // 展开完成后解除高度限制,避免窗口缩放时内容被裁剪
+      foldable._mhTimer = setTimeout(() => {
+        if (!foldable.classList.contains("folded")) {
+          foldable.style.maxHeight = "";
+        }
+      }, 650);
+    }
+    setLabel(folded);
+  };
+
+  // 恢复上次状态(无动画,避免进页面就闪一段折叠动画)
+  // ★ 用 localStorage 持久保存,关掉浏览器再打开也记得
+  if (localStorage.getItem("authorCardFolded") === "1") {
+    foldable.classList.add("no-anim", "folded");
+    foldable.style.maxHeight = "0px";
+    setLabel(true);
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => foldable.classList.remove("no-anim")),
+    );
+  }
+
+  const yank = () => {
+    cord.classList.remove("yanking");
+    void cord.offsetWidth; // 重置动画
+    cord.classList.add("yanking");
+  };
+  cord.addEventListener("animationend", () => cord.classList.remove("yanking"));
+
+  const toggle = () => {
+    const folded = !foldable.classList.contains("folded");
+    localStorage.setItem("authorCardFolded", folded ? "1" : "0");
+    yank();
+    setFolded(folded);
+  };
+
+  cord.addEventListener("click", toggle);
+  cord.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      toggle();
+    }
   });
 }
 

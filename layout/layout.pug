@@ -183,7 +183,10 @@ html(lang=config.language)
 
     //- PJAX 无感刷新(自研实现,放最后加载)
     != js('js/pjax-init')
-    
+
+    //- 最后阅读的文章置顶
+    != js('js/last-read-pin')
+
     // 传递图片配置给 JS
     script.
       window.photoWallImages = !{JSON.stringify(theme.photo_wall.images || [])};
