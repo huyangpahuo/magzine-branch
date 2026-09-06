@@ -44,12 +44,14 @@
                       span.post-date
                         i.far.fa-calendar
                         |  #{date(post.date, "YYYY-MM-DD")}
-                      
-                      //- 【确认点】此处已恢复分类按钮，与Tag页布局一致
-                      if post.categories && post.categories.length
-                        span.post-category 
-                          i.fas.fa-folder
-                          a(href=url_for(post.categories.first().path))= post.categories.first().name
+
+                      //- 【已调整】分类页卡片改显示文章的标签:
+                      //- 原来这里显示分类,但在分类详情页里点了等于原地打转;
+                      //- 改成标签后点击即可跳转"相关标签"页,与标签页的对称逻辑一致
+                      if post.tags && post.tags.length
+                        span.post-tag
+                          i.fas.fa-tag
+                          a(href=url_for(post.tags.first().path))= post.tags.first().name
 
                     .post-meta-right
                       a.read-more(href=url_for(post.path))

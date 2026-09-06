@@ -653,6 +653,24 @@ img.inline {
   text-decoration: underline;
 }
 
+/* 相关分类页(category.pug)卡片上的标签徽章,与 .post-category 同款观感 */
+.post-tag {
+  color: var(--accent-color);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+  letter-spacing: 0.5px;
+}
+
+.post-tag a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+
+.post-tag a:hover {
+  text-decoration: underline;
+}
+
 .read-more {
   display: inline-flex;
   align-items: center;
@@ -881,6 +899,10 @@ body.dark-mode .post-item-meta {
 }
 
 body.dark-mode .post-category a {
+  color: var(--accent-color);
+}
+
+body.dark-mode .post-tag a {
   color: var(--accent-color);
 }
 

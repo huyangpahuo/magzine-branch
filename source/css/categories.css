@@ -3,6 +3,24 @@
   margin-top: var(--spacing-lg);
 }
 
+/* ===== 相关分类详情页(category.pug) =====
+   与"相关标签"页(tags.css)保持一致的观感:
+   卡片网格由全局 tags.css 的 .post-list 提供(自适应瀑布流),
+   这里只补齐头部字号等细节 */
+
+.category-content {
+  margin-top: var(--spacing-lg);
+}
+
+.category-header .category-info h2.category-name {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.category-header .category-description {
+  font-size: 1rem;
+}
+
 /* 分类头部 */
 .category-header {
   display: flex;

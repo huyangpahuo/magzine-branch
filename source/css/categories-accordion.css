@@ -37,7 +37,11 @@
 }
 
 /* 分类头部 - 可点击区域 */
-.category-header {
+/* ★ 以下规则限定在 .categories-accordion 内:
+   这些样式原本是为 /categories/ 首页(手风琴)设计的,
+   不加限定会泄漏到"相关分类"详情页(category.pug),
+   把详情页的卡片网格压成固定 3 列、头部出现 pointer 光标 */
+.categories-accordion .category-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -48,11 +52,11 @@
   user-select: none; /* 防止文本选择 */
 }
 
-.category-header:hover {
+.categories-accordion .category-header:hover {
   background-color: rgba(0, 0, 0, 0.03);
 }
 
-.category-info h2 {
+.categories-accordion .category-info h2 {
   margin: 0 0 var(--spacing-xs) 0;
   display: flex;
   align-items: center;
@@ -86,8 +90,8 @@
   transform: rotate(180deg);
 }
 
-/* 分类文章列表 */
-.category-posts {
+/* 分类文章列表(限定手风琴内部,防止污染相关分类详情页) */
+.categories-accordion .category-posts {
   padding: 0 var(--spacing-lg) var(--spacing-lg);
   opacity: 1;
   transition: opacity 0.3s ease;
@@ -96,12 +100,12 @@
   flex-grow: 1;
 }
 
-.category-posts[style*="display: none"] {
+.categories-accordion .category-posts[style*="display: none"] {
   opacity: 0 !important;
 }
 
 /* 文章卡片列表 - 使用瀑布流布局 */
-.category-posts .post-list {
+.categories-accordion .category-posts .post-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   grid-auto-rows: masonry;
@@ -111,14 +115,14 @@
 
 /* 大屏幕多列布局 */
 @media (min-width: 992px) {
-  .category-posts .post-list {
+  .categories-accordion .category-posts .post-list {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
 /* 超大屏幕更多列布局 */
 @media (min-width: 1400px) {
-  .category-posts .post-list {
+  .categories-accordion .category-posts .post-list {
     grid-template-columns: repeat(4, 1fr);
   }
 }
@@ -213,7 +217,7 @@ body.dark-mode .category-section {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-body.dark-mode .category-header:hover {
+body.dark-mode .categories-accordion .category-header:hover {
   background-color: rgba(255, 255, 255, 0.05);
 }
 
@@ -223,15 +227,15 @@ body.dark-mode .category-info h2 i {
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-  .category-posts .post-list {
+  .categories-accordion .category-posts .post-list {
     grid-template-columns: 1fr;
   }
 
-  .category-header {
+  .categories-accordion .category-header {
     padding: var(--spacing-sm) var(--spacing-md);
   }
 
-  .category-info h2 {
+  .categories-accordion .category-info h2 {
     font-size: 1.1rem;
   }
 
@@ -240,7 +244,7 @@ body.dark-mode .category-info h2 i {
     font-size: 1.1rem;
   }
 
-  .category-posts {
+  .categories-accordion .category-posts {
     padding: 0 var(--spacing-md) var(--spacing-md);
   }
 }
