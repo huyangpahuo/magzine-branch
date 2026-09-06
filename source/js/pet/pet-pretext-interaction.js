@@ -1,25 +1,33 @@
 /**
  * ============================================
- * 桌宠文字避让功能 (pet-pretext-interaction.js)
- * 进阶版：支持标题、列表、表格和代码高亮块，且不破坏HTML结构
- * 【已加入时间切片与性能保护】
+ * 桌宠文字避让 (pet-pretext-interaction.js)
+ *
+ * 桌宠在文章上走过时,把附近文字逐字符推开;走远后复原。
+ *
+ * ★ 处理范围由"允许选择器"(allowSelector)决定——只有匹配的元素才会
+ *   参与文字避让,其余元素(表格、引用块等)一律忽略,避免大量逐字
+ *   span 造成卡顿。默认允许: p, h1~h6, li, pre。
+ *   可在 config.yml 的 pet.pretext_interaction.allow_selector 中修改。
  * ============================================
  */
 
 export class PetPretextInteraction {
   constructor(options = {}) {
-    this.repelRadius = options.repelRadius || 50;
-    this.throttleMs = options.throttleMs || 50;
+    this.repelRadius = options.repelRadius || 50; // 排斥半径(像素)
+    this.throttleMs = options.throttleMs || 50; // 节流间隔(毫秒)
+    // ★ 允许参与文字避让的元素(CSS 选择器,逗号分隔)
+    this.allowSelector =
+      options.allowSelector || "p, h1, h2, h3, h4, h5, h6, li, pre";
+    this.maxBlockChars = 800; // 单块文字超过此长度则忽略(超大代码块等)
+    this.chunkTimeMs = 8; // 分批处理时每帧的最大耗时(性能保护)
     this.lastRun = 0;
 
     this.iframe = null;
     this.activeBlocks = [];
-
-    // 新增：标识是否正在分批处理DOM中，防止重复执行
-    this.isPreparing = false;
+    this.isPreparing = false; // 是否正在分批处理 DOM(防止重复执行)
   }
 
-  // 核心黑科技：深度遍历文本节点，不破坏任何原有 HTML 结构
+  /* ============ 核心:把块内文本逐字符包进 span(不破坏 HTML 结构) ============ */
   wrapTextNodes(element, doc) {
     const spans = [];
     const walker = doc.createTreeWalker(
@@ -42,53 +50,44 @@ export class PetPretextInteraction {
       textNodes.push(node);
     }
 
-    // 判断一个字符是否是"会被空白/CJK自然断行"的字符
-    // （用于决定是否需要把连续字符打包进一个不可断行的单词容器）
+    // 英文/数字按"整词"打包(不可断行),中文/标点逐字处理
     const isWordChar = (ch) => /[A-Za-z0-9'\-]/.test(ch);
+
+    const makeCharSpan = (char) => {
+      const span = doc.createElement("span");
+      span.textContent = char;
+      span.style.display = "inline-block";
+      span.style.transition = "transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)";
+      span.style.position = "relative";
+      spans.push(span);
+      return span;
+    };
 
     textNodes.forEach((textNode) => {
       const text = textNode.nodeValue;
       if (!text.trim()) return;
 
       const fragment = doc.createDocumentFragment();
-
-      // 创建单个字符的 span（用于位移动画）
-      const makeCharSpan = (char) => {
-        const span = doc.createElement("span");
-        span.textContent = char;
-        span.style.display = "inline-block";
-        span.style.transition =
-          "transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)";
-        span.style.position = "relative";
-        spans.push(span);
-        return span;
-      };
-
       let i = 0;
       while (i < text.length) {
         const char = text[i];
 
         if (char.trim() === "") {
-          // 空白字符：保持为普通文本节点，允许在此处换行
+          // 空白字符保持为普通文本节点,允许在此处换行
           fragment.appendChild(doc.createTextNode(char));
           i++;
           continue;
         }
 
         if (isWordChar(char)) {
-          // ★★★ 关键修复 ★★★
-          // 英文/数字：把整个单词打包进一个 inline-block + white-space:nowrap
-          // 的容器里，让浏览器把这个容器当成"一个不可拆分的原子盒子"来换行，
-          // 而不是把每个字母单独当成一个可换行的原子盒子（这正是英文单词
-          // 被从中间截断的根本原因）。容器内部仍然拆成逐字符 span，
-          // 供桌宠位移动画使用，不影响换行逻辑。
+          // 整词容器(inline-block + nowrap):保证英文单词不被从中间截断,
+          // 容器内部仍是逐字符 span,供桌宠位移动画使用
           let j = i;
           let word = "";
           while (j < text.length && isWordChar(text[j])) {
             word += text[j];
             j++;
           }
-
           const wordWrapper = doc.createElement("span");
           wordWrapper.style.display = "inline-block";
           wordWrapper.style.whiteSpace = "nowrap";
@@ -98,7 +97,6 @@ export class PetPretextInteraction {
           fragment.appendChild(wordWrapper);
           i = j;
         } else {
-          // 中文 / 标点等：逐字符本身就是天然断行单元，保持原逻辑即可
           fragment.appendChild(makeCharSpan(char));
           i++;
         }
@@ -110,9 +108,10 @@ export class PetPretextInteraction {
     return spans;
   }
 
+  /* ============ 在模态 iframe 的文章内容里准备所有允许的块 ============ */
   prepareIframeText() {
     if (!this.iframe || !this.iframe.contentDocument) {
-      this.isPreparing = false; // 退出时必须解锁
+      this.isPreparing = false;
       return;
     }
     const doc = this.iframe.contentDocument;
@@ -121,40 +120,37 @@ export class PetPretextInteraction {
       ".post-content, .article-content, .markdown-body, #article-container",
     );
     if (!articleBody) {
-      this.isPreparing = false; // 退出时必须解锁
+      this.isPreparing = false;
       return;
     }
 
-    const blocks = articleBody.querySelectorAll(
-      "p, h1, h2, h3, h4, h5, h6, li, td:not(.gutter), th, pre",
-    );
-
+    // ★ 白名单:只有匹配 allowSelector 的元素会参与文字避让
+    //   (表格、引用块等不在名单内,天然被忽略)
+    const blocks = articleBody.querySelectorAll(this.allowSelector);
     if (blocks.length === 0) {
-      this.isPreparing = false; // 退出时必须解锁
+      this.isPreparing = false;
       return;
     }
 
     this.activeBlocks = [];
     let i = 0;
 
+    // 分批处理:每帧最多耗时 chunkTimeMs,避免长文一次性处理造成卡顿
     const processChunk = () => {
-      const maxTimePerFrame = 8;
       const startTime = performance.now();
 
       while (
         i < blocks.length &&
-        performance.now() - startTime < maxTimePerFrame
+        performance.now() - startTime < this.chunkTimeMs
       ) {
         const block = blocks[i];
         i++;
 
-        if (
-          block.closest("[data-pretext-ready]") ||
-          block.closest("blockquote")
-        )
-          continue;
+        // 已处理过的(或嵌套在已处理块里的)跳过
+        if (block.closest("[data-pretext-ready]")) continue;
 
-        if (block.textContent && block.textContent.length > 800) {
+        // 超长块(整段贴代码等)直接忽略
+        if (block.textContent && block.textContent.length > this.maxBlockChars) {
           block.setAttribute("data-pretext-ready", "ignored");
           continue;
         }
@@ -162,17 +158,13 @@ export class PetPretextInteraction {
         const spans = this.wrapTextNodes(block, doc);
         if (spans.length > 0) {
           block.setAttribute("data-pretext-ready", "true");
-          this.activeBlocks.push({
-            el: block,
-            spans: spans,
-          });
+          this.activeBlocks.push({ el: block, spans: spans });
         }
       }
 
       if (i < blocks.length) {
         requestAnimationFrame(processChunk);
       } else {
-        // 全部处理完毕，真正解锁
         this.isPreparing = false;
       }
     };
@@ -180,6 +172,7 @@ export class PetPretextInteraction {
     requestAnimationFrame(processChunk);
   }
 
+  /* ============ 每帧更新:根据桌宠位置推开附近文字 ============ */
   update(petScreenX, petScreenY, timestamp) {
     if (!this.iframe) {
       this.iframe = document.querySelector(".article-modal-iframe");
@@ -195,7 +188,7 @@ export class PetPretextInteraction {
     const doc = this.iframe.contentDocument;
     if (!doc) return;
 
-    // 判断切文章
+    // 判断切文章:旧块已不在当前文档里则重置
     if (
       this.activeBlocks.length > 0 &&
       !doc.contains(this.activeBlocks[0].el)
@@ -204,18 +197,16 @@ export class PetPretextInteraction {
       this.isPreparing = false;
     }
 
-    // 【修复死锁的核心逻辑】
+    // 首次/换页:等 iframe 完全加载后开始准备(稍延迟避免页面仍在抖动)
     if (this.activeBlocks.length === 0 && !this.isPreparing) {
-      // 在上锁之前，先确保 iframe 已经完全加载完毕，否则直接 return 等待下一帧，不上锁
       if (doc.readyState !== "complete") return;
 
-      this.isPreparing = true; // 上锁
-
+      this.isPreparing = true;
       setTimeout(() => {
         if (this.iframe && this.iframe.contentDocument) {
           this.prepareIframeText();
         } else {
-          this.isPreparing = false; // 没找到文档也得解锁
+          this.isPreparing = false;
         }
       }, 800);
       return;
@@ -225,6 +216,7 @@ export class PetPretextInteraction {
 
     const iframeRect = this.iframe.getBoundingClientRect();
 
+    // 桌宠不在模态范围内:复原所有文字
     if (
       petScreenX < iframeRect.left ||
       petScreenX > iframeRect.right ||
@@ -245,6 +237,7 @@ export class PetPretextInteraction {
       const pBottomAbsolute = pRect.bottom + doc.documentElement.scrollTop;
       const margin = this.repelRadius + 100;
 
+      // 块整体远离桌宠:复位该块的所有字符
       if (
         petIframeY < pTopAbsolute - margin ||
         petIframeY > pBottomAbsolute + margin
@@ -261,6 +254,7 @@ export class PetPretextInteraction {
         return;
       }
 
+      // 块在桌宠附近:逐字符计算斥力位移
       blockObj.spans.forEach((span) => {
         const rect = span.getBoundingClientRect();
         const spanX = rect.left + rect.width / 2;
@@ -289,6 +283,7 @@ export class PetPretextInteraction {
     });
   }
 
+  /* ============ 复原全部文字 ============ */
   resetText() {
     this.activeBlocks.forEach((blockObj) => {
       blockObj.spans.forEach((span) => {

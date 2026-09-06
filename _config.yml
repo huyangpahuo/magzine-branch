@@ -161,6 +161,7 @@ pet:
     enable: true # 是否开启文字避让/穿梭效果
     repel_radius: 60 # 桌宠排斥文字的半径（像素）
     throttle_ms: 50 # 性能优化：节流时间（毫秒），数值越大越流畅但不够跟手
+    allow_selector: "p, h1, h2, h3, h4, h5, h6, li, pre" # 桌宠文字避让白名单：只有匹配这些选择器的元素参与效果，其余（表格、引用块等）自动忽略
 
 # Music Player (悬浮音乐播放器)
 #音乐配置文件为music.yml,请前往source/_data/music.yml文件修改

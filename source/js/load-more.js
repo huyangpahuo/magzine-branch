@@ -96,9 +96,17 @@ function initLoadMore() {
       zh: "加载更多文章",
       en: "Load More Articles",
     },
+    pageEditable: {
+      zh: "页码可编辑:输入后点“加载更多文章”跳转",
+      en: "Editable page: type a number and click Load More to jump",
+    },
     noMore: {
       zh: "没有了哦~",
       en: "No more articles~",
+    },
+    invalid: {
+      zh: "无效页码哦~",
+      en: "Invalid page number~",
     },
     error: {
       zh: "加载文章失败",
@@ -152,9 +160,13 @@ function initLoadMore() {
     prev.setAttribute("aria-label", "上一页");
     prev.addEventListener("click", () => goPage(cur - 1));
 
-    const num = document.createElement("span");
+    const num = document.createElement("input");
     num.className = "pager-num";
-    num.textContent = cur;
+    num.type = "text";
+    num.inputMode = "numeric";
+    num.value = cur;
+    num.setAttribute("aria-label", "页码,可输入后点击加载更多跳转");
+    num.title = getText("pageEditable");
 
     const next = document.createElement("button");
     next.className = "pager-arrow pager-next";
@@ -170,45 +182,6 @@ function initLoadMore() {
 
   renderPager();
 
-  // 手机端:从文章返回主页时,恢复离开前追加的页数并定位到原位置
-  document.addEventListener("home:restore", function (e) {
-    const detail = e.detail || {};
-    const targetPage = detail.page || 1;
-    const scrollY = detail.scrollY || 0;
-    const btn = document.querySelector(".load-more-btn");
-    const finish = () => setTimeout(() => window.scrollTo(0, scrollY), 400);
-
-    if (
-      !btn ||
-      targetPage <= (parseInt(btn.getAttribute("data-current-page")) || 1)
-    ) {
-      if (scrollY) finish();
-      return;
-    }
-
-    const appendStep = () => {
-      const cur = parseInt(btn.getAttribute("data-current-page")) || 1;
-      if (cur >= targetPage) {
-        finish();
-        return;
-      }
-      // 恢复流程的每次点击都应执行"追加"而不是"翻页",先清掉追加标记
-      delete btn.dataset.appended;
-      btn.click(); // 复用加载逻辑追加下一页
-      const check = setInterval(() => {
-        const now = parseInt(btn.getAttribute("data-current-page")) || 1;
-        if (now > cur) {
-          clearInterval(check);
-          appendStep();
-        } else if (btn.disabled) {
-          // 没有更多页了,直接定位
-          clearInterval(check);
-          finish();
-        }
-      }, 200);
-    };
-    appendStep();
-  });
 
   // 初始化按钮文字
   if (isEnglish()) {
@@ -217,11 +190,43 @@ function initLoadMore() {
     }
   }
 
+  // "无效页码"提示:短暂替换按钮文字后复原
+  let invalidTimer = null;
+  function showInvalid(btn) {
+    btn.innerHTML = getText("invalid");
+    btn.classList.add("pager-invalid");
+    btn.disabled = true;
+    clearTimeout(invalidTimer);
+    invalidTimer = setTimeout(() => {
+      btn.innerHTML = getText("loadMore");
+      btn.classList.remove("pager-invalid");
+      btn.disabled = false;
+    }, 1400);
+  }
+
   loadMoreBtn.addEventListener("click", function () {
     const btn = this; // 缓存 this
     // 获取当前页码和总页数
     const currentPage = parseInt(btn.getAttribute("data-current-page")) || 1;
     const totalPages = parseInt(btn.getAttribute("data-total-pages")) || 1;
+
+    // ★ 页码可编辑:输入了有效页数 → 点击直接跳转;无效 → 提示"无效页码哦~"
+    const pagerInput =
+      btn.parentElement && btn.parentElement.querySelector(".pager-num");
+    if (pagerInput) {
+      const raw = pagerInput.value.trim();
+      const typed = parseInt(raw, 10);
+      const edited = raw !== "" && String(typed) !== String(currentPage);
+      if (edited) {
+        if (!isNaN(typed) && typed >= 1 && typed <= totalPages) {
+          goPage(typed);
+        } else {
+          showInvalid(btn);
+        }
+        return;
+      }
+    }
+
     const nextPage = currentPage + 1;
 
     // 如果已经是最后一页，隐藏按钮并返回

@@ -246,7 +246,8 @@ script(type="module").
     if (window.theme && window.theme.pet && window.theme.pet.pretext_interaction && window.theme.pet.pretext_interaction.enable) {
       pretextInteraction = new PetPretextInteraction({
         repelRadius: window.theme.pet.pretext_interaction.repel_radius,
-        throttleMs: window.theme.pet.pretext_interaction.throttle_ms
+        throttleMs: window.theme.pet.pretext_interaction.throttle_ms,
+        allowSelector: window.theme.pet.pretext_interaction.allow_selector || 'p, h1, h2, h3, h4, h5, h6, li, pre'
       });
     }
 

@@ -3551,8 +3551,34 @@ body.dark-mode .author-card-pull-cord .pull-cord-line {
 }
 
 .load-more-pager .pager-num {
-  min-width: 2.2em;
+  width: 3em;
+  padding: 4px 2px;
   text-align: center;
   font-weight: 600;
+  font-size: 0.95rem;
   color: var(--text-color);
+  background: var(--card-background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.load-more-pager .pager-num::-webkit-outer-spin-button,
+.load-more-pager .pager-num::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.load-more-pager .pager-num:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+}
+
+/* 页码输入了无效值时的按钮提示态 */
+.load-more-btn.pager-invalid {
+  color: #e05252;
+  border-color: #e05252;
 }

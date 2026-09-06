@@ -64,60 +64,124 @@
       data = { url: location.pathname, time: Date.now() };
     }
     data.title = titleEl ? titleEl.textContent.trim() : "";
+    // ★ 额外收集封面/日期/分类,供主页"复制置顶卡片"完整还原外观
+    var coverEl = document.querySelector(".post-cover img");
+    var catEl = document.querySelector(".post-meta .post-category a");
+    var dateEl = document.querySelector(".post-date time");
+    data.cover = coverEl ? coverEl.getAttribute("src") : "";
+    data.date = dateEl ? dateEl.getAttribute("datetime") : "";
+    data.category = catEl
+      ? { name: catEl.textContent.trim(), url: catEl.getAttribute("href") }
+      : null;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     return true;
   }
 
-  // 在主页:把最后阅读的文章卡片置顶并加图钉徽章
+  // 按记录构建一张与主页卡片同构的副本
+  function buildPinnedCard(record) {
+    var card = document.createElement("article");
+    card.className = "article-card";
+    card.setAttribute("data-pinned-copy", record.url);
+
+    var image = document.createElement("div");
+    image.className = "article-image";
+    var imgLink = document.createElement("a");
+    imgLink.href = record.url;
+    var img = document.createElement("img");
+    img.src = record.cover || "";
+    img.alt = record.title || "";
+    img.loading = "lazy";
+    imgLink.appendChild(img);
+    var overlay = document.createElement("div");
+    overlay.className = "read-overlay";
+    var overlayText = document.createElement("span");
+    overlayText.className = "read-text";
+    overlayText.setAttribute("data-label", "点击阅读->");
+    overlayText.textContent = "点击阅读->";
+    overlay.appendChild(overlayText);
+    imgLink.appendChild(overlay);
+    image.appendChild(imgLink);
+
+    var content = document.createElement("div");
+    content.className = "article-content";
+    var meta = document.createElement("div");
+    meta.className = "article-meta";
+    if (record.category && record.category.url) {
+      var cat = document.createElement("span");
+      cat.className = "article-category";
+      var catA = document.createElement("a");
+      catA.href = record.category.url;
+      catA.textContent = record.category.name || "";
+      cat.appendChild(catA);
+      meta.appendChild(cat);
+    }
+    var dateEl = document.createElement("time");
+    dateEl.className = "article-date";
+    if (record.date) {
+      dateEl.setAttribute("datetime", record.date);
+      dateEl.setAttribute("data-date-standard", record.date.slice(0, 10));
+      var d = new Date(record.date);
+      if (!isNaN(d.getTime())) {
+        dateEl.textContent = d.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "2-digit",
+        });
+      }
+    }
+    meta.appendChild(dateEl);
+    content.appendChild(meta);
+
+    var h3 = document.createElement("h3");
+    h3.className = "article-title";
+    var titleA = document.createElement("a");
+    titleA.href = record.url;
+    titleA.textContent = record.title || "";
+    h3.appendChild(titleA);
+    content.appendChild(h3);
+
+    card.appendChild(image);
+    card.appendChild(content);
+    return card;
+  }
+
+  // 在主页:把最近阅读的文章"复制"一份到列表最前并加图钉徽章
+  // ★ 是复制而非移动——文章本体在各页的位置保持不变
   function pinOnHome() {
     // ★ 只在主页第一页置顶;分页页(/page/N/)保持时间顺序
     if (location.pathname !== "/") return;
     var grid = document.querySelector(".articles-grid");
-    var raw = localStorage.getItem(STORAGE_KEY);
-    if (!grid || !raw) return;
-
-    var last = null;
+    var record = null;
     try {
-      last = JSON.parse(raw);
+      record = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
     } catch (e) {
-      return;
+      record = null;
     }
-    if (!last || !last.url) return;
+    if (!grid || !record || !record.url) return;
 
-    var cards = Array.prototype.slice.call(
-      grid.querySelectorAll(":scope > .article-card"),
-    );
-    if (!cards.length) return;
+    // 已经是对应文章的置顶副本 → 无需处理
+    var first = grid.querySelector(":scope > .article-card");
+    if (first && first.getAttribute("data-pinned-copy") === record.url) return;
 
-    // 按 pathname 匹配卡片(卡片里有封面链接和标题链接)
-    var target = null;
-    for (var i = 0; i < cards.length; i++) {
-      var links = cards[i].querySelectorAll("a[href]");
-      for (var j = 0; j < links.length; j++) {
-        if (links[j].pathname === last.url) {
-          target = cards[i];
-          break;
-        }
-      }
-      if (target) break;
+    // 摘掉旧副本与所有旧徽章
+    grid
+      .querySelectorAll(".article-card[data-pinned-copy]")
+      .forEach(function (el) {
+        el.remove();
+      });
+    grid.querySelectorAll(".pin-badge").forEach(function (b) {
+      b.remove();
+    });
+
+    // 复制置顶卡片到最前(尺寸与排版延续首卡)
+    var card = buildPinnedCard(record);
+    if (typeof applyRandomLayout === "function") {
+      applyRandomLayout([card], 0);
     }
-    if (!target) return; // 不在当前分页,不动
+    grid.insertBefore(card, grid.firstChild);
 
-    if (target !== cards[0]) {
-      grid.insertBefore(target, cards[0]); // 置顶
-    }
-
-    // ★ 置顶徽章全局只允许一个:先清掉其他卡片上遗留的徽章
-    // (例如在文章模态里用"上一篇/下一篇"切换时,旧文章的徽章要摘掉)
-    var stale = grid.querySelectorAll(".pin-badge");
-    for (var k = 0; k < stale.length; k++) {
-      if (stale[k].closest(".article-card") !== target) {
-        stale[k].remove();
-      }
-    }
-
-    var image = target.querySelector(".article-image");
-    if (image && !image.querySelector(".pin-badge")) {
+    var image = card.querySelector(".article-image");
+    if (image) {
       var badge = document.createElement("div");
       badge.className = "pin-badge";
       badge.innerHTML = '<i class="fas fa-thumbtack"></i><span>置顶</span>';

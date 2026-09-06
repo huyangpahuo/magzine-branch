@@ -80,25 +80,49 @@
     } catch (err) {
       return;
     }
-    if (url.origin !== location.origin) return;
-    if (!isPjaxPath(url.pathname)) return;
+        if (url.origin !== location.origin) return;
+        if (!isPjaxPath(url.pathname)) return;
 
-    // 同一页面:仅滚动回顶部,不重新加载
-    if (url.pathname === location.pathname && url.search === location.search) {
-      if (!url.hash) {
+        // ★ 手机端:在文章页点 Logo/首页 → 回到离开时所在的分页(而非第一页)
+        var targetHref = url.href;
+        if (
+          window.innerWidth <= 768 &&
+          isPostPath(location.pathname) &&
+          url.pathname === "/"
+        ) {
+          try {
+            var hs = JSON.parse(
+              sessionStorage.getItem("homeListState") || "null",
+            );
+            if (hs && (hs.page || 1) > 1) {
+              targetHref = new URL("/page/" + hs.page + "/", location.origin)
+                .href;
+            }
+            pendingHomeScroll = hs && hs.scrollY ? hs.scrollY : 0;
+          } catch (err) {}
+        }
+
+        // 同一页面:仅滚动回顶部,不重新加载
+        var targetUrl = new URL(targetHref);
+        if (
+          targetUrl.pathname === location.pathname &&
+          targetUrl.search === location.search
+        ) {
+          if (!url.hash) {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }
+          return; // 同页锚点交给浏览器
+        }
+
         e.preventDefault();
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
-      return; // 同页锚点交给浏览器
-    }
-
-    e.preventDefault();
-    load(url.href, true);
-  });
+        load(targetHref, true);
+      });
 
   // ---------- 前进/后退 ----------
   var currentKey = location.pathname + location.search;
   var previousPath = location.pathname; // 上一个页面路径(判断"从文章返回主页")
+  var pendingHomeScroll = null; // 手机端回到主页列表时待恢复的滚动位置
 
   window.addEventListener("popstate", function () {
     var key = location.pathname + location.search;
@@ -271,26 +295,16 @@
 
     // 滚动位置:新页面回顶部,后退则恢复原位置
     if (push) {
-      var restored = false;
-      // ★ 手机端:从文章返回主页(点 Logo/首页)时,恢复离开前的列表并定位
-      if (
-        location.pathname === "/" &&
-        window.innerWidth <= 768 &&
-        isPostPath(previousPath)
-      ) {
-        try {
-          var hs = JSON.parse(
-            sessionStorage.getItem("homeListState") || "null",
-          );
-          if (hs && ((hs.page || 1) > 1 || (hs.scrollY || 0) > 150)) {
-            document.dispatchEvent(
-              new CustomEvent("home:restore", { detail: hs }),
-            );
-            restored = true;
-          }
-        } catch (err) {}
+      // ★ 手机端从文章回到主页列表时,恢复离开前的滚动位置
+      if (pendingHomeScroll !== null) {
+        var sy = pendingHomeScroll;
+        pendingHomeScroll = null;
+        setTimeout(function () {
+          window.scrollTo(0, sy);
+        }, 350);
+      } else {
+        window.scrollTo(0, 0);
       }
-      if (!restored) window.scrollTo(0, 0);
     } else {
       var saved = scrollMem[location.href];
       window.scrollTo(0, typeof saved === "number" ? saved : 0);
