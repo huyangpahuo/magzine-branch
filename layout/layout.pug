@@ -10,6 +10,9 @@ html(lang=config.language)
 
     title= page_title ? page_title + ' - ' + config.title : config.title
 
+    //- 读者设置:尽早应用浏览器中保存的个性化配置(防闪烁)
+    != js('js/reader-settings')
+
     //- Dark mode script to prevent flash
     if theme.features && theme.features.dark_mode
       script.
@@ -181,11 +184,13 @@ html(lang=config.language)
     != js('js/anime') 
     != js('js/table')
 
-    //- PJAX 无感刷新(自研实现,放最后加载)
-    != js('js/pjax-init')
+    //- PJAX 无感刷新(自研实现,放最后加载;可在 config.yml 关闭)
+    if theme.pjax && theme.pjax.enable !== false
+      != js('js/pjax-init')
 
-    //- 最后阅读的文章置顶
-    != js('js/last-read-pin')
+    //- 最后阅读的文章置顶(可在 config.yml 关闭)
+    if theme.last_read_pin && theme.last_read_pin.enable !== false
+      != js('js/last-read-pin')
 
     // 传递图片配置给 JS
     script.
@@ -196,8 +201,15 @@ html(lang=config.language)
 
     //- Theme configuration for JavaScript
     script.
-      window.theme = {
+      window.theme = (function () {
+        var base = {
         image_viewer: !{JSON.stringify(theme.image_viewer || {})},
+        reader_settings: !{JSON.stringify(theme.reader_settings || {})},
+        music_player: !{JSON.stringify(theme.music_player || {})},
+        navbar: !{JSON.stringify(theme.navbar || {})},
+        color_picker: !{JSON.stringify(theme.color_picker || {})},
+        cover: !{JSON.stringify(theme.cover || {})},
+        sakana: !{JSON.stringify(theme.sakana || {})},
         features: !{JSON.stringify(theme.features)},
         code_block: !{JSON.stringify(theme.code_block)},
         ai_summary: !{JSON.stringify(theme.ai_summary)},
@@ -205,7 +217,22 @@ html(lang=config.language)
         article_list: !{JSON.stringify(theme.article_list)},
         pet: !{JSON.stringify(theme.pet)},
         anime: !{JSON.stringify(theme.anime)}
-      };
+        };
+        // 深合并读者设置补丁(两级足够)
+        Object.keys(window.__readerThemePatch || {}).forEach(function (k) {
+          if (
+            window.__readerThemePatch[k] &&
+            typeof window.__readerThemePatch[k] === "object" &&
+            typeof base[k] === "object" &&
+            base[k] !== null
+          ) {
+            base[k] = Object.assign({}, base[k], window.__readerThemePatch[k]);
+          } else {
+            base[k] = window.__readerThemePatch[k];
+          }
+        });
+        return base;
+      })();
 
     //- Custom scripts
     if theme.custom_scripts

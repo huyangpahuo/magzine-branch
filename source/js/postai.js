@@ -268,7 +268,7 @@ function ChucklePostAI(AI_option) {
       controller = new AbortController();
       signal = controller.signal;
 
-      const apiUrl = "";
+      const apiUrl = "在这里填上你在cloudfare的worker page链接";
 
       try {
         const response = await fetch(apiUrl, {

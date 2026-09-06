@@ -1,4 +1,6 @@
 (function () {
+  // ★ 读者设置:鼠标点击效果二选一(heart/fireworks)
+  if (window.__readerSettings && window.__readerSettings.click_effect !== "fireworks") return;
   // 1. 初始化 Canvas
   let canvas = document.createElement("canvas");
   canvas.style.cssText =

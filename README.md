@@ -2,10 +2,12 @@
 
 一款现代化的杂志风格 Hexo 主题，大屏支持，简洁、优雅、快速。👉[使用手册](https://2am.top/2026/01/28/magzine%E4%B8%BB%E9%A2%98%E6%8C%87%E5%8C%97/)
 
+[English](README_en.md)
+
 
 ## 预览  
 查看我的[博客](https://2am.top)或是预览快照：   
- 
+
 
 <img width="2544" height="1326" alt="image" src="https://github.com/user-attachments/assets/a614374a-9d15-4fc9-b570-27dd86bd731f" />  
 <img width="2545" height="1307" alt="image" src="https://github.com/user-attachments/assets/73373035-e3b4-468c-aeed-ed61cd7af0b9" />
@@ -65,20 +67,81 @@ npm install
 
 ### 可选增强插件
 
-以下插件已在主题的 `package.json` 中声明，无需再按 `需要额外下载的插件(hexo plugn required).txt` 手动安装；使用 `git clone` 方式安装主题的用户，请将它们添加到 Hexo 根目录的 `package.json`：
+### 可选增强插件
 
-| 插件 | 功能 |
-| --- | --- |
-| hexo-wordcount | 文章字数统计 / 阅读时长 |
-| hexo-generator-search | 站内搜索 |
-| hexo-filter-mermaid-diagrams | mermaid 图表 |
-| sharp | 图片自动压缩（配合主题 `_config.yml` 中的 `compress_images` 配置） |
+以下插件用于提供额外功能，不安装也不会影响主题的正常运行。
 
-其中 `hexo-generator-search` 和 `hexo-filter-mermaid-diagrams` 还需要在 Hexo 根目录的 `_config.yml` 底部追加对应配置，片段见 `需要额外下载的插件(hexo plugn required).txt`。
+| 插件                           | 功能                                                         |
+| ------------------------------ | ------------------------------------------------------------ |
+| `hexo-wordcount`               | 文章字数统计 / 阅读时长                                      |
+| `hexo-generator-search`        | 站内搜索                                                     |
+| `hexo-filter-mermaid-diagrams` | Mermaid 图表                                                 |
+| `sharp`                        | 图片自动压缩（配合主题 `_config.yml` 中的 `compress_images` 配置） |
+| `hexo-asset-img`               | 使用 `img` 标签插入文章图片                                  |
+| `hexo-image-link`              | 使用 `img` 标签插入文章图片                                  |
 
-另外两个插件 `hexo-asset-img`、`hexo-image-link`（使用 img 标签插入图片）**没有**写入 `package.json`：安装后 Markdown 自带的图片语法会失效，请按需参考上述 txt 文件手动安装。
+#### ① 文章字数统计
 
+在 Hexo 根目录执行：
 
+```bash
+npm install hexo-wordcount --save
+```
+
+#### ② 图片自动压缩
+
+在 Hexo 根目录执行：
+
+```bash
+npm install sharp --save
+```
+
+主题支持自动压缩文章及其他图片资源。
+
+#### ③ 搜索功能
+
+在 Hexo 根目录执行：
+
+```bash
+npm install hexo-generator-search@^2.4.3 --save
+```
+
+然后在 Hexo 根目录的 `_config.yml` 底部添加：
+
+```yaml
+# Search
+search:
+  path: search.json
+  field: post
+  content: true
+  format: html
+```
+
+#### ④ Mermaid 图表
+
+在 Hexo 根目录执行：
+
+```bash
+npm install hexo-filter-mermaid-diagrams --save
+```
+
+然后在 Hexo 根目录的 `_config.yml` 底部添加：
+
+```yaml
+# mermaid
+mermaid:
+  enable: true
+  version: "10.6.1"
+```
+
+#### ⑤ 使用 img 标签插入图片
+
+如果希望在文章中直接使用 HTML 的 `img` 标签插入图片，可以安装：
+
+```bash
+npm install hexo-asset-img --save
+npm install hexo-image-link --save
+```
 
 ## 贡献指南
 

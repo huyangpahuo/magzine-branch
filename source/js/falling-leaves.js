@@ -1,5 +1,7 @@
 (function () {
   // --- 0. 移动端禁用检测 ---
+  // ★ 读者设置:关闭落叶效果时不运行(在 config.yml 基础上可被读者面板覆盖)
+  if (window.__readerSettings && window.__readerSettings.leaves === "off") return;
   // 如果屏幕宽度小于 768px (通常是手机/平板)，直接退出，不运行脚本
   if (window.innerWidth <= 768) {
     return;

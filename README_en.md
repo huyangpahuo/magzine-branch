@@ -1,272 +1,163 @@
 # Magzine Theme for Hexo
 
-A modern magazine-style Hexo theme featuring a fullscreen hero section with typing effect and dynamic article layouts.
+[中文](https://chatgpt.com/c/README.md)
 
-![Preview](https://via.placeholder.com/1200x600/1a1a1a/ffffff?text=Magzine+Theme+Preview)
+A modern magazine-style Hexo theme with large-screen support, featuring a clean, elegant, and fast design. 👉 [Documentation](https://2am.top/2026/01/28/magzine主题指北/)
+
+## Preview
+
+Visit my [blog](https://2am.top/) or check out the preview snapshots:
 
 ## Features
 
-- **Fullscreen Hero Section**: Eye-catching landing page with typing animation
-- **Magazine-style Layout**: Dynamic article cards with varying sizes and positions
-- **Modern Design**: Clean, minimalist aesthetic with smooth animations
-- **Responsive**: Fully responsive design that works on all devices
-- **Customizable**: Extensive theme configuration options
-- **Performance Optimized**: Lazy loading, smooth scrolling, and optimized animations
+- **Modern Design**: Clean and minimalist aesthetic with smooth interactions
+- **Magazine-style Layout**: Dynamic article cards with multiple sizes and positions
+- **Responsive Design**: Adapted for different devices with large-screen support
+- **Highly Customizable**: Extensive theme configuration options
+- **Performance Optimized**: Smooth scrolling and optimized animations
+- **AI Summaries**: Integrated DeepSeek-powered article summaries
+- **Tag Plugins**: Includes most of the tag plugins from the [AnZhiYu](https://blog.anheyu.com/posts/d50a.html) and [Butterfly](https://butterfly.js.org/posts/2df239ce/) themes
 
 ## Installation
 
-1. Clone or download this theme to your Hexo site's `themes` directory:
+1. Clone or download the theme into your Hexo project's `themes` directory:
 
 ```bash
 git clone https://github.com/forever218/hexo-theme-magzine.git themes/magzine
 ```
 
-2. Modify your site's `_config.yml` to use the Magzine theme:
+1. Modify your Hexo site's `_config.yml` and set the theme to Magzine:
 
 ```yaml
 theme: magzine
 ```
 
-3. Install the required dependencies:
+1. Install dependencies:
 
 ```bash
 npm install
 ```
 
-> Make sure your Hexo site's root `package.json` contains the required dependencies — see the list in the Chinese [README](README.md).
+⚠️ Make sure your Hexo site's root `package.json` contains the following dependencies:
 
-### Optional enhancement plugins
-
-The following plugins unlock extra features and are already declared in the theme's `package.json`, so there is no need to install them manually as described in `需要额外下载的插件(hexo plugn required).txt`. If you installed the theme with `git clone`, add them to your Hexo site's root `package.json`:
-
-| Plugin | Feature |
-| --- | --- |
-| hexo-wordcount | Post word count / reading time |
-| hexo-generator-search | Built-in search |
-| hexo-filter-mermaid-diagrams | Mermaid diagrams |
-| sharp | Automatic image compression (with the theme's `compress_images` option) |
-
-`hexo-generator-search` and `hexo-filter-mermaid-diagrams` also require a small config block at the bottom of your root `_config.yml` — the snippets are in `需要额外下载的插件(hexo plugn required).txt`.
-
-Two more plugins, `hexo-asset-img` and `hexo-image-link` (insert images via `img` tags), are intentionally **not** declared in `package.json`: installing them disables the native Markdown image syntax, so install them manually only if you really need them.
-
-## Configuration
-
-### Theme Configuration
-
-Edit `themes/magzine/_config.yml` to customize the theme:
-
-```yaml
-# Hero Section
-hero:
-  enable: true
-  background_image: /images/hero-bg.jpg
-  typing_text: Welcome to my blog
-  typing_speed: 100
-  delete_speed: 50
-  pause_duration: 2000
-  scroll_hint: Scroll down to explore
-
-# Article List
-article_list:
-  layout: magazine  # magazine or grid
-  items_per_page: 12
-  show_excerpt: true
-  excerpt_length: 120
-
-# Colors
-colors:
-  primary: '#1a1a1a'
-  secondary: '#666666'
-  accent: '#ff6b6b'
-  background: '#ffffff'
-  text: '#333333'
-  overlay: 'rgba(0, 0, 0, 0.7)'
-```
-
-### Site Configuration
-
-Configure your Hexo site's `_config.yml`:
-
-```yaml
-# Site
-title: Your Blog Title
-subtitle: Your Blog Subtitle
-description: Your blog description
-keywords: blog, technology, life
-author: Your Name
-language: en
-timezone: UTC
-
-# URL
-url: https://yourdomain.com
-root: /
-permalink: :year/:month/:day/:title/
-
-# Extensions
-theme: magzine
-```
-
-## Usage
-
-### Hero Background
-
-Add a fullscreen background image to your hero section:
-
-1. Create an `images` folder in your site's `source` directory
-2. Add your hero background image (e.g., `hero-bg.jpg`)
-3. Configure the path in `themes/magzine/_config.yml`:
-
-```yaml
-hero:
-  background_image: /images/hero-bg.jpg
-```
-
-### Article Covers
-
-Add cover images to your articles by including the `cover` variable in your front matter:
-
-```markdown
----
-title: My Awesome Article
-date: 2024-01-01
-cover: /images/article-cover.jpg
-categories: [Technology]
-tags: [web, development]
----
-
-Your article content here...
-```
-
-### Customizing Layout
-
-The theme supports different article card layouts:
-
-- **Large**: Spans 2x2 grid cells
-- **Wide**: Spans 2x1 grid cells  
-- **Tall**: Spans 1x2 grid cells
-- **Medium**: Standard 1x1 grid cell
-- **Small**: Compact 1x1 grid cell
-
-Cards are automatically assigned different sizes to create a magazine-style layout.
-
-## Customization
-
-### Colors
-
-Customize the color scheme by modifying the color variables in `_config.yml`:
-
-```yaml
-colors:
-  primary: '#1a1a1a'      # Main text color
-  secondary: '#666666'    # Secondary text color
-  accent: '#ff6b6b'       # Accent color for highlights
-  background: '#ffffff'   # Background color
-  text: '#333333'         # Body text color
-  overlay: 'rgba(0, 0, 0, 0.7)'  # Hero overlay color
-```
-
-### Typography
-
-The theme uses Google Fonts by default. You can customize the fonts in `_config.yml`:
-
-```yaml
-fonts:
-  primary: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-  secondary: 'Playfair Display, Georgia, serif'
-  monospace: 'Fira Code, Monaco, Consolas, monospace'
-```
-
-### Social Links
-
-Add your social media links in `_config.yml`:
-
-```yaml
-social:
-  github: https://github.com/yourusername
-  twitter: https://twitter.com/yourusername
-  instagram: https://instagram.com/yourusername
-  linkedin: https://linkedin.com/in/yourusername
-  email: your.email@example.com
-```
-
-## Development
-
-### Building the Theme
-
-```bash
-# Build your Hexo site
-hexo generate
-
-# Start the development server
-hexo server
-
-# Clean the generated files
-hexo clean
-```
-
-### Custom CSS
-
-To add custom CSS, create a `custom.css` file in your site's `source/css` directory:
-
-```css
-/* source/css/custom.css */
-.custom-style {
-  /* Your custom styles here */
+```json
+{
+  "hexo": "^7.0.0",
+  "hexo-generator-archive": "^2.0.0",
+  "hexo-generator-category": "^2.0.0",
+  "hexo-generator-index": "^3.0.0",
+  "hexo-generator-search": "^2.4.3",
+  "hexo-generator-tag": "^2.0.0",
+  "hexo-renderer-ejs": "^2.0.0",
+  "hexo-renderer-marked": "^6.0.0",
+  "hexo-renderer-pug": "^3.0.0",
+  "hexo-renderer-stylus": "^3.0.0",
+  "hexo-server": "^3.0.0",
+  "hexo-theme-landscape": "^1.0.0",
+  "hexo-util": "^3.3.0"
 }
 ```
 
-### Custom JavaScript
+### Optional Enhancement Plugins
 
-To add custom JavaScript, create a `custom.js` file in your site's `source/js` directory:
+The following plugins provide additional features. They are optional and do not affect the normal operation of the theme if they are not installed.
 
-```javascript
-// source/js/custom.js
-console.log('Custom JavaScript loaded');
+| Plugin                         | Feature                                                      |
+| ------------------------------ | ------------------------------------------------------------ |
+| `hexo-wordcount`               | Post word count / reading time                               |
+| `hexo-generator-search`        | Built-in search                                              |
+| `hexo-filter-mermaid-diagrams` | Mermaid diagrams                                             |
+| `sharp`                        | Automatic image compression (with the theme's `compress_images` configuration) |
+| `hexo-asset-img`               | Insert images using `img` tags                               |
+| `hexo-image-link`              | Insert images using `img` tags                               |
+
+#### ① Post Word Count
+
+Run the following command in your Hexo site's root directory:
+
+```bash
+npm install hexo-wordcount --save
 ```
 
-## Browser Support
+#### ② Automatic Image Compression
 
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
-- Mobile browsers (iOS Safari, Chrome Mobile, etc.)
+Run the following command in your Hexo site's root directory:
+
+```bash
+npm install sharp --save
+```
+
+The theme supports automatic compression of article images and other image resources.
+
+#### ③ Search
+
+Run the following command in your Hexo site's root directory:
+
+```bash
+npm install hexo-generator-search@^2.4.3 --save
+```
+
+Then add the following configuration to the bottom of your Hexo site's `_config.yml`:
+
+```yaml
+# Search
+search:
+  path: search.json
+  field: post
+  content: true
+  format: html
+```
+
+#### ④ Mermaid Diagrams
+
+Run the following command in your Hexo site's root directory:
+
+```bash
+npm install hexo-filter-mermaid-diagrams --save
+```
+
+Then add the following configuration to the bottom of your Hexo site's `_config.yml`:
+
+```yaml
+# mermaid
+mermaid:
+  enable: true
+  version: "10.6.1"
+```
+
+#### ⑤ Insert Images Using `img` Tags
+
+If you want to insert images directly using HTML `img` tags in your articles, you can install:
+
+```bash
+npm install hexo-asset-img --save
+npm install hexo-image-link --save
+```
+
+These two plugins do not disable or interfere with Markdown's native image syntax, so you can install them according to your needs.
 
 ## Contributing
 
-1. Fork the repository
+1. Fork this repository
 2. Create a feature branch
 3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+4. Add tests if necessary
+5. Submit a Pull Request
 
 ## License
 
-This theme is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
+This theme is licensed under the **Apache License Version 2.0**. You are free to use, modify, and distribute this theme as long as you comply with the license terms.
 
-## Support
+## Support & Feedback
 
-If you encounter any issues or have questions, please:
+If you encounter any issues or have questions:
 
-1. Check the [documentation](docs/)
-2. Search existing [issues](https://github.com/forever218/hexo-theme-magzine/issues)
-3. Create a new issue if needed
+1. Check the [documentation](https://chatgpt.com/c/docs/)
+2. Search existing [Issues](https://github.com/forever218/hexo-theme-magzine/issues)
+3. Create a new Issue if necessary
 
 ## Credits
 
-- [Hexo](https://hexo.io/) - The static site generator
-- [Pug](https://pugjs.org/) - Template engine
-- [Google Fonts](https://fonts.google.com/) - Typography
-- [Font Awesome](https://fontawesome.com/) - Icons (optional)
-
-## Changelog
-
-### v1.0.0
-- Initial release
-- Fullscreen hero section with typing effect
-- Magazine-style article layout
-- Responsive design
-- Customizable configuration options
-- Social media integration
-- SEO optimized
+- [Hexo](https://hexo.io/) — Static site generator
+- [Pug](https://pugjs.org/) — Template engine
+- [Font Awesome](https://fontawesome.com/) — Icons

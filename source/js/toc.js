@@ -4,6 +4,9 @@
  */
 
 document.addEventListener("DOMContentLoaded", function () {
+  // ★ 读者设置:隐藏目录时不初始化
+  if (window.__readerSettings && window.__readerSettings.toc === "hide") return;
+
   // 获取文章内容区域
   const postContent = document.querySelector(".post-content");
 

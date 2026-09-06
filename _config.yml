@@ -163,6 +163,31 @@ pet:
     throttle_ms: 50 # 性能优化：节流时间（毫秒），数值越大越流畅但不够跟手
     allow_selector: "p, h1, h2, h3, h4, h5, h6, li, pre" # 桌宠文字避让白名单：只有匹配这些选择器的元素参与效果，其余（表格、引用块等）自动忽略
 
+# 无感刷新(pjax):关闭后使用传统整页加载
+pjax:
+  enable: true
+
+# 最近阅读的文章在主页第一页置顶
+last_read_pin:
+  enable: true
+
+# 读者设置面板(电脑端右键空白处打开,设置保存在浏览器)
+reader_settings:
+  enable: true
+  items:
+    music_player: true # 音乐播放器形态和位置
+    pet: true # 桌宠开关与文字穿梭
+    sakana: true # Sakana 显示
+    navbar: true # 导航栏样式
+    theme_color: true # 调色盘显示
+    click_effect: true # 鼠标点击效果
+    toc: true # 目录显示
+    cover: true # 启用封面
+    article_view: true # 文章浏览方式
+    language: true # 默认语言
+    image_viewer: true # 图片切换方式与电脑缩略图
+    falling_leaves: true # 落叶效果
+
 # 图片查看器
 image_viewer:
   desktop_thumbnails: true # 电脑端:底部缩略图
@@ -224,7 +249,7 @@ comments:
   shortname:
   # Twikoo configuration
   twikoo:
-    envId: "" # Your environment ID
+    envId: "" # Your environment ID 在这里填上部署到vercel的https链接
     region: # Your service region, e.g. ap-guangzhou
     path: window.location.pathname # Default is window.location.pathname
     visitor: true # Enable visitor count
@@ -322,16 +347,12 @@ inject:
     - <script src="/js/math-support.js"></script> # 数学公式
     #以下是鼠标点击效果,仅可启用一个
     - <script src="/js/click-heart.js"></script> # 鼠标点击爱心文字特效
-    # - <script src="/js/click-fireworks.js"></script> # 鼠标点击三角烟花特效
+    - <script src="/js/click-fireworks.js"></script> # 鼠标点击三角烟花特效(与爱心特效二选一,由读者设置决定)
 
     #以下是背景动画特效
     - <script src="/js/falling-leaves.js"></script> # 梧桐落叶特效
     #以下是语言切换支持
     - <script src="/js/lang-switch.js"></script> # 语言切换脚本
-
-    # 引入 PJAX 实现无刷新加载
-    # - <script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js"></script>
-    # - <script src="/js/pjax-init.js"></script>
 
 # 语言切换功能
 #本主题翻译功能不是很成熟,不满足i18n需求,只满足中英转换,请前往themes\magzine\source\js\lang-switch.js自定义翻译文本
