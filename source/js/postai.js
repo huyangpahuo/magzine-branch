@@ -268,7 +268,7 @@ function ChucklePostAI(AI_option) {
       controller = new AbortController();
       signal = controller.signal;
 
-      const apiUrl = "请切换为你的worker地址";
+      const apiUrl = "";
 
       try {
         const response = await fetch(apiUrl, {
