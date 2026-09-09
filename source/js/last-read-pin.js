@@ -214,6 +214,14 @@
   function init() {
     injectStyle();
     hookModalIframe();
+    // 读者设置面板可关闭置顶功能(readerSettings.last_read_pin === "off")
+    var rs = {};
+    try {
+      rs = JSON.parse(localStorage.getItem("readerSettings") || "{}") || {};
+    } catch (e) {
+      rs = {};
+    }
+    if (rs.last_read_pin === "off") return;
     var onPost = recordIfOnPostPage();
     if (!onPost) pinOnHome();
   }

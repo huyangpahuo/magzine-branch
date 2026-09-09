@@ -1,79 +1,69 @@
-# Magzine Theme for Hexo
+# Magzine Theme
 
-[中文](https://chatgpt.com/c/README.md)
+A modern magazine-style Hexo theme with large-screen support, featuring a clean, elegant, and fast design.
 
-A modern magazine-style Hexo theme with large-screen support, featuring a clean, elegant, and fast design. 👉 [Documentation](https://2am.top/2026/01/28/magzine主题指北/)
+[中文](README.md)
 
 ## Preview
 
-Visit my [blog](https://2am.top/) or check out the preview snapshots:
+Check out my [Blog](https://funingna-wakawaka.github.io/)
 
-## Features
-
-- **Modern Design**: Clean and minimalist aesthetic with smooth interactions
-- **Magazine-style Layout**: Dynamic article cards with multiple sizes and positions
-- **Responsive Design**: Adapted for different devices with large-screen support
-- **Highly Customizable**: Extensive theme configuration options
-- **Performance Optimized**: Smooth scrolling and optimized animations
-- **AI Summaries**: Integrated DeepSeek-powered article summaries
-- **Tag Plugins**: Includes most of the tag plugins from the [AnZhiYu](https://blog.anheyu.com/posts/d50a.html) and [Butterfly](https://butterfly.js.org/posts/2df239ce/) themes
+👉 [Documentation](https://funingna-wakawaka.github.io/2026/03/22/%E8%BD%AF%E4%BB%B6%E7%9B%B8%E5%85%B3/%E4%B8%BB%E9%A2%98%E7%9A%84%E4%B8%80%E4%BA%9B%E6%A0%87%E7%AD%BE%E8%AF%AD%E6%B3%95/)
 
 ## Installation
 
-1. Clone or download the theme into your Hexo project's `themes` directory:
+1. Clone or download the theme into the `themes` directory of your Hexo project:
 
 ```bash
-git clone https://github.com/forever218/hexo-theme-magzine.git themes/magzine
+git clone https://github.com/huyangpahuo/magzine-branch.git themes/magzine
 ```
 
-1. Modify your Hexo site's `_config.yml` and set the theme to Magzine:
+2. Modify the `_config.yml` file in your Hexo site and set the theme to Magzine:
 
 ```yaml
 theme: magzine
 ```
 
-1. Install dependencies:
+3. Install dependencies:
 
 ```bash
 npm install
 ```
 
-⚠️ Make sure your Hexo site's root `package.json` contains the following dependencies:
+⚠️ Make sure the `package.json` in your Hexo root directory contains the following dependencies:
 
 ```json
-{
-  "hexo": "^7.0.0",
-  "hexo-generator-archive": "^2.0.0",
-  "hexo-generator-category": "^2.0.0",
-  "hexo-generator-index": "^3.0.0",
-  "hexo-generator-search": "^2.4.3",
-  "hexo-generator-tag": "^2.0.0",
-  "hexo-renderer-ejs": "^2.0.0",
-  "hexo-renderer-marked": "^6.0.0",
-  "hexo-renderer-pug": "^3.0.0",
-  "hexo-renderer-stylus": "^3.0.0",
-  "hexo-server": "^3.0.0",
-  "hexo-theme-landscape": "^1.0.0",
-  "hexo-util": "^3.3.0"
-}
+"hexo": "^7.0.0",
+"hexo-generator-archive": "^2.0.0",
+"hexo-generator-category": "^2.0.0",
+"hexo-generator-index": "^3.0.0",
+"hexo-generator-search": "^2.4.3",
+"hexo-generator-tag": "^2.0.0",
+"hexo-renderer-ejs": "^2.0.0",
+"hexo-renderer-marked": "^6.0.0",
+"hexo-renderer-pug": "^3.0.0",
+"hexo-renderer-stylus": "^3.0.0",
+"hexo-server": "^3.0.0",
+"hexo-theme-landscape": "^1.0.0",
+"hexo-util": "^3.3.0"
 ```
 
 ### Optional Enhancement Plugins
 
-The following plugins provide additional features. They are optional and do not affect the normal operation of the theme if they are not installed.
+The following plugins provide additional features. They are optional and will not affect the normal operation of the theme if not installed.
 
-| Plugin                         | Feature                                                      |
+| Plugin | Function |
 | ------------------------------ | ------------------------------------------------------------ |
-| `hexo-wordcount`               | Post word count / reading time                               |
-| `hexo-generator-search`        | Built-in search                                              |
-| `hexo-filter-mermaid-diagrams` | Mermaid diagrams                                             |
-| `sharp`                        | Automatic image compression (with the theme's `compress_images` configuration) |
-| `hexo-asset-img`               | Insert images using `img` tags                               |
-| `hexo-image-link`              | Insert images using `img` tags                               |
+| `hexo-wordcount` | Article word count / Reading time |
+| `hexo-generator-search` | Site search |
+| `hexo-filter-mermaid-diagrams` | Mermaid diagrams |
+| `sharp` | Automatic image compression (used with the `compress_images` setting in the theme's `_config.yml`) |
+| `hexo-asset-img` | Insert article images using the `img` tag |
+| `hexo-image-link` | Insert article images using the `img` tag |
 
-#### ① Post Word Count
+#### ① Article Word Count
 
-Run the following command in your Hexo site's root directory:
+Run the following command in the Hexo root directory:
 
 ```bash
 npm install hexo-wordcount --save
@@ -81,23 +71,37 @@ npm install hexo-wordcount --save
 
 #### ② Automatic Image Compression
 
-Run the following command in your Hexo site's root directory:
+Run the following command in the Hexo root directory:
 
 ```bash
 npm install sharp --save
 ```
 
-The theme supports automatic compression of article images and other image resources.
+The theme supports automatic compression of article images and other image resources. The process may take some time.
 
-#### ③ Search
+Compressing 1,500 images totaling 1.5 GB takes approximately 2–3 minutes, depending on the settings in `_config.yml`.
 
-Run the following command in your Hexo site's root directory:
+There are two ways to trigger the image compression:
+
+- (1) `hexo clean` + `hexo generate` + `hexo generate` + `hexo deploy` (Compress and deploy only)
+- (2) `hexo clean` + `hexo generate` + `hexo server` + `hexo deploy` (Compress, preview, and deploy)
+
+The following output indicates that the process completed successfully:
+
+```text
+🚀 [Image Compressor] Starting image optimization..
+🎉 [Image Compressor] Finished! Processed 619 images. Saved 190.29 MB.
+```
+
+#### ③ Search Function
+
+Run the following command in the Hexo root directory:
 
 ```bash
 npm install hexo-generator-search@^2.4.3 --save
 ```
 
-Then add the following configuration to the bottom of your Hexo site's `_config.yml`:
+Then add the following configuration to the bottom of the `_config.yml` file in the Hexo root directory:
 
 ```yaml
 # Search
@@ -110,13 +114,13 @@ search:
 
 #### ④ Mermaid Diagrams
 
-Run the following command in your Hexo site's root directory:
+Run the following command in the Hexo root directory:
 
 ```bash
 npm install hexo-filter-mermaid-diagrams --save
 ```
 
-Then add the following configuration to the bottom of your Hexo site's `_config.yml`:
+Then add the following configuration to the bottom of the `_config.yml` file:
 
 ```yaml
 # mermaid
@@ -125,39 +129,33 @@ mermaid:
   version: "10.6.1"
 ```
 
-#### ⑤ Insert Images Using `img` Tags
+#### ⑤ Insert Images Using the `img` Tag
 
-If you want to insert images directly using HTML `img` tags in your articles, you can install:
+If you want to insert images directly into articles using HTML's `img` tag, you can install:
 
 ```bash
 npm install hexo-asset-img --save
 npm install hexo-image-link --save
 ```
 
-These two plugins do not disable or interfere with Markdown's native image syntax, so you can install them according to your needs.
+Hexo also provides its own built-in image insertion method. See the [official Hexo documentation](https://hexo.io/zh-cn/docs/asset-folders) for details.
 
-## Contributing
+## Bilingual Support
 
-1. Fork this repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if necessary
-5. Submit a Pull Request
+Due to my limited knowledge, I am currently unable to implement full i18n support. The theme currently supports Chinese and English.
+
+## AI Comment Function
+
+See the [article](https://funingna-wakawaka.github.io/2026/04/26/%E8%BD%AF%E4%BB%B6%E7%9B%B8%E5%85%B3/%E7%BB%99Blog%E5%A2%9E%E5%8A%A0AI%E6%80%BB%E7%BB%93%E5%8A%9F%E8%83%BD/) for instructions.
 
 ## License
 
-This theme is licensed under the **Apache License Version 2.0**. You are free to use, modify, and distribute this theme as long as you comply with the license terms.
+This theme is licensed under the **Apache License Version 2.0**. You are free to use, modify, and distribute this theme in accordance with the license.
 
-## Support & Feedback
+## Acknowledgements
 
-If you encounter any issues or have questions:
+Thanks to [forever218](https://github.com/forever218).
 
-1. Check the [documentation](https://chatgpt.com/c/docs/)
-2. Search existing [Issues](https://github.com/forever218/hexo-theme-magzine/issues)
-3. Create a new Issue if necessary
+This theme is a fork of the [magzine theme](https://github.com/forever218/hexo-theme-magzine). Due to the extensive modifications I have made, as well as the use of Vibe Coding + manual review, there may be overlooked issues or hidden bugs, and the theme may lack stability.
 
-## Credits
-
-- [Hexo](https://hexo.io/) — Static site generator
-- [Pug](https://pugjs.org/) — Template engine
-- [Font Awesome](https://fontawesome.com/) — Icons
+It is no longer suitable for merging back into the original theme.

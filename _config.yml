@@ -84,6 +84,7 @@ footer:
     src: "https://github.com/funingna-wakawaka/picx-images-hosting/raw/master/碧蓝档案.3yew7g3xtc.webp" # 图片URL
     link: "https://bluearchive-cn.com/" # 图片链接地址
     alt: "Footer Image" # 图片替代文本
+  # 备案示例,请修改为自己的备案内容
   # badges:
   #     - link: https://hexo.io/ #徽标指向网站链接
   #       shields: https://npm.elemecdn.com/anzhiyu-blog@2.1.5/img/badge/Frame-Hexo.svg #徽标API
@@ -174,17 +175,15 @@ last_read_pin:
 # 读者设置面板(电脑端右键空白处打开,设置保存在浏览器)
 reader_settings:
   enable: true
-  items:
+  items: # 面板不提供"显示目录"和"界面语言"设置(目录始终显示,语言用导航栏 Language 菜单切换)
     music_player: true # 音乐播放器形态和位置
     pet: true # 桌宠开关与文字穿梭
     sakana: true # Sakana 显示
     navbar: true # 导航栏样式
     theme_color: true # 调色盘显示
     click_effect: true # 鼠标点击效果
-    toc: true # 目录显示
     cover: true # 启用封面
-    article_view: true # 文章浏览方式
-    language: true # 默认语言
+    article_view: true # 文章浏览方式(含"置顶已阅读文章"开关)
     image_viewer: true # 图片切换方式与电脑缩略图
     falling_leaves: true # 落叶效果
 
@@ -249,7 +248,7 @@ comments:
   shortname:
   # Twikoo configuration
   twikoo:
-    envId: "" # Your environment ID 在这里填上部署到vercel的https链接
+    envId: "" # Your environment ID
     region: # Your service region, e.g. ap-guangzhou
     path: window.location.pathname # Default is window.location.pathname
     visitor: true # Enable visitor count

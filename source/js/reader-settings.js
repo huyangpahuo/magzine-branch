@@ -7,6 +7,9 @@
  * 2. 电脑端右键页面空白处弹出设置面板(桌宠有自己的右键菜单,
  *    在桌宠上右键不会触发本面板),面板可滚动;
  *    点击"确定设置"后保存到浏览器并强制刷新生效。
+ *    ★ 模态窗口(iframe)内禁用面板:模态里的"确定设置"只会刷新
+ *    iframe 本身,导致模态内外新旧设置共存,必须整页刷新才能恢复;
+ *    因此在 iframe 内(以及模态遮罩上)一律不打开面板。
  *
  * 面板中可显示的设置项由 config.yml 的 reader_settings.items 决定。
  * ============================================
@@ -40,6 +43,10 @@
     patch.pet = {
       pretext_interaction: { enable: rs.pet_pretext === "on" },
     };
+  }
+  // 最近阅读文章置顶开关(默认开):关掉后主页不再置顶已读文章
+  if (rs.last_read_pin) {
+    patch.last_read_pin = { enable: rs.last_read_pin === "on" };
   }
   window.__readerThemePatch = patch;
 
@@ -104,6 +111,11 @@
   /* ============ 电脑端右键设置面板 ============ */
   document.addEventListener("DOMContentLoaded", function () {
     if (window.innerWidth <= 768) return; // 仅电脑端
+    // ★ 模态窗口(iframe)内禁用设置面板:
+    //   面板的"确定设置"靠 location.reload() 整页刷新生效,
+    //   在 iframe 内只会刷新文章本身,模态外的主页仍是旧设置,
+    //   造成两套模式共存,必须手动强制刷新才能恢复。
+    if (window.self !== window.top) return;
     if (!(window.theme && window.theme.reader_settings && window.theme.reader_settings.enable))
       return;
 
@@ -193,10 +205,6 @@
         ],
       },
       {
-        key: "toc", label: "目录", show: true,
-        items: [{ key: "toc", label: "显示目录", type: "toggle", def: "on" }],
-      },
-      {
         key: "cover", label: "封面",
         show: !!(window.theme.cover && window.theme.cover.enable),
         items: [{ key: "cover", label: "启用封面", type: "toggle", def: "on" }],
@@ -208,14 +216,10 @@
           { key: "article_view", label: "浏览方式", type: "select",
             options: [["modal", "模态窗口"], ["direct", "直接打开"]],
             def: window.theme.article_list.view_mode || "modal" },
-        ],
-      },
-      {
-        key: "language", label: "语言 / Language", show: true,
-        items: [
-          { key: "lang", label: "界面语言", type: "select",
-            options: [["zh", "中文"], ["en", "English"]],
-            def: localStorage.getItem("site_lang") || "zh" },
+          // 置顶开关仅在主题开启 last_read_pin 功能时显示
+          ...(window.theme.last_read_pin && window.theme.last_read_pin.enable !== false
+            ? [{ key: "last_read_pin", label: "置顶已阅读文章", type: "toggle", def: "on" }]
+            : []),
         ],
       },
       {
@@ -234,22 +238,36 @@
       },
     ].filter(function (s) { return s.show && items[s.key] !== false; });
 
+    /* ---- 面板文案(接入 lang-switch.js 的 window.i18n,英文模式自动翻译) ---- */
+    function t(key) {
+      if (window.i18n && typeof window.i18n.get === "function") {
+        return window.i18n.get(key);
+      }
+      return key;
+    }
+
     /* ---- 面板 DOM ---- */
     var panel = document.createElement("div");
     panel.className = "reader-settings-panel";
     panel.innerHTML = `
       <div class="rs-panel-header">
-        <span class="rs-panel-title">设置</span>
-        <span class="rs-panel-close" title="关闭">&times;</span>
+        <span class="rs-panel-title"></span>
+        <span class="rs-panel-close" title="">&times;</span>
       </div>
       <div class="rs-panel-body"></div>
       <div class="rs-panel-footer">
-        <button class="rs-panel-reset">恢复默认</button>
-        <button class="rs-panel-apply">确定设置</button>
+        <button class="rs-panel-reset"></button>
+        <button class="rs-panel-apply"></button>
       </div>
     `;
     document.body.appendChild(panel);
     var body = panel.querySelector(".rs-panel-body");
+
+    // 骨架固定文案(标题/按钮)按当前语言翻译
+    panel.querySelector(".rs-panel-title").textContent = t("设置");
+    panel.querySelector(".rs-panel-close").setAttribute("title", t("关闭"));
+    panel.querySelector(".rs-panel-reset").textContent = t("恢复默认");
+    panel.querySelector(".rs-panel-apply").textContent = t("确定设置");
 
     function buildPanel() {
       body.innerHTML = "";
@@ -259,7 +277,7 @@
         group.className = "rs-group";
         var title = document.createElement("div");
         title.className = "rs-group-title";
-        title.textContent = section.label;
+        title.textContent = t(section.label);
         group.appendChild(title);
 
         section.items.forEach(function (item) {
@@ -267,7 +285,7 @@
           row.className = "rs-row";
           var label = document.createElement("label");
           label.className = "rs-label";
-          label.textContent = item.label;
+          label.textContent = t(item.label);
           row.appendChild(label);
 
           if (item.type === "toggle") {
@@ -289,7 +307,7 @@
             item.options.forEach(function (opt) {
               var o = document.createElement("option");
               o.value = opt[0];
-              o.textContent = opt[1];
+              o.textContent = t(opt[1]);
               sel.appendChild(o);
             });
             sel.value = getVal(item.key, item.def);
@@ -322,9 +340,11 @@
       panel.classList.remove("open");
     }
 
-    /* ---- 右键打开(跳过桌宠) ---- */
+    /* ---- 右键打开(跳过桌宠;模态窗口打开时也不弹,见文件头说明) ---- */
     document.addEventListener("contextmenu", function (e) {
       if (e.target.closest("#pet-root, .reader-settings-panel")) return;
+      // 模态窗口打开时,右键落在模态标题栏/遮罩等父页面区域 → 同样不弹面板
+      if (document.querySelector(".article-modal.active")) return;
       e.preventDefault();
       openPanel(e.clientX, e.clientY);
     });
