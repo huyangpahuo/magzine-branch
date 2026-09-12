@@ -6,26 +6,24 @@
  * 注意:
  *   此 helper 为同步函数,无法在构建时跟随 HTTP 重定向。
  *   b23.tv / hy.fan / Facebook share/r/ 等短链请在 murmur 数据文件中
- *   直接填写完整视频链接,短链在此上下文中无法自动解析。
+ *   直接填写完整视频链接;Facebook 分享短链会原样交给官方插件解析。
  *
  * 返回值字段:
  *   src            — iframe src
+ *   html           — TikTok / Instagram 官方 blockquote 嵌入代码(优先于 src 渲染)
  *   isVertical     — YouTube Shorts 等通用竖屏
- *   isTikTok       — TikTok(需专用容器尺寸)
- *   isInstagram    — Instagram Reel(需专用容器尺寸)
  *   isTwitter      — Twitter/X 推文
  *   referrerPolicy — iframe referrerpolicy 属性值
- *   unsupported    — 非空表示该类型暂不支持,应在模板中显示提示而非 iframe
+ *   unsupported    — 非空表示该链接无法解析,应在模板中显示提示而非 iframe
  */
 
 function parseMurmurVideo(url) {
-  if (!url) return null;
+  if (!url || typeof url !== 'string') return null;
 
   let src            = '';
+  let html           = '';
   let isVertical     = false;
   let isTwitter      = false;
-  let isTikTok       = false;
-  let isInstagram    = false;
   let unsupported    = '';
   let referrerPolicy = 'strict-origin-when-cross-origin';
 
@@ -38,24 +36,16 @@ function parseMurmurVideo(url) {
   /* ── 中国国内平台 ──────────────────────────────────────────────────────── */
 
   if (url.includes('bilibili.com') || url.includes('b23.tv')) {
-    if (url.includes('live.bilibili.com')) {
-      unsupported = 'B站直播暂不支持嵌入，请前往原页面观看';
-    } else {
-      const bvM = url.match(/BV([a-zA-Z0-9]+)/);
-      if (bvM) {
-        // 空 Referer 绕过 B 站手机端外链拦截
-        referrerPolicy = 'no-referrer';
-        src = `https://player.bilibili.com/player.html?bvid=BV${bvM[1]}&page=1&autoplay=0&danmaku=0&muted=0`;
-      }
+    const bvM = url.match(/BV([a-zA-Z0-9]+)/);
+    if (bvM) {
+      // 空 Referer 绕过 B 站手机端外链拦截
+      referrerPolicy = 'no-referrer';
+      src = `https://player.bilibili.com/player.html?bvid=BV${bvM[1]}&page=1&autoplay=0&danmaku=0&muted=0`;
     }
 
   } else if (url.includes('acfun.cn')) {
-    if (url.includes('live.acfun.cn')) {
-      unsupported = 'AcFun直播暂不支持嵌入，请前往原页面观看';
-    } else {
-      const acM = url.match(/ac=(\d+)/) || url.match(/\/ac(\d+)/);
-      if (acM) src = `https://www.acfun.cn/player/ac${acM[1]}`;
-    }
+    const acM = url.match(/ac=(\d+)/) || url.match(/\/ac(\d+)/);
+    if (acM) src = `https://www.acfun.cn/player/ac${acM[1]}`;
 
   } else if (url.includes('ixigua.com')) {
     const ixM = url.match(/\/(\d+)\/?/);
@@ -108,16 +98,34 @@ function parseMurmurVideo(url) {
     }
 
   } else if (url.includes('tiktok.com')) {
+    // 竖屏视频使用官方 blockquote 嵌入(embed.js 自动撑高,无 iframe 空白)
     const ttM = url.match(/\/video\/(\d+)/);
     if (ttM) {
-      isTikTok = true;
-      src = `https://www.tiktok.com/embed/v2/${ttM[1]}`;
+      const videoId = ttM[1];
+      const userM   = url.match(/@([a-zA-Z0-9._-]+)/);
+      const cite    = userM
+        ? `https://www.tiktok.com/@${userM[1]}/video/${videoId}`
+        : url.split('?')[0].replace(/\/+$/, '');
+      const handle  = userM ? '@' + userM[1] : 'TikTok';
+      html = `<blockquote class="tiktok-embed" cite="${cite}" data-video-id="${videoId}" style="max-width: 605px; min-width: 325px; margin: 0 auto;">
+  <section>
+    <a target="_blank" title="${handle}" href="${cite}?refer=embed">${handle}</a>
+  </section>
+</blockquote>
+<script async src="https://www.tiktok.com/embed.js"></script>`;
     }
 
   } else if (url.includes('instagram.com')) {
-    const igUrl = url.split('?')[0].replace(/\/$/, '');
-    isInstagram = true;
-    src = `${igUrl}/embed/`;
+    // 竖屏 Reel 与 TikTok 同方案:官方 blockquote 嵌入
+    const permalink = url.split('?')[0].replace(/\/+$/, '');
+    if (/\/(reel|reels|p|tv)\/[a-zA-Z0-9_-]+$/.test(permalink)) {
+      html = `<blockquote class="instagram-media" data-instgrm-permalink="${permalink}" data-instgrm-version="14" style="max-width: 540px; min-width: 326px; width: calc(100% - 2px); margin: 0 auto;">
+  <section>
+    <a href="${permalink}" target="_blank" rel="noopener">在 Instagram 上查看这篇帖子</a>
+  </section>
+</blockquote>
+<script async src="https://www.instagram.com/embed.js"></script>`;
+    }
 
   } else if (url.includes('twitch.tv')) {
     const parent = siteHostname || 'localhost';
@@ -133,7 +141,15 @@ function parseMurmurVideo(url) {
     }
 
   } else if (url.includes('facebook.com') || url.includes('fb.watch')) {
-    src = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560`;
+    const reelM = url.match(/facebook\.com\/reel\/(\d+)/);
+    if (reelM) {
+      // Reel 为竖屏视频
+      isVertical = true;
+      src = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(`https://www.facebook.com/reel/${reelM[1]}`)}&show_text=0&width=400`;
+    } else {
+      // 普通视频/分享短链:原样交给 Facebook 官方插件解析
+      src = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560`;
+    }
 
   } else if (url.includes('vimeo.com')) {
     const m = url.match(/vimeo\.com\/(\d+)/);
@@ -144,7 +160,11 @@ function parseMurmurVideo(url) {
     if (m) src = `https://embed.nicovideo.jp/watch/${m[1]}`;
   }
 
-  return { src, isVertical, isTikTok, isInstagram, isTwitter, referrerPolicy, unsupported };
+  if (!src && !html && !unsupported) {
+    unsupported = '不支持嵌入该视频链接';
+  }
+
+  return { src, html, isVertical, isTwitter, referrerPolicy, unsupported };
 }
 
 hexo.extend.helper.register('parse_murmur_video', parseMurmurVideo);

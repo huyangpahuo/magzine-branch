@@ -44,8 +44,11 @@ main.murmur-page
                   - var vData = parse_murmur_video(item.video)
                   if vData && vData.unsupported
                     p.murmur-unsupported= vData.unsupported
+                  else if vData && vData.html
+                    //- TikTok / Instagram 官方 blockquote 嵌入(平台脚本自适应高度)
+                    .murmur-video-embed!= vData.html
                   else if vData && vData.src
-                    - var videoClass = vData.isTikTok ? 'murmur-video-tiktok' : (vData.isInstagram ? 'murmur-video-instagram' : (vData.isVertical ? 'murmur-video-vertical' : (vData.isTwitter ? 'murmur-video-twitter' : 'murmur-video-normal')))
+                    - var videoClass = vData.isVertical ? 'murmur-video-vertical' : (vData.isTwitter ? 'murmur-video-twitter' : 'murmur-video-normal')
                     .murmur-video(class=videoClass)
                       iframe(src=vData.src, frameborder="0", allowfullscreen="allowfullscreen", referrerpolicy=vData.referrerPolicy, allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen", title="嵌入视频")
               

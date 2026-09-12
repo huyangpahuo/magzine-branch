@@ -9,49 +9,143 @@
  *   - 其余平台 : strict-origin-when-cross-origin  (YouTube 2025-07-09 起强制要求 Referer)
  *
  * 短链说明:
- *   b23.tv、hy.fan、Facebook share/r/ 在构建时通过 HTTP 跟随跳转自动解析。
- *   解析失败时输出明确的错误提示。
+ *   - b23.tv、hy.fan : 构建时跟随 HTTP 跳转自动解析,失败时输出明确的错误提示。
+ *   - Facebook share/r/、fb.watch : 构建时跟随跳转,并从跳转链或页面 og:url /
+ *     videoId 中提取完整视频/Reel 地址;解析失败时回退为把原链接直接交给
+ *     Facebook 官方插件(由访客浏览器端解析),不中断构建。
  *
- * 暂不支持:B站直播、AcFun直播(无公开嵌入 URL,输出提示信息)。
+ * 竖屏视频:
+ *   - TikTok / Instagram : 官方 blockquote + embed.js 嵌入,高度自适应无空白。
+ *   - YouTube Shorts 等竖屏 : 9:16 响应式容器 iframe。
  */
 
 'use strict';
 const https = require('https');
 const http  = require('http');
 
+/* 构建期请求使用真实浏览器 UA,Facebook 等平台对爬虫 UA 会拒绝响应 */
+const BROWSER_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';
+
 /* ─── 工具函数 ─────────────────────────────────────────────────────────── */
 
-/**
- * 跟随 HTTP/HTTPS 重定向,返回最终 URL。
- * 超时(8 s)、网络错误或超过跳转次数时返回 null。
- */
-function resolveRedirect(urlStr, maxHops = 5) {
+/** 单次 GET 请求。返回 { statusCode, headers, res };网络错误/超时返回 null。 */
+function httpGet(urlStr, timeoutMs = 8000) {
   return new Promise((resolve) => {
-    if (maxHops === 0) { resolve(null); return; }
     let parsed;
     try {
       parsed = new URL(urlStr.startsWith('//') ? 'https:' + urlStr : urlStr);
     } catch (e) { resolve(null); return; }
+    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') { resolve(null); return; }
 
     const lib = parsed.protocol === 'https:' ? https : http;
-    const req = lib.get(
-      parsed.href,
-      { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; HexoBlogBuilder/1.0)' }, timeout: 8000 },
-      (res) => {
-        res.resume();
-        if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-          let next;
-          try { next = new URL(res.headers.location, parsed.href).href; }
-          catch (e) { resolve(null); return; }
-          resolve(resolveRedirect(next, maxHops - 1));
-        } else {
-          resolve(urlStr);
-        }
-      }
-    );
+    const req = lib.get(parsed.href, {
+      headers: {
+        'User-Agent': BROWSER_UA,
+        'Accept': 'text/html,application/xhtml+xml,*/*;q=0.8',
+        'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+      },
+      timeout: timeoutMs,
+    }, (res) => resolve({ statusCode: res.statusCode, headers: res.headers, res }));
     req.on('error', () => resolve(null));
     req.on('timeout', () => { req.destroy(); resolve(null); });
   });
+}
+
+/** 读取响应体(最多 maxBytes 字节,超出即截断)。 */
+function readBody(res, maxBytes = 512 * 1024) {
+  return new Promise((resolve) => {
+    let out = '';
+    let finished = false;
+    const finish = () => { if (!finished) { finished = true; resolve(out); } };
+    res.setEncoding('latin1');
+    res.on('data', (chunk) => {
+      if (finished) return;
+      out += chunk;
+      if (out.length >= maxBytes) { finished = true; res.destroy(); resolve(out); }
+    });
+    res.on('end', finish);
+    res.on('error', finish);
+  });
+}
+
+/**
+ * 依次请求并跟随重定向。
+ * 返回 { urls: 沿途全部 URL(含最终地址), body: 最终响应体前 512 KB };
+ * 网络错误、超时或跳转超限时返回 null。
+ */
+async function fetchFollowRedirects(urlStr, maxHops = 6) {
+  const urls = [];
+  let current = urlStr.startsWith('//') ? 'https:' + urlStr : urlStr;
+  for (let hop = 0; hop <= maxHops; hop++) {
+    const r = await httpGet(current);
+    if (!r) return null;
+    if (r.statusCode >= 300 && r.statusCode < 400 && r.headers.location) {
+      urls.push(current);
+      r.res.resume();
+      try { current = new URL(r.headers.location, current).href; }
+      catch (e) { return null; }
+      continue;
+    }
+    urls.push(current);
+    const body = await readBody(r.res);
+    return { urls, body };
+  }
+  return null;
+}
+
+/**
+ * 跟随 HTTP/HTTPS 重定向,返回最终 URL(b23.tv、hy.fan 用)。
+ * 超时(8 s)、网络错误或超过跳转次数时返回 null。
+ */
+function resolveRedirect(urlStr, maxHops = 6) {
+  return fetchFollowRedirects(urlStr, maxHops).then(
+    (r) => (r && r.urls.length ? r.urls[r.urls.length - 1] : null)
+  );
+}
+
+/**
+ * 从跳转链 URL 和最终页面 HTML 中提取 Facebook 视频/Reel 的规范地址。
+ * 依次尝试:跳转链 URL(含 decodeURIComponent 后的,覆盖 login/?next= 场景)、
+ * 页面 og:url、页面内 reel/videoId 字样。找不到返回 ''。
+ */
+function extractFacebookVideoUrl(urls, body) {
+  const candidates = [];
+  for (const u of urls || []) {
+    candidates.push(u);
+    try {
+      const d = decodeURIComponent(u);
+      if (d !== u) candidates.push(d);
+    } catch (e) { /* 含非法百分号编码时忽略 */ }
+  }
+
+  for (const u of candidates) {
+    const m = u.match(/facebook\.com\/reel\/(\d+)/);
+    if (m) return `https://www.facebook.com/reel/${m[1]}`;
+  }
+  for (const u of candidates) {
+    const m = u.match(/facebook\.com\/watch\/?(?:live\/)?\?(?:[^#]*&)?v=(\d+)/);
+    if (m) return `https://www.facebook.com/watch/?v=${m[1]}`;
+  }
+  for (const u of candidates) {
+    const m = u.match(/facebook\.com\/[^/?#]+\/videos\/(?:[^/?#]+\/)?(\d+)/);
+    if (m) return `https://www.facebook.com/watch/?v=${m[1]}`;
+  }
+
+  const hay = body || '';
+  let m = hay.match(/property=["']og:url["']\s+content=["']([^"']+)["']/) ||
+          hay.match(/content=["']([^"']+)["']\s+property=["']og:url["']/);
+  if (m) {
+    const og = m[1].replace(/&amp;/g, '&');
+    const om = og.match(/(?:https?:\/\/)?facebook\.com\/(reel\/\d+|watch\/\?v=\d+)/);
+    if (om) return `https://www.facebook.com/${om[1]}`;
+    const vm = og.match(/(?:https?:\/\/)?facebook\.com\/[^/?#]+\/videos\/(\d+)/);
+    if (vm) return `https://www.facebook.com/watch/?v=${vm[1]}`;
+  }
+  m = hay.match(/facebook\.com\/reel\/(\d+)/);
+  if (m) return `https://www.facebook.com/reel/${m[1]}`;
+  m = hay.match(/"videoId"\s*:\s*"(\d+)"/);
+  if (m) return `https://www.facebook.com/watch/?v=${m[1]}`;
+  return '';
 }
 
 /**
@@ -61,11 +155,11 @@ function resolveRedirect(urlStr, maxHops = 5) {
  */
 function extractUrl(args) {
   for (const a of args) {
-    if (a && /^https?:\/\/|^\/\//.test(a)) return a;
+    if (a && /^https?:\/\/|^\/\//.test(String(a))) return String(a);
   }
   // 兜底:扫描拼接字符串中的第一个 URL
   const m = args.join(' ').match(/https?:\/\/\S+|\/\/\S+/);
-  return m ? m[0] : (args[0] || '');
+  return m ? m[0] : (args[0] ? String(args[0]) : '');
 }
 
 /* ─── 错误/提示 HTML ───────────────────────────────────────────────────── */
@@ -78,10 +172,10 @@ hexo.extend.tag.register('video', async function (args) {
   if (!url) return '';
 
   let src            = '';
+  let embedHtml      = '';   // TikTok / Instagram 官方 blockquote 嵌入代码
   let isVertical     = false;
   let isTwitter      = false;
-  let isTikTok       = false;
-  let isInstagram    = false;
+  let isFbReel       = false;
   let referrerPolicy = 'strict-origin-when-cross-origin';
 
   const _siteUrl = (() => {
@@ -91,20 +185,31 @@ hexo.extend.tag.register('video', async function (args) {
   const siteHostname = _siteUrl ? _siteUrl.hostname  : 'localhost';
 
   /* ── 短链解析 ────────────────────────────────────────────────────────── */
-  if (/\bb23\.tv\//.test(url) || /\bhy\.fan\//.test(url) || /facebook\.com\/share\//.test(url)) {
-    const resolved = await resolveRedirect(url.startsWith('//') ? 'https:' + url : url);
-    if (!resolved) {
-      return `<p style="${errStyle}">[短链解析失败: ${url}]<br>请将短链替换为完整的视频链接后重试。</p>`;
+  const isFbShareLink = /facebook\.com\/share\//.test(url) || /\bfb\.watch\//.test(url);
+  if (/\bb23\.tv\//.test(url) || /\bhy\.fan\//.test(url) || isFbShareLink) {
+    const requestUrl = url.startsWith('//') ? 'https:' + url : url;
+    if (isFbShareLink) {
+      const result = await fetchFollowRedirects(requestUrl);
+      const resolved = result ? extractFacebookVideoUrl(result.urls, result.body) : '';
+      if (resolved) {
+        url = resolved;
+      } else {
+        // 解析失败(常见于构建环境无法访问 Facebook):退回原链接,
+        // 交给 Facebook 官方插件在访客浏览器端自行解析
+        if (hexo.log && hexo.log.warn) hexo.log.warn('[video] Facebook 短链未能解析,回退为插件直嵌: ' + String(url));
+      }
+    } else {
+      const resolved = await resolveRedirect(requestUrl);
+      if (!resolved) {
+        return `<p style="${errStyle}">[短链解析失败: ${String(url)}]<br>请将短链替换为完整的视频链接后重试。</p>`;
+      }
+      url = resolved;
     }
-    url = resolved;
   }
 
   /* ── 中国国内平台 ────────────────────────────────────────────────────── */
 
   if (url.includes('bilibili.com')) {
-    if (url.includes('live.bilibili.com')) {
-      return `<p style="${infoStyle}">[B站直播暂不支持嵌入，请前往原页面观看]</p>`;
-    }
     const bvM = url.match(/BV([a-zA-Z0-9]+)/);
     if (bvM) {
       referrerPolicy = 'no-referrer';
@@ -112,9 +217,6 @@ hexo.extend.tag.register('video', async function (args) {
     }
 
   } else if (url.includes('acfun.cn')) {
-    if (url.includes('live.acfun.cn')) {
-      return `<p style="${infoStyle}">[AcFun直播暂不支持嵌入，请前往原页面观看]</p>`;
-    }
     const acM = url.match(/ac=(\d+)/) || url.match(/\/ac(\d+)/);
     if (acM) src = `https://www.acfun.cn/player/ac${acM[1]}`;
 
@@ -167,16 +269,34 @@ hexo.extend.tag.register('video', async function (args) {
     }
 
   } else if (url.includes('tiktok.com')) {
+    // 竖屏视频使用官方 blockquote 嵌入(embed.js 自动撑高,无 iframe 空白)
     const ttM = url.match(/\/video\/(\d+)/);
     if (ttM) {
-      isTikTok = true;
-      src = `https://www.tiktok.com/embed/v2/${ttM[1]}`;
+      const videoId = ttM[1];
+      const userM   = url.match(/@([a-zA-Z0-9._-]+)/);
+      const cite    = userM
+        ? `https://www.tiktok.com/@${userM[1]}/video/${videoId}`
+        : url.split('?')[0].replace(/\/+$/, '');
+      const handle  = userM ? '@' + userM[1] : 'TikTok';
+      embedHtml = `<blockquote class="tiktok-embed" cite="${cite}" data-video-id="${videoId}" style="max-width: 605px; min-width: 325px; margin: 0 auto;">
+  <section>
+    <a target="_blank" title="${handle}" href="${cite}?refer=embed">${handle}</a>
+  </section>
+</blockquote>
+<script async src="https://www.tiktok.com/embed.js"></script>`;
     }
 
   } else if (url.includes('instagram.com')) {
-    const igUrl = url.split('?')[0].replace(/\/$/, '');
-    isInstagram = true;
-    src = `${igUrl}/embed/`;
+    // 竖屏 Reel 与 TikTok 同方案:官方 blockquote 嵌入
+    const permalink = url.split('?')[0].replace(/\/+$/, '');
+    if (/\/(reel|reels|p|tv)\/[a-zA-Z0-9_-]+$/.test(permalink)) {
+      embedHtml = `<blockquote class="instagram-media" data-instgrm-permalink="${permalink}" data-instgrm-version="14" style="max-width: 540px; min-width: 326px; width: calc(100% - 2px); margin: 0 auto;">
+  <section>
+    <a href="${permalink}" target="_blank" rel="noopener">在 Instagram 上查看这篇帖子</a>
+  </section>
+</blockquote>
+<script async src="https://www.instagram.com/embed.js"></script>`;
+    }
 
   } else if (url.includes('twitch.tv')) {
     const parent = siteHostname || 'localhost';
@@ -193,7 +313,15 @@ hexo.extend.tag.register('video', async function (args) {
     }
 
   } else if (url.includes('facebook.com') || url.includes('fb.watch')) {
-    src = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560`;
+    const reelM = url.match(/facebook\.com\/reel\/(\d+)/);
+    if (reelM) {
+      // Reel 为竖屏视频,使用 9:16 响应式容器
+      isFbReel = true;
+      src = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(`https://www.facebook.com/reel/${reelM[1]}`)}&show_text=0&width=400`;
+    } else {
+      // 普通视频/未能解析的分享短链:原样交给 Facebook 官方插件解析
+      src = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560`;
+    }
 
   } else if (url.includes('vimeo.com')) {
     const m = url.match(/vimeo\.com\/(\d+)/);
@@ -206,22 +334,19 @@ hexo.extend.tag.register('video', async function (args) {
 
   /* ── 输出 HTML ───────────────────────────────────────────────────────── */
 
+  if (embedHtml) return embedHtml;
+
   if (!src) {
-    return `<p style="${infoStyle}">[不支持的视频链接: ${url}]<br>建议直接粘贴该平台的嵌入代码 (iframe)</p>`;
+    return `<p style="${infoStyle}">[不支持的视频链接: ${String(url)}]<br>建议直接粘贴该平台的嵌入代码 (iframe)</p>`;
   }
 
   let paddingBottom = '56.25%'; // 默认 16:9
   let maxWidth      = '100%';
   let margin        = '0';
 
-  if (isTikTok) {
-    // TikTok 推荐宽度 325 px,保持 9:16 比例,max-width 限为 325 px 消除多余空白
+  if (isFbReel) {
+    // Facebook Reel:9:16 响应式,与 TikTok/Instagram 一致
     paddingBottom = '177.77%';
-    maxWidth      = '325px';
-    margin        = '0 auto';
-  } else if (isInstagram) {
-    // Instagram Reel 嵌入包含 UI chrome,130% 比纯 9:16 更贴近实际渲染高度
-    paddingBottom = '130%';
     maxWidth      = '400px';
     margin        = '0 auto';
   } else if (isVertical) {
@@ -242,7 +367,7 @@ hexo.extend.tag.register('video', async function (args) {
     allowfullscreen
     scrolling="no"
     referrerpolicy="${referrerPolicy}"
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share">
   </iframe>
 </div>
 `;

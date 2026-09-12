@@ -978,6 +978,18 @@ p {
   overflow-wrap: break-word;
 }
 
+/* TikTok / Instagram 官方 blockquote 嵌入：重置引用样式，
+   避免主题边框/斜体/底色污染平台播放器 */
+.post-content blockquote.tiktok-embed,
+.post-content blockquote.instagram-media {
+  border-left: none;
+  padding: 0;
+  margin: var(--spacing-lg) auto;
+  font-style: normal;
+  background: transparent;
+  color: inherit;
+}
+
 .post-content code {
   background: var(--background-color);
   padding: 0.125rem 0.25rem;
@@ -2288,6 +2300,11 @@ body.dark-mode .post-content blockquote {
   background-color: #2a2a2a;
   border-left-color: var(--accent-color);
   color: var(--secondary-color);
+}
+
+body.dark-mode .post-content blockquote.tiktok-embed,
+body.dark-mode .post-content blockquote.instagram-media {
+  background: transparent;
 }
 
 body.dark-mode .post-content code {

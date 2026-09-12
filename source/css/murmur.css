@@ -229,26 +229,10 @@
   width: 100%;
 }
 
-/* 竖屏 9:16 视频 (YouTube Shorts 等通用竖屏) */
+/* 竖屏 9:16 视频 (YouTube Shorts / Facebook Reel 等通用竖屏) */
 .murmur-video-vertical {
   padding-bottom: 177.77%;
   max-width: 350px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* TikTok: 推荐宽度 325 px,保持 9:16,消除多余空白 */
-.murmur-video-tiktok {
-  padding-bottom: 177.77%;
-  max-width: 325px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* Instagram Reel: 包含 UI chrome,130% 更贴近实际渲染高度 */
-.murmur-video-instagram {
-  padding-bottom: 130%;
-  max-width: 400px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -268,6 +252,20 @@
   width: 100%;
   height: 100%;
   border: 0;
+}
+
+/* TikTok / Instagram 官方 blockquote 嵌入(高度由平台脚本自适应撑开) */
+.murmur-video-embed {
+  margin-top: 12px;
+  font-style: normal;
+}
+
+.murmur-video-embed blockquote {
+  margin: 0 auto;
+  border: none;
+  padding: 0;
+  background: transparent;
+  font-style: normal;
 }
 
 /* === 卡片底部 === */
