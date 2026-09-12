@@ -242,8 +242,7 @@ document.addEventListener("DOMContentLoaded", function () {
     上一张: "Previous",
     下一张: "Next",
     "旋转90°": "Rotate 90°",
-    正向锁定: "Lock Orientation",
-    解除锁定: "Unlock Orientation",
+    锁定方向: "Lock Orientation",
     保存图片: "Save Image",
 
     // 分享文章
