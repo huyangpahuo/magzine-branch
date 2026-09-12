@@ -94,6 +94,12 @@
 
   -webkit-tap-highlight-color: transparent;
 
+  /* 关键:grid 子项默认 min-width:auto,含 white-space:nowrap 的长文本会
+     将 min-content 宽度撑给网格轨道,导致手机端页面横向溢出。
+     设为 0 后轨道可按 1fr 正确收缩,配合内层 overflow:hidden 实现省略号。 */
+
+  min-width: 0;
+
 }
 
 
