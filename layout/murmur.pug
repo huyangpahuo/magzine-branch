@@ -42,13 +42,12 @@ main.murmur-page
                 
                 if item.video
                   - var vData = parse_murmur_video(item.video)
-                  - var videoClass = vData.isVertical ? 'murmur-video-vertical' : (vData.isTwitter ? 'murmur-video-twitter' : 'murmur-video-normal')
-                  .murmur-video(class=videoClass)
-                    //- referrerpolicy 来自 parse_murmur_video 返回的 referrerPolicy 字段:
-                    //- - Bilibili: no-referrer (空 Referer 绕过手机端拦截)
-                    //- - 其他平台: strict-origin-when-cross-origin
-                    //-   (YouTube 自 2025-07-09 起强制要求 Referer,no-referrer 会导致 Error 153)
-                    iframe(src=vData.src, frameborder="0", allowfullscreen="allowfullscreen", referrerpolicy=vData.referrerPolicy, allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen", title="嵌入视频")
+                  if vData && vData.unsupported
+                    p.murmur-unsupported= vData.unsupported
+                  else if vData && vData.src
+                    - var videoClass = vData.isTikTok ? 'murmur-video-tiktok' : (vData.isInstagram ? 'murmur-video-instagram' : (vData.isVertical ? 'murmur-video-vertical' : (vData.isTwitter ? 'murmur-video-twitter' : 'murmur-video-normal')))
+                    .murmur-video(class=videoClass)
+                      iframe(src=vData.src, frameborder="0", allowfullscreen="allowfullscreen", referrerpolicy=vData.referrerPolicy, allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen", title="嵌入视频")
               
               .murmur-card-footer
                 span.murmur-date
