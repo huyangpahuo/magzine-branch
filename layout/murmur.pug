@@ -45,11 +45,11 @@ main.murmur-page
                   if vData && vData.unsupported
                     p.murmur-unsupported= vData.unsupported
                   else if vData && vData.html
-                    //- TikTok / Instagram 官方 blockquote 嵌入(平台脚本自适应高度)
+                    //- 富卡片嵌入(TikTok/Instagram/Facebook)或虎牙点击加载占位卡
                     .murmur-video-embed!= vData.html
                   else if vData && vData.src
                     - var videoClass = vData.isVertical ? 'murmur-video-vertical' : (vData.isTwitter ? 'murmur-video-twitter' : 'murmur-video-normal')
-                    .murmur-video(class=videoClass)
+                    .murmur-video.hexo-video-embed(class=videoClass)
                       iframe(src=vData.src, frameborder="0", allowfullscreen="allowfullscreen", referrerpolicy=vData.referrerPolicy, allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen", title="嵌入视频")
               
               .murmur-card-footer

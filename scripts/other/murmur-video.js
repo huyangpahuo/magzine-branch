@@ -6,16 +6,33 @@
  * 注意:
  *   此 helper 为同步函数,无法在构建时跟随 HTTP 重定向。
  *   b23.tv / hy.fan / Facebook share/r/ 等短链请在 murmur 数据文件中
- *   直接填写完整视频链接;Facebook 分享短链会原样交给官方插件解析。
+ *   直接填写完整视频链接(Facebook 分享短链无法在此解析,会显示提示)。
  *
  * 返回值字段:
  *   src            — iframe src
- *   html           — TikTok / Instagram 官方 blockquote 嵌入代码(优先于 src 渲染)
+ *   html           — 富卡片嵌入(TikTok / Instagram / Facebook)或虎牙点击加载占位卡,
+ *                    优先于 src 渲染,需以 != 输出原始 HTML
  *   isVertical     — YouTube Shorts 等通用竖屏
  *   isTwitter      — Twitter/X 推文
  *   referrerPolicy — iframe referrerpolicy 属性值
  *   unsupported    — 非空表示该链接无法解析,应在模板中显示提示而非 iframe
  */
+
+/** 虎牙等自动播放平台的点击加载占位卡(由 js/video-embed.js 负责插入 iframe)。 */
+function facadeHtml(src) {
+  return `<div class="hexo-video-embed video-facade" data-video-src="${src}" style="position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background: #000; cursor: pointer;">
+  <span class="video-facade-btn" aria-hidden="true"></span>
+  <span class="video-facade-tip">点击加载 · 不自动播放</span>
+</div>`;
+}
+
+/** Facebook 富卡片嵌入(fb-video XFBML,样式与 Instagram 嵌入一致)。 */
+function facebookEmbedHtml(href) {
+  return `<div class="hexo-video-embed"><div class="fb-video" data-href="${href}" data-autoplay="false" data-show-text="false" data-allowfullscreen="true" style="max-width: 540px; min-width: 326px; width: calc(100% - 2px); margin: 0 auto;"></div>
+<div id="fb-root"></div>
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/zh_CN/sdk.js#xfbml=1&version=v21.0"></script>
+<script>window.FB && window.FB.XFBML.parse();</script></div>`;
+}
 
 function parseMurmurVideo(url) {
   if (!url || typeof url !== 'string') return null;
@@ -64,6 +81,8 @@ function parseMurmurVideo(url) {
       const huyaM = url.match(/huya\.com\/(\d+)/) || url.match(/huya\.com\/([a-zA-Z0-9_]+)/);
       if (huyaM) src = `https://liveshare.huya.com/iframe/${huyaM[1]}`;
     }
+    // 虎牙直播/录像会自动播放,改为点击加载的占位卡
+    if (src) html = facadeHtml(src);
 
   /* ── 国际/国外平台 ─────────────────────────────────────────────────────── */
 
@@ -87,7 +106,7 @@ function parseMurmurVideo(url) {
     }
     if (videoId) {
       const originParam = siteOrigin ? `&origin=${encodeURIComponent(siteOrigin)}` : '';
-      src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=0&playsinline=1${originParam}`;
+      src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=0&playsinline=1&enablejsapi=1${originParam}`;
     }
 
   } else if (url.includes('twitter.com') || url.includes('x.com')) {
@@ -98,7 +117,7 @@ function parseMurmurVideo(url) {
     }
 
   } else if (url.includes('tiktok.com')) {
-    // 竖屏视频使用官方 blockquote 嵌入(embed.js 自动撑高,无 iframe 空白)
+    // 官方 blockquote 嵌入;固定 325px 紧凑布局
     const ttM = url.match(/\/video\/(\d+)/);
     if (ttM) {
       const videoId = ttM[1];
@@ -107,24 +126,25 @@ function parseMurmurVideo(url) {
         ? `https://www.tiktok.com/@${userM[1]}/video/${videoId}`
         : url.split('?')[0].replace(/\/+$/, '');
       const handle  = userM ? '@' + userM[1] : 'TikTok';
-      html = `<blockquote class="tiktok-embed" cite="${cite}" data-video-id="${videoId}" style="max-width: 605px; min-width: 325px; margin: 0 auto;">
+      html = `<div class="hexo-video-embed"><blockquote class="tiktok-embed" cite="${cite}" data-video-id="${videoId}" style="width: 325px; max-width: 100%; margin: 0 auto;">
   <section>
     <a target="_blank" title="${handle}" href="${cite}?refer=embed">${handle}</a>
   </section>
 </blockquote>
-<script async src="https://www.tiktok.com/embed.js"></script>`;
+<script async src="https://www.tiktok.com/embed.js"></script></div>`;
     }
 
   } else if (url.includes('instagram.com')) {
-    // 竖屏 Reel 与 TikTok 同方案:官方 blockquote 嵌入
+    // 官方 blockquote 嵌入,与 TikTok 同方案
     const permalink = url.split('?')[0].replace(/\/+$/, '');
     if (/\/(reel|reels|p|tv)\/[a-zA-Z0-9_-]+$/.test(permalink)) {
-      html = `<blockquote class="instagram-media" data-instgrm-permalink="${permalink}" data-instgrm-version="14" style="max-width: 540px; min-width: 326px; width: calc(100% - 2px); margin: 0 auto;">
+      html = `<div class="hexo-video-embed"><blockquote class="instagram-media" data-instgrm-permalink="${permalink}" data-instgrm-version="14" style="max-width: 540px; min-width: 326px; width: calc(100% - 2px); margin: 0 auto;">
   <section>
     <a href="${permalink}" target="_blank" rel="noopener">在 Instagram 上查看这篇帖子</a>
   </section>
 </blockquote>
-<script async src="https://www.instagram.com/embed.js"></script>`;
+<script async src="https://www.instagram.com/embed.js"></script>
+<script>window.instgrm && window.instgrm.Embeds.process();</script></div>`;
     }
 
   } else if (url.includes('twitch.tv')) {
@@ -143,17 +163,17 @@ function parseMurmurVideo(url) {
   } else if (url.includes('facebook.com') || url.includes('fb.watch')) {
     const reelM = url.match(/facebook\.com\/reel\/(\d+)/);
     if (reelM) {
-      // Reel 为竖屏视频
-      isVertical = true;
-      src = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(`https://www.facebook.com/reel/${reelM[1]}`)}&show_text=0&width=400`;
+      html = facebookEmbedHtml(`https://www.facebook.com/reel/${reelM[1]}`);
+    } else if (/facebook\.com\/share\//.test(url) || /\bfb\.watch\//.test(url)) {
+      // 同步上下文无法解析分享短链,直接嵌入会显示"视频不可用"
+      unsupported = 'Facebook 分享短链无法在此解析,请填写完整的视频/Reel 链接';
     } else {
-      // 普通视频/分享短链:原样交给 Facebook 官方插件解析
-      src = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560`;
+      html = facebookEmbedHtml(url);
     }
 
   } else if (url.includes('vimeo.com')) {
     const m = url.match(/vimeo\.com\/(\d+)/);
-    if (m) src = `https://player.vimeo.com/video/${m[1]}`;
+    if (m) src = `https://player.vimeo.com/video/${m[1]}?autoplay=0`;
 
   } else if (url.includes('nicovideo.jp')) {
     const m = url.match(/watch\/(sm\d+|so\d+)/);

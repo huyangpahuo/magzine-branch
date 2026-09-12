@@ -990,6 +990,49 @@ p {
   color: inherit;
 }
 
+/* 视频占位卡(虎牙等自动播放平台:点击后才加载 iframe) */
+.hexo-video-embed.video-facade {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hexo-video-embed.video-facade .video-facade-btn {
+  position: relative;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+  transition: transform 0.15s ease;
+}
+
+.hexo-video-embed.video-facade .video-facade-btn::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-40%, -50%);
+  border-style: solid;
+  border-width: 10px 0 10px 17px;
+  border-color: transparent transparent transparent #1f2329;
+}
+
+.hexo-video-embed.video-facade:hover .video-facade-btn {
+  transform: scale(1.08);
+}
+
+.hexo-video-embed.video-facade .video-facade-tip {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 12px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 12px;
+  pointer-events: none;
+}
+
 .post-content code {
   background: var(--background-color);
   padding: 0.125rem 0.25rem;
