@@ -296,6 +296,12 @@ p {
   display: none;
   flex-direction: column;
   gap: 4px;
+  transition: transform 0.2s ease;
+}
+
+/* 按下时的反馈动画 */
+.nav-toggle:active {
+  transform: scale(0.85);
 }
 
 .nav-toggle span {
@@ -303,6 +309,21 @@ p {
   height: 3px;
   background: var(--primary-color);
   transition: all var(--transition-normal);
+  transform-origin: center;
+}
+
+/* 展开/收起动画:三条杠 <-> X */
+.nav-toggle.active span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.nav-toggle.active span:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0.2);
+}
+
+.nav-toggle.active span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
 }
 
 /* ===== Hero Section ===== */

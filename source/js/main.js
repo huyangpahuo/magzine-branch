@@ -123,6 +123,10 @@ function initMobileMenu() {
   navToggle.addEventListener("click", function () {
     navMenu.classList.toggle("active");
     navToggle.classList.toggle("active");
+    // 展开时懒构建精密刻度尺导航(手机端):此时菜单文案已按当前语言翻译
+    if (navMenu.classList.contains("active") && window.innerWidth <= 768 && window.__buildNavScale) {
+      window.__buildNavScale(navMenu);
+    }
   });
 
   // Close menu when clicking on a link

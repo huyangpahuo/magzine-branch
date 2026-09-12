@@ -75,26 +75,8 @@ function readBody(res, maxBytes = 512 * 1024) {
 }
 
 /* ─── B站播放器地址(对齐官方分享嵌入形式,降低外链风控概率) ────────────── */
-
-/* 同一 BV 构建期只请求一次开放接口 */
-const biliMetaCache = new Map();
-
-async function fetchBiliMeta(bvid) {
-  if (biliMetaCache.has(bvid)) return biliMetaCache.get(bvid);
-  let meta = null;
-  try {
-    const r = await httpGet(`https://api.bilibili.com/x/web-interface/view?bvid=${bvid}`);
-    if (r && r.statusCode === 200) {
-      const body = await readBody(r.res);
-      const j = JSON.parse(body);
-      if (j && j.code === 0 && j.data && j.data.aid && j.data.cid) {
-        meta = { aid: j.data.aid, cid: j.data.cid };
-      }
-    }
-  } catch (e) { meta = null; }
-  biliMetaCache.set(bvid, meta);
-  return meta;
-}
+/* 元数据获取抽离到 scripts/other/bilibili-meta.js(文章标签与万花筒共用) */
+const { fetchBiliMeta, buildOfficialSrc } = require('../other/bilibili-meta.js');
 
 /**
  * 生成 B站播放器地址:优先采用与官方"分享-嵌入代码"同构的
@@ -102,9 +84,7 @@ async function fetchBiliMeta(bvid) {
  */
 async function buildBilibiliPlayerSrc(bvid) {
   const meta = await fetchBiliMeta(bvid);
-  if (meta) {
-    return `https://player.bilibili.com/player.html?isOutside=true&aid=${meta.aid}&bvid=${bvid}&cid=${meta.cid}&p=1&autoplay=0&danmaku=0&muted=0`;
-  }
+  if (meta) return buildOfficialSrc(bvid, meta);
   return `https://player.bilibili.com/player.html?bvid=${bvid}&page=1&autoplay=0&danmaku=0&muted=0`;
 }
 

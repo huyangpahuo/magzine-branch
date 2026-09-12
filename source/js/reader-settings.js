@@ -216,8 +216,11 @@
           { key: "article_view", label: "浏览方式", type: "select",
             options: [["modal", "模态窗口"], ["direct", "直接打开"]],
             def: window.theme.article_list.view_mode || "modal" },
-          // 置顶开关仅在主题开启 last_read_pin 功能时显示
-          ...(window.theme.last_read_pin && window.theme.last_read_pin.enable !== false
+          // 置顶开关仅在主题开启 last_read_pin 功能时显示。
+          // ★ 必须用未打补丁的原始配置(__themeRaw)判断:若用 window.theme,
+          //   读者关掉该开关后 enable 变 false,选项会从面板里消失,再也打不开。
+          var rawTheme = window.__themeRaw || window.theme;
+          ...(rawTheme.last_read_pin && rawTheme.last_read_pin.enable !== false
             ? [{ key: "last_read_pin", label: "置顶已阅读文章", type: "toggle", def: "on" }]
             : []),
         ],

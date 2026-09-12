@@ -26,6 +26,12 @@ header.header(class=navbarStyle === 'bubble' ? 'navbar-bubble' : '')
           .search-toggle
             i.fas.fa-search
       
+      // 手机端顶栏:语言国旗(放大镜左侧) + 搜索按钮 + 汉堡
+      if theme.theme_config.search && theme.theme_config.search.enabled
+        a.lang-toggle-mobile(data-lang-switch-btn) 🇨🇳
+        .search-toggle.search-toggle-mobile
+          i.fas.fa-search
+
       .nav-toggle
         span
         span

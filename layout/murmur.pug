@@ -41,7 +41,7 @@ main.murmur-page
                       img.murmur-img(src=url_for(img), alt="图片 " + (idx + 1), loading="lazy")
                 
                 if item.video
-                  - var vData = parse_murmur_video(item.video)
+                  - var vData = parse_murmur_video(item.video, item)
                   if vData && vData.unsupported
                     p.murmur-unsupported= vData.unsupported
                   else if vData && vData.html

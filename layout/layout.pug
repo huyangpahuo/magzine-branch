@@ -192,6 +192,7 @@ html(lang=config.language)
     != js('js/random-cards')
     != js('js/table')
     != js('js/video-embed')
+    != js('js/mobile-scale')
 
     //- PJAX 无感刷新(自研实现,放最后加载;可在 config.yml 关闭)
     if theme.pjax && theme.pjax.enable !== false
@@ -228,6 +229,9 @@ html(lang=config.language)
         pet: !{JSON.stringify(theme.pet)},
         anime: !{JSON.stringify(theme.anime)}
         };
+        // ★ 原始配置快照(未合并读者设置):设置面板的"选项是否显示"
+        //   必须以主题原始配置为准,否则读者关掉某项后选项会自己消失
+        window.__themeRaw = JSON.parse(JSON.stringify(base));
         // 深合并读者设置补丁(两级足够)
         Object.keys(window.__readerThemePatch || {}).forEach(function (k) {
           if (

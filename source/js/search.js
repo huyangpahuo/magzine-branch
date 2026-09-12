@@ -5,13 +5,14 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function initSearch() {
-  const searchToggle = document.querySelector(".search-toggle");
+  // 手机端顶栏与桌面端导航各有一个搜索按钮,全部绑定
+  const searchToggles = document.querySelectorAll(".search-toggle");
   const searchOverlay = document.querySelector(".search-overlay");
   const searchInput = document.querySelector(".search-input");
   const searchResults = document.querySelector(".search-results");
   const searchClose = document.querySelector(".search-close");
 
-  if (!searchToggle || !searchOverlay) return;
+  if (!searchToggles.length || !searchOverlay) return;
 
   // pjax: 搜索框(导航栏+遮罩层)常驻不替换,只绑定一次,
   // 否则重复绑定会导致每次按键重复搜索、重复 fetch 索引
@@ -27,9 +28,11 @@ function initSearch() {
   }
 
   // Toggle search overlay
-  searchToggle.addEventListener("click", function () {
-    searchOverlay.classList.add("active");
-    searchInput.focus(); // Focus on input when opened
+  searchToggles.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      searchOverlay.classList.add("active");
+      searchInput.focus(); // Focus on input when opened
+    });
   });
 
   // Close search overlay

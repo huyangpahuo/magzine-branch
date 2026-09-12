@@ -138,7 +138,16 @@ script(type="module").
       return;
     }
 
-    // 2. Pjax 拦截：桌宠只初始化一次，后续页面跳转保留原实例！
+    // 2. 读者设置拦截:设置面板里关闭桌宠时,彻底不初始化。
+    //    烟雾粒子是直接挂在 body 上的(#pet-root 隐藏挡不住它们),
+    //    所以必须在这里从源头终止,否则会出现"桌宠关了粒子还在走"。
+    if (window.__readerSettings && window.__readerSettings.pet === "off") {
+      const root = document.getElementById('pet-root');
+      if (root) root.remove();
+      return;
+    }
+
+    // 3. Pjax 拦截：桌宠只初始化一次，后续页面跳转保留原实例！
     if (window.__PET_IS_RUNNING__) {
       const roots = document.querySelectorAll('#pet-root');
       // 删掉由 Pjax 新加载的第二个骨架，保留正在运行的第一个

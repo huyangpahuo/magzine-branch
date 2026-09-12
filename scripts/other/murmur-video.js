@@ -16,6 +16,12 @@
  *   unsupported    — 非空表示该链接无法解析,应在模板中显示提示而非 iframe
  */
 
+const { fetchBiliMeta, buildOfficialSrc } = require('./bilibili-meta.js');
+
+/* 万花筒 B站视频 URL -> 官方 isOutside 播放地址(before_generate 时填充)。
+ * 模板渲染时按 URL 查表,不依赖数据对象的引用传递。 */
+const biliOfficialMap = new Map();
+
 /** 虎牙等自动播放平台的点击加载占位卡(由 js/video-embed.js 负责插入 iframe)。 */
 function facadeHtml(src) {
   return `<div class="hexo-video-embed video-facade" data-video-src="${src}" style="position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background: #000; cursor: pointer;">
@@ -32,7 +38,7 @@ function facebookEmbedHtml(href) {
 <script>window.FB && window.FB.XFBML.parse();</script></div>`;
 }
 
-function parseMurmurVideo(url) {
+function parseMurmurVideo(url, item) {
   if (!url || typeof url !== 'string') return null;
 
   let src            = '';
@@ -64,7 +70,12 @@ function parseMurmurVideo(url) {
       if (bvM) {
         // 空 Referer 绕过 B 站手机端外链拦截
         referrerPolicy = 'no-referrer';
-        src = `https://player.bilibili.com/player.html?bvid=BV${bvM[1]}&page=1&autoplay=0&danmaku=0&muted=0`;
+        // 优先使用 before_generate 预取的官方 isOutside 形式(降低风控概率)
+        if (biliOfficialMap.has(url)) {
+          src = biliOfficialMap.get(url);
+        } else {
+          src = `https://player.bilibili.com/player.html?bvid=BV${bvM[1]}&page=1&autoplay=0&danmaku=0&muted=0`;
+        }
       }
     }
 
@@ -195,3 +206,25 @@ function parseMurmurVideo(url) {
 }
 
 hexo.extend.helper.register('parse_murmur_video', parseMurmurVideo);
+
+/**
+ * 构建前为万花筒数据里的 B站链接预取 aid/cid,把官方 isOutside 播放地址
+ * 存入 biliOfficialMap(与文章标签一致,降低手机端风控概率)。
+ */
+hexo.extend.filter.register('before_generate', async function () {
+  const locals = hexo.locals;
+  if (!locals || typeof locals.get !== 'function') return;
+  const data = locals.get('data');
+  const items = data && Array.isArray(data.murmur) ? data.murmur : null;
+  if (!items) return;
+  for (const item of items) {
+    const url = item && typeof item.video === 'string' ? item.video : '';
+    if (!url.includes('bilibili.com') || url.includes('player.bilibili.com')) continue;
+    if (biliOfficialMap.has(url)) continue;
+    const bvM = url.match(/BV([a-zA-Z0-9]+)/);
+    if (!bvM) continue;
+    const bvid = `BV${bvM[1]}`;
+    const meta = await fetchBiliMeta(bvid);
+    if (meta) biliOfficialMap.set(url, buildOfficialSrc(bvid, meta));
+  }
+});

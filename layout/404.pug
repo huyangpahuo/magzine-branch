@@ -42,13 +42,5 @@ main.notfound-page
         i.fas.fa-compass
         span 去逛归档
 
-  //- 底部波浪(与主题 footer 上方的波浪呼应)
-  .nf-waves(aria-hidden='true')
-    svg.waves(xmlns='http://www.w3.org/2000/svg', xmlns:xlink='http://www.w3.org/1999/xlink', viewBox='0 24 150 28', preserveAspectRatio='none', shape-rendering='auto')
-      defs
-        path#nf-gentle-wave(d='M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z')
-      g.parallax
-        use(xlink:href='#nf-gentle-wave', x='48', y='0')
-        use(xlink:href='#nf-gentle-wave', x='48', y='3')
-        use(xlink:href='#nf-gentle-wave', x='48', y='5')
-        use(xlink:href='#nf-gentle-wave', x='48', y='7')
+  //- 底部波浪使用主题全局的 #waves-container(layout.pug),
+  //- 这里不再重复渲染,避免 404 页出现两层波浪。

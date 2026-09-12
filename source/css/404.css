@@ -25,11 +25,16 @@
   position: absolute;
   width: 120px;
   height: 38px;
-  background: var(--card-background-color, #fff);
+  /* 亮色模式下用淡云灰蓝(原为白色,在白色页面背景上不可见) */
+  background: #dfe6ec;
   border-radius: 999px;
   opacity: 0.7;
   filter: blur(1px);
   animation: nf-drift 26s linear infinite;
+}
+
+body.dark-mode .nf-cloud {
+  background: #33363c; /* 暗色:比页面背景稍亮 */
 }
 
 .nf-cloud::before,
@@ -86,10 +91,10 @@
   z-index: 1;
   max-width: 520px;
   width: 100%;
-  background: var(--card-background-color, #fff);
-  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.06));
+  /* 融入背景:去掉卡片底色/边框/阴影,只保留内容排版 */
+  background: transparent;
+  border: none;
   border-radius: var(--radius-lg, 20px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
   padding: 2.4rem 2rem 2.6rem;
   text-align: center;
   animation: nf-card-in 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) both;
@@ -98,10 +103,6 @@
 @keyframes nf-card-in {
   from { opacity: 0; transform: translateY(28px) scale(0.96); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-body.dark-mode .nf-card {
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
 }
 
 /* ---------- 迷路的桌宠 ---------- */
@@ -292,42 +293,6 @@ body.dark-mode .nf-card {
 
 .nf-btn:active {
   transform: translateY(-1px) scale(0.98);
-}
-
-/* ---------- 底部波浪(复用主题波形) ---------- */
-.nf-waves {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 15vh;
-  min-height: 90px;
-  max-height: 160px;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.nf-waves .waves {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  margin-bottom: -7px;
-  min-height: 100px;
-  max-height: 150px;
-}
-
-.nf-waves .parallax > use {
-  animation: nf-wave-move 25s cubic-bezier(0.55, 0.5, 0.45, 0.5) infinite;
-}
-
-.nf-waves .parallax > use:nth-child(1) { animation-delay: -2s; animation-duration: 7s;   fill: var(--accent-color, #ff6b6b); opacity: 0.18; }
-.nf-waves .parallax > use:nth-child(2) { animation-delay: -3s; animation-duration: 10s;  fill: var(--accent-color, #ff6b6b); opacity: 0.28; }
-.nf-waves .parallax > use:nth-child(3) { animation-delay: -4s; animation-duration: 13s;  fill: var(--accent-color, #ff6b6b); opacity: 0.4; }
-.nf-waves .parallax > use:nth-child(4) { animation-delay: -5s; animation-duration: 20s;  fill: var(--primary-color, #35335c); }
-
-@keyframes nf-wave-move {
-  0%  { transform: translate3d(-90px, 0, 0); }
-  100% { transform: translate3d(85px, 0, 0); }
 }
 
 /* ---------- 响应式 ---------- */

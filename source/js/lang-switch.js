@@ -73,6 +73,17 @@ document.addEventListener("DOMContentLoaded", function () {
     // 归档
     归档: "Archives",
 
+    // 404 页面
+    "哎呀, 页面迷路了~": "Oops, the page got lost~",
+    "你要找的页面不存在, 或者它跑去二次元了 (´･ω･`)":
+      "The page you're looking for doesn't exist, or it ran off into the 2D world (´･ω･`)",
+    "别担心, 点击下面的按钮就能回家!":
+      "Don't worry — hit the button below to head home!",
+    去逛归档: "Browse the Archives",
+
+    // 手机端刻度尺导航
+    "左右滑动 · 点击选择": "Slide to explore · Tap to open",
+
     // 分类
     分类: "Categories",
     所有分类: "All Categories",
@@ -524,6 +535,10 @@ document.addEventListener("DOMContentLoaded", function () {
     isEn: function () {
       return currentLang === "en";
     },
+    // 供动态创建的导航(手机端刻度尺)调用:原地切换语言
+    applyLanguage: function (lang) {
+      applyLanguage(lang);
+    },
     translateNode: function (node) {
       if (currentLang === "en") {
         translateNode(node);
@@ -601,12 +616,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function updateLangButtons() {
     document.querySelectorAll("[data-lang-switch-btn]").forEach((btn) => {
+      if (btn.classList.contains("lang-toggle-mobile")) {
+        // 手机端顶栏的国旗按钮:只展示国旗
+        btn.innerText = currentLang === "en" ? "🇺🇸" : "🇨🇳";
+        return;
+      }
       btn.innerText = currentLang === "en" ? "🇨🇳 中文" : "🇺🇸 English";
     });
   }
 
   function setupLanguageButton() {
-    const buttons = document.querySelectorAll('a[href*="#lang-switch"]');
+    const buttons = document.querySelectorAll(
+      'a[href*="#lang-switch"], .lang-toggle-mobile'
+    );
     buttons.forEach((btn) => {
       btn.removeAttribute("href");
       btn.style.cursor = "pointer";
