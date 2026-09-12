@@ -76,7 +76,7 @@
   content: "suger百听不厌(`・ω・´)"
   location: "法国"
   images:
-    - "https://img.vocus.cc/jTtVXMEIr-g0nIJaT4sz-UgsP8IDTtjW8u6qEGu8ZlM/w:740/f:webp/plain/https://images.vocus.cc/42806faf-bc9f-46ee-a0ea-c095be1afc19.jpg"
+    - /images/18.png
   video: "https://youtu.be/09R8_2nJtjg?si=LUcvl0Z_OkpQ5bd0"
 
 # 示例 6：自定义图片路径

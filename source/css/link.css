@@ -218,7 +218,9 @@
 
   flex-grow: 1;
 
-  min-width: 0; /* 允许 flex 子项收缩,名字超长时省略号才生效 */
+  min-width: 0; /* 允许 flex 子项收缩 */
+
+  overflow: hidden; /* 创建块级格式化上下文,使块子元素(h3.link-name)宽度受限,保证 text-overflow ellipsis 生效 */
 
 }
 

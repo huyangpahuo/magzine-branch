@@ -44,7 +44,10 @@ main.murmur-page
                   - var vData = parse_murmur_video(item.video)
                   - var videoClass = vData.isVertical ? 'murmur-video-vertical' : (vData.isTwitter ? 'murmur-video-twitter' : 'murmur-video-normal')
                   .murmur-video(class=videoClass)
-                    iframe(src=vData.src, frameborder="0", allowfullscreen="allowfullscreen", allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen", title="嵌入视频")
+                    //- referrerpolicy="no-referrer": 让 iframe 不携带 Referer 请求头,
+                    //- Bilibili 播放器收到空 referrer 时视为直接访问,跳过对手机端外链的拦截逻辑;
+                    //- 此属性不影响桌面端正常播放。
+                    iframe(src=vData.src, frameborder="0", allowfullscreen="allowfullscreen", referrerpolicy="no-referrer", allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen", title="嵌入视频")
               
               .murmur-card-footer
                 span.murmur-date

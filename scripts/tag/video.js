@@ -157,6 +157,9 @@ hexo.extend.tag.register('video', function (args) {
     margin = '0 auto';
   }
 
+  // referrerpolicy="no-referrer": 让 iframe 不携带 Referer 请求头。
+  // Bilibili 播放器收到空 referrer 时视为直接访问,跳过对手机端外链的拦截逻辑;
+  // 此属性不影响桌面端正常播放。
   return `
 <div style="position: relative; width: 100%; max-width: ${maxWidth}; margin: ${margin}; padding-bottom: ${paddingBottom}; height: 0; overflow: hidden; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
   <iframe
@@ -164,6 +167,7 @@ hexo.extend.tag.register('video', function (args) {
     style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"
     allowfullscreen
     scrolling="no"
+    referrerpolicy="no-referrer"
     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
   </iframe>
 </div>
