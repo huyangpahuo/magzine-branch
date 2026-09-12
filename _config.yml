@@ -321,7 +321,7 @@ theme_config:
 # 注意:触发压缩的方法为先hexo clean清理public文件夹,然后连续执行两次hexo generate命令,第一次是生成图片,第二次才会触发压缩,最后hexo deploy发布
 # 或者执行hexo clean + hexo generate + hexo server命令,在本地预览时触发压缩,然后直接hexo deploy发布
 compress_images:
-  enable: false # 是否开启图片压缩 (默认关闭，改为 true 开启)
+  enable: true # 是否开启图片压缩 (默认关闭，改为 true 开启)
   min_size: 10240 # 最小压缩大小，小于此大小(10KB)的图片不压缩
   ignore: [] # 忽略的图片格式，例如: ['.gif', '.svg']
   quality: # 各种格式的压缩质量 (0-100)

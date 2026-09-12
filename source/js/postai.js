@@ -113,9 +113,7 @@ function ChucklePostAI(AI_option) {
     let controller = new AbortController();
     let signal = controller.signal;
 
-    // DeepSeek API配置
-    // 从主题配置中获取API密钥，如果没有配置则使用默认值（实际使用时应配置有效密钥）
-
+   
     // 打字机动画
     const animate = (timestamp) => {
       if (!animationRunning) {
