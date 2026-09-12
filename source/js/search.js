@@ -109,6 +109,21 @@ function initSearch() {
     displaySearchResults(results, query);
   });
 
+  // 把 markdown/HTML 混合的原始内容转成纯文本摘要:
+  // 搜索索引的 content 是未渲染的源文,直接 innerHTML 注入会把
+  // <img>/<table>/<h1> 等原样渲染,把单条结果 UI 撑成"标题+空白+简介"的散架样子
+  function toPlainText(raw) {
+    var text = raw || "";
+    text = text.replace(/<img[^>]*>/gi, " "); // 图片标签整体移除
+    text = text.replace(/<br\s*\/?>/gi, " ");
+    text = text.replace(/<\/?[a-z][^>]*>/gi, " "); // 其余 HTML 标签
+    text = text.replace(/!\[[^\]]*\]\([^)]*\)/g, " "); // markdown 图片
+    text = text.replace(/\[([^\]]*)\]\([^)]*\)/g, "$1"); // markdown 链接留文字
+    text = text.replace(/`{1,3}([^`]*)`{1,3}/g, "$1"); // 行内/块代码标记
+    text = text.replace(/[#>*_\-\|]+/g, " "); // markdown 符号
+    return text.replace(/\s+/g, " ").trim();
+  }
+
   function displaySearchResults(results, query) {
     if (results.length === 0) {
       // ★★★ 修改点 2：翻译无结果提示 ★★★
@@ -130,7 +145,7 @@ function initSearch() {
     results.forEach((result) => {
       // Highlight matching text
       let title = result.title || "无标题";
-      let content = result.content || "";
+      let content = toPlainText(result.content);
 
       // Simple highlight for title
       if (title.toLowerCase().includes(query)) {
