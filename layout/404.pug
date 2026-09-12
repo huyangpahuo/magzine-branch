@@ -1,0 +1,54 @@
+//- 404 Page Layout (pjax 友好 fragment:不含 html/head/body 外壳)
+//- 样式已抽离到 css/404.css(layout.pug 全局加载,适配 pjax)
+
+main.notfound-page
+  //- 漂浮装饰背景
+  .nf-bg
+    span.nf-cloud.c1
+    span.nf-cloud.c2
+    span.nf-cloud.c3
+    span.nf-star.s1 ★
+    span.nf-star.s2 ★
+    span.nf-star.s3 ★
+    span.nf-star.s4 ✦
+
+  .nf-card
+    //- 迷路的桌宠(纯 CSS 动效)
+    .nf-pet
+      .nf-pet-body
+        .nf-pet-face
+          span.nf-eye.left
+          span.nf-eye.right
+          span.nf-mouth
+        .nf-pet-arm.left
+        .nf-pet-arm.right
+        .nf-shadow
+
+    h1.nf-code(aria-label='404')
+      span.d1 4
+      span.d0 0
+      span.d2 4
+    p.nf-title 哎呀, 页面迷路了~
+    p.nf-desc
+      | 你要找的页面不存在, 或者它跑去二次元了 (´･ω･`)
+      br
+      | 别担心, 点击下面的按钮就能回家!
+
+    .nf-actions
+      a.nf-btn.primary(href='/')
+        i.fas.fa-home
+        span 返回首页
+      a.nf-btn.ghost(href='/archives/')
+        i.fas.fa-compass
+        span 去逛归档
+
+  //- 底部波浪(与主题 footer 上方的波浪呼应)
+  .nf-waves(aria-hidden='true')
+    svg.waves(xmlns='http://www.w3.org/2000/svg', xmlns:xlink='http://www.w3.org/1999/xlink', viewBox='0 24 150 28', preserveAspectRatio='none', shape-rendering='auto')
+      defs
+        path#nf-gentle-wave(d='M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z')
+      g.parallax
+        use(xlink:href='#nf-gentle-wave', x='48', y='0')
+        use(xlink:href='#nf-gentle-wave', x='48', y='3')
+        use(xlink:href='#nf-gentle-wave', x='48', y='5')
+        use(xlink:href='#nf-gentle-wave', x='48', y='7')

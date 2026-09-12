@@ -233,6 +233,7 @@ author_card:
   button_link: /about/
   background_image: "/images/23.png"
   width: large # normal or large
+  intro_banner: "/images/1.png" # 关于页"关于我"贴纸卡片的背景横幅图
   # 作者卡片背景动画
   background_animation:
     enable: false # 默认为false，启用后会在没有背景图片时显示动态背景

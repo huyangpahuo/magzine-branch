@@ -126,8 +126,8 @@
       var ps = document.createElement("style");
       ps.id = "reader-settings-panel-style";
       ps.textContent = [
-        ".reader-settings-panel{position:fixed;z-index:100001;width:264px;max-height:62vh;display:none;flex-direction:column;background:rgba(var(--card-bg-rgb,255,255,255),0.85);border:1px solid var(--border-color);border-radius:var(--radius-lg);box-shadow:0 8px 30px rgba(0,0,0,.12);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);color:var(--text-color);overflow:hidden;font-size:13px;-webkit-user-select:none;user-select:none}",
-        "body.dark-mode .reader-settings-panel{background:rgba(38,38,38,0.85);box-shadow:0 8px 30px rgba(0,0,0,.4)}",
+        ".reader-settings-panel{position:fixed;z-index:100001;width:264px;max-height:62vh;display:none;flex-direction:column;background:rgba(var(--card-bg-rgb,255,255,255),0.85);border:1px solid var(--border-color);border-radius:var(--radius-lg);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);color:var(--text-color);overflow:hidden;font-size:13px;-webkit-user-select:none;user-select:none}",
+        "body.dark-mode .reader-settings-panel{background:rgba(38,38,38,0.85)}",
         ".reader-settings-panel.open{display:flex}",
         ".rs-panel-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;flex:0 0 auto;border-bottom:1px solid var(--border-color)}",
         ".rs-panel-title{font-weight:700;font-size:0.8rem;letter-spacing:1px}",

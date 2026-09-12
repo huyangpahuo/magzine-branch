@@ -6,6 +6,7 @@
 
 
 ## 预览  
+
 查看我的[博客](https://funingna-wakawaka.github.io/)
 
 👉[使用文档](https://funingna-wakawaka.github.io/2026/03/22/%E8%BD%AF%E4%BB%B6%E7%9B%B8%E5%85%B3/%E4%B8%BB%E9%A2%98%E7%9A%84%E4%B8%80%E4%BA%9B%E6%A0%87%E7%AD%BE%E8%AF%AD%E6%B3%95/)
@@ -31,6 +32,7 @@ npm install
 ```
 
 ⚠️请确保hexo根目录的`package.json`包含以下依赖：
+
 ``` json
     "hexo": "^7.0.0",
     "hexo-generator-archive": "^2.0.0",
@@ -78,7 +80,7 @@ npm install sharp --save
 
 主题支持自动压缩文章及其他图片资源,耗时可能较长
 
-压缩1500张共1.5GB的图片约2~3分钟,按照_config.yml中的预设也就是
+压缩2262张共2.52GB的图片约7~8分钟,可调整_config.yml中的图片压缩率
 
 触发操作有两种
 
@@ -88,8 +90,8 @@ npm install sharp --save
 出现以下内容即成功
 
 ```bash
-🚀 [Image Compressor] Starting image optimization..
-🎉 [Image Compressor] Finished! Processed 619 images. Saved 190.29 MB.
+🚀 [Image Compressor] Starting image optimization...
+🎉 [Image Compressor] Finished! Processed 2262 images. Saved 1644.56 MB.
 ```
 
 #### ③ 搜索功能
@@ -148,6 +150,7 @@ npm install hexo-image-link --save
 详见[文章](https://funingna-wakawaka.github.io/2026/04/26/%E8%BD%AF%E4%BB%B6%E7%9B%B8%E5%85%B3/%E7%BB%99Blog%E5%A2%9E%E5%8A%A0AI%E6%80%BB%E7%BB%93%E5%8A%9F%E8%83%BD/)方法
 
 ## 开源协议
+
 本主题使用 **Apache License Version 2.0** 协议开源，您可以在遵守协议的前提下自由使用、修改和分发本主题
 
 

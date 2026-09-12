@@ -15,10 +15,13 @@ hexo.extend.tag.register('video', function (args) {
   // ==================== 中国国内平台 ====================
 
   // ---------- 哔哩哔哩 (Bilibili) ----------
-  if (url.includes('bilibili.com')) {
+  if (url.includes('bilibili.com') || url.includes('b23.tv')) {
     const m = url.match(/BV([a-zA-Z0-9]+)/);
     if (m) {
-      src = `//player.bilibili.com/player.html?bvid=BV${m[1]}&page=1&autoplay=0&high_quality=1&danmaku=0`;
+      // 必须用 https: 绝对协议:协议相对(//)地址在部分手机浏览器/WebView 里
+      // 会被 B 站播放器拒绝加载(电脑端正常,手机端黑屏/无法解析)。
+      // autopopup=0 禁止跳出 App,移动端可内联播放。
+      src = `https://player.bilibili.com/player.html?bvid=BV${m[1]}&page=1&autoplay=0&autopopup=0&high_quality=1&danmaku=0&allow_key_events=1`;
     }
   }
 

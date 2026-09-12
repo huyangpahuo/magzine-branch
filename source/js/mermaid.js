@@ -32,8 +32,8 @@
   var ICON_ROTATE =
     '<svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>';
 
-  var ICON_LOCK =
-    '<svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>';
+  var ICON_RESET =
+    '<svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>';
 
   /* ------------------------------------------------------------------
      Load external script once
@@ -176,7 +176,7 @@
 
     // Keep a reference to the mobile lock button so orientationchange can
     // read its state and resetTransform can clear the active class.
-    var mobileLockBtn = null;
+    var mobileResetBtn = null;
 
     function open(svgEl, source, onToolbar) {
       stage.innerHTML = "";
@@ -240,7 +240,7 @@
 
       // ── Build toolbar ──────────────────────────────────────────────
       toolbar.innerHTML = "";
-      mobileLockBtn = null;
+      mobileResetBtn = null;
 
       if (isMobile()) {
         // Mobile toolbar: Copy · Lock · Rotate  (image-zoom style)
@@ -269,14 +269,17 @@
           }
         });
 
-        mobileLockBtn = document.createElement("button");
-        mobileLockBtn.className = "mermaid-viewer-btn lock-btn";
-        mobileLockBtn.setAttribute("data-title", "锁定方向");
-        mobileLockBtn.innerHTML = ICON_LOCK;
-        mobileLockBtn.addEventListener("click", function (e) {
+        mobileResetBtn = document.createElement("button");
+        mobileResetBtn.className = "mermaid-viewer-btn reset-btn";
+        mobileResetBtn.setAttribute("data-title", "复原");
+        mobileResetBtn.innerHTML = ICON_RESET;
+        mobileResetBtn.addEventListener("click", function (e) {
           e.stopPropagation();
-          isLocked = !isLocked;
-          mobileLockBtn.classList.toggle("active", isLocked);
+          // 一键恢复原状:旋转角度/缩放/平移全部复位
+          rotation = 0;
+          isLocked = false;
+          resetTransform(true);
+          mobileResetBtn.classList.remove("active");
         });
 
         var mobileRotateBtn = document.createElement("button");
@@ -290,7 +293,7 @@
         });
 
         toolbar.appendChild(mobileCopyBtn);
-        toolbar.appendChild(mobileLockBtn);
+        toolbar.appendChild(mobileResetBtn);
         toolbar.appendChild(mobileRotateBtn);
       } else {
         // Desktop toolbar: Copy (from onToolbar callback) · Zoom In · Zoom Out · Reset
@@ -358,7 +361,7 @@
       overlay.classList.remove("active");
       document.body.style.overflow = "";
       isLocked = false;
-      if (mobileLockBtn) mobileLockBtn.classList.remove("active");
+      if (mobileResetBtn) mobileResetBtn.classList.remove("active");
     }
 
     closeBtn.addEventListener("click", close);

@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", function () {
     二次元爱好者: "Anime Enthusiast",
     我的技能点: "My Skill Points",
 
-    //
+    //自我介绍
     碎碎念: "Random Thoughts",
     "大家好! 欢迎来到我的个人Blog空间":
       "Hello everyone! Welcome to my personal blog space.",
@@ -278,7 +278,14 @@ document.addEventListener("DOMContentLoaded", function () {
     //最后阅读置顶徽章
     置顶: "Pinned",
 
-    //调色盘
+    // 友链
+    "头像跑掉了~": "Avatar ran away~",
+    复制: "Copy",
+    复制友链信息: "Copy Link Info",
+    复制模板: "Copy Template",
+    "摇一摇~": "Shuffle!",
+
+    // 调色盘
     自定义主题色: "Custom Theme Color",
 
     //sakana
@@ -337,6 +344,7 @@ document.addEventListener("DOMContentLoaded", function () {
     放大: "Zoom In",
     缩小: "Zoom Out",
     重置: "Reset Zoom",
+    复原: "Restore",
     复制源码: "Copy Source Code",
     "已复制 ✓": "Copied ✓",
     已复制: "Copied",
@@ -365,13 +373,14 @@ document.addEventListener("DOMContentLoaded", function () {
     启用桌宠: "Enable Pet",
     文字穿梭效果: "Text Repel Effect",
     "Sakana 小人": "Sakana Widget",
-    显示Sakana: "Show Sakana",
+    "显示 Sakana": "Show Sakana",
     导航栏: "Navbar",
     样式: "Style",
     气泡式: "Bubble",
     填充式: "Filled",
     主题色: "Theme Color",
     显示调色盘: "Show Color Picker",
+    效果: "Effect",
     鼠标点击效果: "Click Effect",
     爱心文字: "Heart Text",
     三角烟花: "Triangle Fireworks",
