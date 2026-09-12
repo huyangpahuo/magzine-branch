@@ -229,14 +229,6 @@
   width: 100%;
 }
 
-/* 正方形 1:1 或推特自适应视频 */
-.murmur-video-twitter {
-  padding-bottom: 100%;
-  max-width: 500px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
 .murmur-video iframe {
   position: absolute;
   top: 0;

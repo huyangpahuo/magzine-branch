@@ -6,13 +6,13 @@
  *   URL 会变成 "https://www.facebook.com/share/[object Object]"。
  *
  * 原因:
- *   nunjucks 词法分析器 (nunjucks/src/lexer.js) 会把参数文本里 "r/" 开头
- *   的序列识别为正则字面量 (如 r/pattern/flags),该 token 的 value 是
- *   {body, flags} 对象;而 hexo 的标签参数解析器 (hexo/dist/extend/tag.js
- *   的 _parseArgs) 逐 token 做字符串拼接 (argitem += token.value),对象被
- *   隐式转成 "[object Object]",原文 r/18RshrE6Ks/ 丢失。
- *   凡是参数中含 "r/" 的标签都会中招(如 Facebook 的 /share/r/ 短链),
- *   与具体平台无关。
+ *   nunjucks 词法分析器 (nunjucks/src/lexer.js) 会把参数文本里处于独立
+ *   路径段的 "r/" 序列(分隔符后紧跟 r/)识别为正则字面量(如 r/pattern/flags),
+ *   该 token 的 value 是 {body, flags} 对象;而 hexo 的标签参数解析器
+ *   (hexo/dist/extend/tag.js 的 _parseArgs) 逐 token 做字符串拼接
+ *   (argitem += token.value),对象被隐式转成 "[object Object]",原文丢失。
+ *   典型场景:Facebook 的 /share/r/ 短链、用户名恰为 "r" 的主页链接等。
+ *   与具体平台无关,凡参数中出现该序列的标签都会中招。
  *
  * 修复:
  *   包装 lexer.lex 返回的 token 流,把 TOKEN_REGEX token 的对象 value

@@ -74,6 +74,40 @@ function readBody(res, maxBytes = 512 * 1024) {
   });
 }
 
+/* ─── B站播放器地址(对齐官方分享嵌入形式,降低外链风控概率) ────────────── */
+
+/* 同一 BV 构建期只请求一次开放接口 */
+const biliMetaCache = new Map();
+
+async function fetchBiliMeta(bvid) {
+  if (biliMetaCache.has(bvid)) return biliMetaCache.get(bvid);
+  let meta = null;
+  try {
+    const r = await httpGet(`https://api.bilibili.com/x/web-interface/view?bvid=${bvid}`);
+    if (r && r.statusCode === 200) {
+      const body = await readBody(r.res);
+      const j = JSON.parse(body);
+      if (j && j.code === 0 && j.data && j.data.aid && j.data.cid) {
+        meta = { aid: j.data.aid, cid: j.data.cid };
+      }
+    }
+  } catch (e) { meta = null; }
+  biliMetaCache.set(bvid, meta);
+  return meta;
+}
+
+/**
+ * 生成 B站播放器地址:优先采用与官方"分享-嵌入代码"同构的
+ * isOutside + aid + bvid + cid 形式;开放接口失败时回退纯 bvid 形式。
+ */
+async function buildBilibiliPlayerSrc(bvid) {
+  const meta = await fetchBiliMeta(bvid);
+  if (meta) {
+    return `https://player.bilibili.com/player.html?isOutside=true&aid=${meta.aid}&bvid=${bvid}&cid=${meta.cid}&p=1&autoplay=0&danmaku=0&muted=0`;
+  }
+  return `https://player.bilibili.com/player.html?bvid=${bvid}&page=1&autoplay=0&danmaku=0&muted=0`;
+}
+
 /**
  * 依次请求并跟随重定向(直连,仅用于国内短链 b23.tv / hy.fan)。
  * 返回 { urls: 沿途全部 URL(含最终地址), body: 最终响应体前 512 KB };
@@ -139,7 +173,7 @@ function facadeHtml(src) {
 
 /** Facebook 富卡片嵌入(fb-video XFBML,样式与 Instagram 嵌入一致)。 */
 function facebookEmbedHtml(href) {
-  return `<div class="hexo-video-embed"><div class="fb-video" data-href="${href}" data-autoplay="false" data-show-text="false" data-allowfullscreen="true" style="max-width: 540px; min-width: 326px; width: calc(100% - 2px); margin: 0 auto;"></div>
+  return `<div class="hexo-video-embed"><div class="fb-video" data-href="${href}" data-autoplay="false" data-show-text="false" data-allowfullscreen="true" style="max-width: 540px; width: calc(100% - 2px); margin: 0 auto;"></div>
 <div id="fb-root"></div>
 <script async defer crossorigin="anonymous" src="https://connect.facebook.net/zh_CN/sdk.js#xfbml=1&version=v21.0"></script>
 <script>window.FB && window.FB.XFBML.parse();</script></div>`;
@@ -151,8 +185,7 @@ hexo.extend.tag.register('video', async function (args) {
   if (!url) return '';
 
   let src            = '';
-  let embedHtml      = '';   // TikTok / Instagram / Facebook 富卡片嵌入
-  let isTwitter      = false;
+  let embedHtml      = '';   // TikTok / Instagram / Facebook / Twitter 富卡片嵌入
   let referrerPolicy = 'strict-origin-when-cross-origin';
 
   const _siteUrl = (() => {
@@ -173,19 +206,28 @@ hexo.extend.tag.register('video', async function (args) {
   /* ── 中国国内平台 ────────────────────────────────────────────────────── */
 
   if (url.includes('bilibili.com')) {
-    const bvM = url.match(/BV([a-zA-Z0-9]+)/);
-    if (bvM) {
-      referrerPolicy = 'no-referrer';
-      src = `https://player.bilibili.com/player.html?bvid=BV${bvM[1]}&page=1&autoplay=0&danmaku=0&muted=0`;
+    if (url.includes('player.bilibili.com')) {
+      // 已是官方分享嵌入链接(含 aid/cid/isOutside):原样使用,规范化协议;
+      // 该形式默认自动播放,强制关闭(站点规则:一律不自动播放)
+      try {
+        const u = new URL(url.startsWith('//') ? 'https:' + url : url);
+        u.searchParams.set('autoplay', '0');
+        if (!u.searchParams.has('danmaku')) u.searchParams.set('danmaku', '0');
+        src = u.href;
+      } catch (e) {
+        src = url.startsWith('//') ? 'https:' + url : url;
+      }
+    } else {
+      const bvM = url.match(/BV([a-zA-Z0-9]+)/);
+      if (bvM) {
+        referrerPolicy = 'no-referrer';
+        src = await buildBilibiliPlayerSrc(`BV${bvM[1]}`);
+      }
     }
 
   } else if (url.includes('acfun.cn')) {
     const acM = url.match(/ac=(\d+)/) || url.match(/\/ac(\d+)/);
     if (acM) src = `https://www.acfun.cn/player/ac${acM[1]}`;
-
-  } else if (url.includes('ixigua.com')) {
-    const ixM = url.match(/\/(\d+)\/?/);
-    if (ixM) src = `https://www.ixigua.com/iframe/${ixM[1]}?autoplay=0`;
 
   } else if (url.includes('huya.com') || url.includes('msstatic.com/vod-player-360')) {
     if (url.includes('msstatic.com/vod-player-360')) {
@@ -225,10 +267,13 @@ hexo.extend.tag.register('video', async function (args) {
     }
 
   } else if (url.includes('twitter.com') || url.includes('x.com')) {
-    const tweetM = url.match(/\/status\/(\d+)/);
+    // 官方 blockquote 嵌入(widgets.js 自适应高度,无固定尺寸容器)
+    const tweetM = url.match(/(?:twitter|x)\.com\/([a-zA-Z0-9_]{1,15})\/status\/(\d+)/);
     if (tweetM) {
-      isTwitter = true;
-      src = `https://platform.twitter.com/embed/Tweet.html?id=${tweetM[1]}&dnt=true`;
+      const cite = `https://twitter.com/${tweetM[1]}/status/${tweetM[2]}`;
+      embedHtml = `<div class="hexo-video-embed"><blockquote class="twitter-tweet" data-dnt="true"><a href="${cite}?ref_src=twsrc%5Etfw"></a></blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<script>window.twttr && window.twttr.widgets && window.twttr.widgets.load();</script></div>`;
     }
 
   } else if (url.includes('tiktok.com')) {
@@ -253,7 +298,7 @@ hexo.extend.tag.register('video', async function (args) {
     // 官方 blockquote 嵌入,与 TikTok 同方案
     const permalink = url.split('?')[0].replace(/\/+$/, '');
     if (/\/(reel|reels|p|tv)\/[a-zA-Z0-9_-]+$/.test(permalink)) {
-      embedHtml = `<div class="hexo-video-embed"><blockquote class="instagram-media" data-instgrm-permalink="${permalink}" data-instgrm-version="14" style="max-width: 540px; min-width: 326px; width: calc(100% - 2px); margin: 0 auto;">
+      embedHtml = `<div class="hexo-video-embed"><blockquote class="instagram-media" data-instgrm-permalink="${permalink}" data-instgrm-version="14" style="max-width: 540px; width: calc(100% - 2px); margin: 0 auto;">
   <section>
     <a href="${permalink}" target="_blank" rel="noopener">在 Instagram 上查看这篇帖子</a>
   </section>

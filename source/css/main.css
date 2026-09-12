@@ -978,16 +978,23 @@ p {
   overflow-wrap: break-word;
 }
 
-/* TikTok / Instagram 官方 blockquote 嵌入：重置引用样式，
+/* TikTok / Instagram / Twitter 官方 blockquote 嵌入：重置引用样式，
    避免主题边框/斜体/底色污染平台播放器 */
 .post-content blockquote.tiktok-embed,
-.post-content blockquote.instagram-media {
+.post-content blockquote.instagram-media,
+.post-content blockquote.twitter-tweet {
   border-left: none;
   padding: 0;
   margin: var(--spacing-lg) auto;
   font-style: normal;
   background: transparent;
   color: inherit;
+}
+
+/* Twitter 官方嵌入渲染后的卡片:居中(与其它平台嵌入保持一致) */
+.hexo-video-embed .twitter-tweet-rendered {
+  margin-left: auto !important;
+  margin-right: auto !important;
 }
 
 /* 视频占位卡(虎牙等自动播放平台:点击后才加载 iframe) */

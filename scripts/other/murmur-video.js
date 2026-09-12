@@ -10,9 +10,8 @@
  *
  * 返回值字段:
  *   src            — iframe src
- *   html           — 富卡片嵌入(TikTok / Instagram / Facebook)或虎牙点击加载占位卡,
- *                    优先于 src 渲染,需以 != 输出原始 HTML
- *   isTwitter      — Twitter/X 推文
+ *   html           — 富卡片嵌入(TikTok / Instagram / Facebook / Twitter)或虎牙
+ *                    点击加载占位卡,优先于 src 渲染,需以 != 输出原始 HTML
  *   referrerPolicy — iframe referrerpolicy 属性值
  *   unsupported    — 非空表示该链接无法解析,应在模板中显示提示而非 iframe
  */
@@ -27,7 +26,7 @@ function facadeHtml(src) {
 
 /** Facebook 富卡片嵌入(fb-video XFBML,样式与 Instagram 嵌入一致)。 */
 function facebookEmbedHtml(href) {
-  return `<div class="hexo-video-embed"><div class="fb-video" data-href="${href}" data-autoplay="false" data-show-text="false" data-allowfullscreen="true" style="max-width: 540px; min-width: 326px; width: calc(100% - 2px); margin: 0 auto;"></div>
+  return `<div class="hexo-video-embed"><div class="fb-video" data-href="${href}" data-autoplay="false" data-show-text="false" data-allowfullscreen="true" style="max-width: 540px; width: calc(100% - 2px); margin: 0 auto;"></div>
 <div id="fb-root"></div>
 <script async defer crossorigin="anonymous" src="https://connect.facebook.net/zh_CN/sdk.js#xfbml=1&version=v21.0"></script>
 <script>window.FB && window.FB.XFBML.parse();</script></div>`;
@@ -38,7 +37,6 @@ function parseMurmurVideo(url) {
 
   let src            = '';
   let html           = '';
-  let isTwitter      = false;
   let unsupported    = '';
   let referrerPolicy = 'strict-origin-when-cross-origin';
 
@@ -51,20 +49,28 @@ function parseMurmurVideo(url) {
   /* ── 中国国内平台 ──────────────────────────────────────────────────────── */
 
   if (url.includes('bilibili.com') || url.includes('b23.tv')) {
-    const bvM = url.match(/BV([a-zA-Z0-9]+)/);
-    if (bvM) {
-      // 空 Referer 绕过 B 站手机端外链拦截
-      referrerPolicy = 'no-referrer';
-      src = `https://player.bilibili.com/player.html?bvid=BV${bvM[1]}&page=1&autoplay=0&danmaku=0&muted=0`;
+    if (url.includes('player.bilibili.com')) {
+      // 已是官方分享嵌入链接:原样使用,规范化协议;强制关闭自动播放
+      try {
+        const u = new URL(url.startsWith('//') ? 'https:' + url : url);
+        u.searchParams.set('autoplay', '0');
+        if (!u.searchParams.has('danmaku')) u.searchParams.set('danmaku', '0');
+        src = u.href;
+      } catch (e) {
+        src = url.startsWith('//') ? 'https:' + url : url;
+      }
+    } else {
+      const bvM = url.match(/BV([a-zA-Z0-9]+)/);
+      if (bvM) {
+        // 空 Referer 绕过 B 站手机端外链拦截
+        referrerPolicy = 'no-referrer';
+        src = `https://player.bilibili.com/player.html?bvid=BV${bvM[1]}&page=1&autoplay=0&danmaku=0&muted=0`;
+      }
     }
 
   } else if (url.includes('acfun.cn')) {
     const acM = url.match(/ac=(\d+)/) || url.match(/\/ac(\d+)/);
     if (acM) src = `https://www.acfun.cn/player/ac${acM[1]}`;
-
-  } else if (url.includes('ixigua.com')) {
-    const ixM = url.match(/\/(\d+)\/?/);
-    if (ixM) src = `https://www.ixigua.com/iframe/${ixM[1]}?autoplay=0`;
 
   } else if (url.includes('huya.com') || url.includes('msstatic.com/vod-player-360')) {
     if (url.includes('msstatic.com/vod-player-360')) {
@@ -109,10 +115,13 @@ function parseMurmurVideo(url) {
     }
 
   } else if (url.includes('twitter.com') || url.includes('x.com')) {
-    const tweetM = url.match(/\/status\/(\d+)/);
+    // 官方 blockquote 嵌入(widgets.js 自适应高度,无固定尺寸容器)
+    const tweetM = url.match(/(?:twitter|x)\.com\/([a-zA-Z0-9_]{1,15})\/status\/(\d+)/);
     if (tweetM) {
-      isTwitter = true;
-      src = `https://platform.twitter.com/embed/Tweet.html?id=${tweetM[1]}&dnt=true`;
+      const cite = `https://twitter.com/${tweetM[1]}/status/${tweetM[2]}`;
+      html = `<div class="hexo-video-embed"><blockquote class="twitter-tweet" data-dnt="true"><a href="${cite}?ref_src=twsrc%5Etfw"></a></blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<script>window.twttr && window.twttr.widgets && window.twttr.widgets.load();</script></div>`;
     }
 
   } else if (url.includes('tiktok.com')) {
@@ -137,7 +146,7 @@ function parseMurmurVideo(url) {
     // 官方 blockquote 嵌入,与 TikTok 同方案
     const permalink = url.split('?')[0].replace(/\/+$/, '');
     if (/\/(reel|reels|p|tv)\/[a-zA-Z0-9_-]+$/.test(permalink)) {
-      html = `<div class="hexo-video-embed"><blockquote class="instagram-media" data-instgrm-permalink="${permalink}" data-instgrm-version="14" style="max-width: 540px; min-width: 326px; width: calc(100% - 2px); margin: 0 auto;">
+      html = `<div class="hexo-video-embed"><blockquote class="instagram-media" data-instgrm-permalink="${permalink}" data-instgrm-version="14" style="max-width: 540px; width: calc(100% - 2px); margin: 0 auto;">
   <section>
     <a href="${permalink}" target="_blank" rel="noopener">在 Instagram 上查看这篇帖子</a>
   </section>
@@ -182,7 +191,7 @@ function parseMurmurVideo(url) {
     unsupported = '不支持嵌入该视频链接';
   }
 
-  return { src, html, isTwitter, referrerPolicy, unsupported };
+  return { src, html, referrerPolicy, unsupported };
 }
 
 hexo.extend.helper.register('parse_murmur_video', parseMurmurVideo);
