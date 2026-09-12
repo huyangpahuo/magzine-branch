@@ -229,14 +229,6 @@
   width: 100%;
 }
 
-/* 竖屏 9:16 视频 (YouTube Shorts / Facebook Reel 等通用竖屏) */
-.murmur-video-vertical {
-  padding-bottom: 177.77%;
-  max-width: 280px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
 /* 正方形 1:1 或推特自适应视频 */
 .murmur-video-twitter {
   padding-bottom: 100%;

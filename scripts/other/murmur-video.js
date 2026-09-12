@@ -5,14 +5,13 @@
  *
  * 注意:
  *   此 helper 为同步函数,无法在构建时跟随 HTTP 重定向。
- *   b23.tv / hy.fan / Facebook share/r/ 等短链请在 murmur 数据文件中
- *   直接填写完整视频链接(Facebook 分享短链无法在此解析,会显示提示)。
+ *   b23.tv / hy.fan 短链请在 murmur 数据文件中直接填写完整视频链接;
+ *   Facebook 分享短链(share/r/、fb.watch)不再支持,请使用完整链接。
  *
  * 返回值字段:
  *   src            — iframe src
  *   html           — 富卡片嵌入(TikTok / Instagram / Facebook)或虎牙点击加载占位卡,
  *                    优先于 src 渲染,需以 != 输出原始 HTML
- *   isVertical     — YouTube Shorts 等通用竖屏
  *   isTwitter      — Twitter/X 推文
  *   referrerPolicy — iframe referrerpolicy 属性值
  *   unsupported    — 非空表示该链接无法解析,应在模板中显示提示而非 iframe
@@ -39,7 +38,6 @@ function parseMurmurVideo(url) {
 
   let src            = '';
   let html           = '';
-  let isVertical     = false;
   let isTwitter      = false;
   let unsupported    = '';
   let referrerPolicy = 'strict-origin-when-cross-origin';
@@ -87,10 +85,11 @@ function parseMurmurVideo(url) {
   /* ── 国际/国外平台 ─────────────────────────────────────────────────────── */
 
   } else if (url.includes('youtube.com') || url.includes('youtu.be')) {
+    // shorts 链接同样按普通视频嵌入(16:9 容器)
     let videoId = '';
     if (url.includes('shorts/')) {
       const m = url.match(/shorts\/([a-zA-Z0-9_-]+)/);
-      if (m) { videoId = m[1]; isVertical = true; }
+      if (m) videoId = m[1];
     } else if (url.includes('v=')) {
       const m = url.match(/[?&]v=([a-zA-Z0-9_-]+)/);
       if (m) videoId = m[1];
@@ -162,13 +161,12 @@ function parseMurmurVideo(url) {
 
   } else if (url.includes('facebook.com') || url.includes('fb.watch')) {
     const reelM = url.match(/facebook\.com\/reel\/(\d+)/);
-    if (reelM) {
-      html = facebookEmbedHtml(`https://www.facebook.com/reel/${reelM[1]}`);
-    } else if (/facebook\.com\/share\//.test(url) || /\bfb\.watch\//.test(url)) {
-      // 同步上下文无法解析分享短链,直接嵌入会显示"视频不可用"
-      unsupported = 'Facebook 分享短链无法在此解析,请填写完整的视频/Reel 链接';
+    if (/facebook\.com\/share\//.test(url) || /\bfb\.watch\//.test(url)) {
+      // 分享短链不再支持(同步上下文也无法解析)
+      unsupported = '不支持 Facebook 分享短链,请填写完整的视频/Reel 链接';
     } else {
-      html = facebookEmbedHtml(url);
+      // fb-video 富卡片(与 Instagram 嵌入观感一致)
+      html = facebookEmbedHtml(reelM ? `https://www.facebook.com/reel/${reelM[1]}` : url);
     }
 
   } else if (url.includes('vimeo.com')) {
@@ -184,7 +182,7 @@ function parseMurmurVideo(url) {
     unsupported = '不支持嵌入该视频链接';
   }
 
-  return { src, html, isVertical, isTwitter, referrerPolicy, unsupported };
+  return { src, html, isTwitter, referrerPolicy, unsupported };
 }
 
 hexo.extend.helper.register('parse_murmur_video', parseMurmurVideo);
