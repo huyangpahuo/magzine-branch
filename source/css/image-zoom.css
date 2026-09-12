@@ -184,7 +184,7 @@ body.dark-mode .view-image {
    ========================================================= */
 .viewer-toolbar {
   position: absolute;
-  top: 24px;
+  top: 0; /* 紧贴查看界面上边缘 */
   left: 50%;
   transform: translateX(-50%) translateY(-16px);
   display: flex;
@@ -195,7 +195,7 @@ body.dark-mode .view-image {
   background: rgba(255, 255, 255, 0.55);
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
-  border-radius: 50px;
+  border-radius: 0 0 50px 50px; /* 上边缘贴平,下方圆角 */
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
   z-index: 10004;
   opacity: 0;
@@ -307,13 +307,13 @@ body.dark-mode .viewer-thumbs {
 }
 
 /* =========================================================
-   Tooltip
+   Tooltip(显示在按钮/导航下方)
    ========================================================= */
 .toolbar-btn::after,
 .nav-btn::after {
   content: attr(data-title);
   position: absolute;
-  bottom: 125%;
+  top: 125%;
   left: 50%;
   transform: translateX(-50%) scale(0.8);
   background-color: rgba(0, 0, 0, 0.8);
@@ -336,7 +336,7 @@ body.dark-mode .viewer-thumbs {
   opacity: 1;
   visibility: visible;
   transform: translateX(-50%) scale(1);
-  bottom: 115%;
+  top: 115%;
 }
 
 /* 按钮交互动画 */
@@ -453,5 +453,23 @@ body.dark-mode .viewer-thumbs {
   .image-viewer.controls-hidden .viewer-thumbs {
     opacity: 1;
     pointer-events: auto;
+  }
+
+  /* 电脑端:单击图片后隐藏"切换类"控件(左右缩略图/上一张下一张按钮/底部缩略图)。
+     工具栏(选择/锁定/下载)显隐独立,不受影响。再次单击图片恢复。 */
+  .image-viewer.ui-hidden .viewer-peek,
+  .image-viewer.ui-hidden .nav-btn,
+  .image-viewer.ui-hidden .viewer-thumbs {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .image-viewer.ui-hidden .nav-btn.prev {
+    transform: translateY(-50%) translateX(-10px);
+  }
+
+  .image-viewer.ui-hidden .nav-btn.next {
+    transform: translateY(-50%) translateX(10px);
   }
 }
