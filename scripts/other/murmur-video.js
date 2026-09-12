@@ -106,7 +106,7 @@ function parseMurmurVideo(url) {
     }
     if (videoId) {
       const originParam = siteOrigin ? `&origin=${encodeURIComponent(siteOrigin)}` : '';
-      src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=0&playsinline=1&enablejsapi=1${originParam}`;
+      src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=0&playsinline=1${originParam}`;
     }
 
   } else if (url.includes('twitter.com') || url.includes('x.com')) {

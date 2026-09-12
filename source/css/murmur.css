@@ -232,7 +232,7 @@
 /* 竖屏 9:16 视频 (YouTube Shorts / Facebook Reel 等通用竖屏) */
 .murmur-video-vertical {
   padding-bottom: 177.77%;
-  max-width: 350px;
+  max-width: 280px;
   margin-left: auto;
   margin-right: auto;
 }
