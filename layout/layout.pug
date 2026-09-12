@@ -73,8 +73,9 @@ html(lang=config.language)
     //- 独立页面样式全局加载(均以页面级 class 作作用域,不会互相污染)。
     //- pjax 只替换 main.main,不替换 <head>,这些样式必须常驻,
     //- 否则关于/照片墙/追番页面无感刷新后会丢失样式(关于页背景会错乱)
-    if page.path === 'about/index.html'
-      != css('css/about')
+    //- about.css 已完全以 .about-page / .about-section / .interest-cloud 为作用域,
+    //- 可安全常驻,不会污染其他页面(之前曾用条件加载,会导致 pjax 进入关于页丢失样式)
+    != css('css/about')
     != css('css/wall')
     != css('css/anime')
     != css('css/link')

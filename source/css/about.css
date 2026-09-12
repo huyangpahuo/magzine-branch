@@ -464,6 +464,7 @@ html[data-theme='dark'] .profile-item:hover {
 }
 
 /* === UI 2: 我的技能点 (优化悬停效果) === 
+   所有 .tag 规则均限定在 .interest-cloud 内，避免污染其他页面的 .tag 元素
 */
 .interest-cloud {
   background: transparent;
@@ -476,7 +477,7 @@ html[data-theme='dark'] .profile-item:hover {
   line-height: 1.6;
 }
 
-.tag {
+.interest-cloud .tag {
   display: inline-block;
   background: transparent;
   border: none;
@@ -493,7 +494,7 @@ html[data-theme='dark'] .profile-item:hover {
   /* 悬停背景圆角 */
 }
 
-.tag:hover {
+.interest-cloud .tag:hover {
   transform: scale(1.15) rotate(-2deg);
   background-color: color-mix(in srgb, var(--accent-color) 30%, transparent) !important;
   color: #000;
@@ -502,54 +503,54 @@ html[data-theme='dark'] .profile-item:hover {
 }
 
 /* 随机大小算法 */
-.tag:nth-child(3n+1) {
+.interest-cloud .tag:nth-child(3n+1) {
   font-size: 1.6rem;
   opacity: 1;
 }
 
-.tag:nth-child(4n+2) {
+.interest-cloud .tag:nth-child(4n+2) {
   font-size: 1.2rem;
   opacity: 0.85;
   font-weight: 500;
 }
 
-.tag:nth-child(5n+3) {
+.interest-cloud .tag:nth-child(5n+3) {
   font-size: 1.9rem;
   opacity: 1;
 }
 
-.tag:nth-child(7n) {
+.interest-cloud .tag:nth-child(7n) {
   font-size: 1.0rem;
   opacity: 0.75;
   letter-spacing: 1px;
 }
 
-.tag:nth-child(2n) {
+.interest-cloud .tag:nth-child(2n) {
   font-size: 1.4rem;
 }
 
 /* 协调配色方案 (莫兰迪/Material 混合) */
-.tag:nth-child(5n+1) {
+.interest-cloud .tag:nth-child(5n+1) {
   color: #3f51b5;
 }
 
-.tag:nth-child(5n+2) {
+.interest-cloud .tag:nth-child(5n+2) {
   color: #2e7d32;
 }
 
-.tag:nth-child(5n+3) {
+.interest-cloud .tag:nth-child(5n+3) {
   color: #c62828;
 }
 
-.tag:nth-child(5n+4) {
+.interest-cloud .tag:nth-child(5n+4) {
   color: #7b1fa2;
 }
 
-.tag:nth-child(5n+5) {
+.interest-cloud .tag:nth-child(5n+5) {
   color: #ef6c00;
 }
 
-.tag:nth-child(8n) {
+.interest-cloud .tag:nth-child(8n) {
   color: #546e7a;
 }
 
@@ -640,9 +641,9 @@ html[data-theme='dark'] .profile-item {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
 }
 
-/* 4. 文字颜色 */
-html.dark-mode h2,
-html[data-theme='dark'] h2 {
+/* 4. 文字颜色 — 只作用于关于页内的 h2，避免全局污染 */
+html.dark-mode .about-section h2,
+html[data-theme='dark'] .about-section h2 {
   color: #eee !important;
 }
 
@@ -651,15 +652,15 @@ html[data-theme='dark'] .bio-content {
   color: #bbb !important;
 }
 
-/* 5. 彩虹云 暗色适配 */
-html.dark-mode .tag,
-html[data-theme='dark'] .tag {
+/* 5. 彩虹云 暗色适配 — 同样限定在 .interest-cloud 内 */
+html.dark-mode .interest-cloud .tag,
+html[data-theme='dark'] .interest-cloud .tag {
   filter: brightness(1.4) saturate(0.9);
 }
 
 /* 暗色模式下的悬停背景也要调整一下，防止太亮 */
-html.dark-mode .tag:hover,
-html[data-theme='dark'] .tag:hover {
+html.dark-mode .interest-cloud .tag:hover,
+html[data-theme='dark'] .interest-cloud .tag:hover {
   background-color: color-mix(in srgb, var(--accent-color) 20%, transparent) !important;
   color: #fff !important;
 }
