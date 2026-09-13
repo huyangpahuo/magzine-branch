@@ -517,30 +517,34 @@ document.addEventListener("DOMContentLoaded", function () {
       const dateObj = new Date(dateStr);
       if (isNaN(dateObj.getTime())) return;
 
+      // 先按当前语言算出目标文本;若元素已是目标格式则直接跳过(幂等,
+      // 允许 MutationObserver 反复触发而不死循环)
+      let target;
       if (currentLang === "en") {
-        // === 英文模式：转换格式 ===
-        if (el.parentElement.classList.contains("archive-date")) {
-          // 归档页: Feb 24
-          el.textContent = dateObj.toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-          });
-        } else {
-          // 其他页: Jan 28, 2026
-          el.textContent = dateObj.toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-          });
-        }
+        // === 英文模式 ===
+        target = el.parentElement.classList.contains("archive-date")
+          ? // 归档页: Feb 24
+            dateObj.toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+            })
+          : // 其他页: Jan 28, 2026
+            dateObj.toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            });
       } else {
-        // === 中文模式：还原原本的样子 ===
-        // 直接从属性里拿回最初的文本，不再自己拼格式
-        const originalText = el.getAttribute("data-original-text");
-        if (originalText) {
-          el.textContent = originalText;
-        }
+        // === 中文模式：统一转换为中文写法(如 2026年9月3日 / 归档 9月3日) ===
+        const y = dateObj.getFullYear();
+        const m = dateObj.getMonth() + 1;
+        const day = dateObj.getDate();
+        target = el.parentElement.classList.contains("archive-date")
+          ? `${m}月${day}日`
+          : `${y}年${m}月${day}日`;
       }
+      if (el.textContent.trim() === target) return;
+      el.textContent = target;
     });
   }
 
@@ -575,22 +579,27 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function setupObservers() {
-    if (currentLang !== "en") return;
     if (window.__langObserverRef.observer) return; // pjax 换页/重复初始化时不叠加观察器
     window.__langObserverRef.observer = new MutationObserver((mutations) => {
+      // 是否有新增节点(加载更多/pjax/置顶卡片等动态内容)
+      let hasAdded = false;
       mutations.forEach((mutation) => {
-        // 监听到属性变化时，触发翻译
+        // 文本翻译仅在英文模式下进行;中文模式下的文本就是目标语言,不做改写
         if (mutation.type === "attributes") {
-          translateNode(mutation.target);
+          if (currentLang === "en") translateNode(mutation.target);
           return;
         }
-
+        if (mutation.addedNodes.length) hasAdded = true;
+        if (currentLang !== "en") return;
         mutation.addedNodes.forEach((n) => translateNode(n));
         if (mutation.type === "characterData") translateNode(mutation.target);
         if (mutation.type === "childList") {
           mutation.target.childNodes.forEach((n) => translateNode(n));
         }
       });
+      // 任意语言下,新增节点里的日期都按当前语言转换
+      // (translateDates 内部有幂等判断,重复触发不会死循环)
+      if (hasAdded) translateDates();
     });
 
     window.__langObserverRef.observer.observe(document.body, {
@@ -623,12 +632,14 @@ document.addEventListener("DOMContentLoaded", function () {
       translatePage(); // 中文 → 英文
       setupObservers(); // 观察器在翻译完成后开启,避免与翻译互相触发
     } else {
-      // ★ 必须先断开观察器,否则还原出来的中文会被立刻翻回英文
+      // ★ 先断开,还原完中文后再重新开启:
+      //   新的观察器在中文模式下只转换日期,不会把文本翻回英文
       disconnectObserver();
       currentLang = "zh";
       localStorage.setItem("site_lang", "zh");
       translateNode(document.body, true); // 英文 → 中文(逆向词典)
-      translateDates(); // 日期还原为原始中文格式
+      translateDates(); // 日期统一转换为中文写法
+      setupObservers();
     }
 
     updateLangButtons();
@@ -665,11 +676,12 @@ document.addEventListener("DOMContentLoaded", function () {
   // 这样当用户点击切换时，我们才有东西可以还原
   if (currentLang === "en") {
     translatePage();
-    setupObservers();
   } else {
-    // 如果当前是中文，只需扫描一遍把原始日期存进属性里，不改内容
+    // 中文模式：扫描日期并统一转换为中文写法
     translateDates();
   }
+  // 观察器两种语言都开启:英文下翻译文本,中文下为动态加入的卡片转换日期
+  setupObservers();
 
   setupLanguageButton();
 });

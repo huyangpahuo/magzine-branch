@@ -31,6 +31,9 @@
     "hexo-deployer-git": "^4.0.0",
     "hexo-filter-mermaid-diagrams": "^1.0.5",
     "hexo-generator-search": "^2.4.3",
+    "hexo-generator-feed": "^4.0.0",
+    "hexo-asset-img": "^1.2.0",
+    "hexo-image-link": "^0.0.6",
     "hexo-wordcount": "^6.0.1",
     "hexo-util": "^3.3.0",
     "sharp": "^0.35.4"

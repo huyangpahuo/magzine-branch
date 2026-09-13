@@ -34,11 +34,14 @@ npm install
 
 ```json
 "hexo": "^7.0.0",
+"hexo-asset-img": "^1.2.0",
 "hexo-generator-archive": "^2.0.0",
 "hexo-generator-category": "^2.0.0",
+"hexo-generator-feed": "^4.0.0",
 "hexo-generator-index": "^3.0.0",
 "hexo-generator-search": "^2.4.3",
 "hexo-generator-tag": "^2.0.0",
+"hexo-image-link": "^0.0.6",
 "hexo-renderer-ejs": "^2.0.0",
 "hexo-renderer-marked": "^6.0.0",
 "hexo-renderer-pug": "^3.0.0",
@@ -58,8 +61,8 @@ The following plugins provide additional features. They are optional and will no
 | `hexo-generator-search` | Site search |
 | `hexo-filter-mermaid-diagrams` | Mermaid diagrams |
 | `sharp` | Automatic image compression (used with the `compress_images` setting in the theme's `_config.yml`) |
-| `hexo-asset-img` | Insert article images using the `img` tag |
-| `hexo-image-link` | Insert article images using the `img` tag |
+
+> Note: `hexo-generator-feed` (RSS feed), `hexo-asset-img` and `hexo-image-link` are now **required dependencies** of the theme (see the dependency list above). They are installed automatically with `npm install` and need no extra setup.
 
 #### ① Article Word Count
 
@@ -131,14 +134,30 @@ mermaid:
 
 #### ⑤ Insert Images Using the `img` Tag
 
-If you want to insert images directly into articles using HTML's `img` tag, you can install:
-
-```bash
-npm install hexo-asset-img --save
-npm install hexo-image-link --save
-```
+`hexo-asset-img` and `hexo-image-link` are installed as **required dependencies** of the theme (see the dependency list above). You can insert images directly into articles using HTML's `img` tag — no extra installation needed.
 
 Hexo also provides its own built-in image insertion method. See the [official Hexo documentation](https://hexo.io/zh-cn/docs/asset-folders) for details.
+
+#### ⑥ RSS Feed
+
+`hexo-generator-feed` is installed as a **required dependency** of the theme. Add the following configuration to the bottom of your `_config.yml` to enable it:
+
+```yaml
+# RSS feed
+feed:
+  type: atom
+  path: atom.xml
+  limit: 20
+  order_by: -date
+```
+
+Once enabled:
+
+- An RSS icon appears next to the email icon in the homepage author card, linking to your feed;
+- A `<link rel="alternate">` declaration is added to the page head automatically;
+- The feed URL is `https://your-domain/atom.xml`.
+
+⚠️ Make sure to change `url` in your Hexo root `_config.yml` to your real site address (the default is `http://example.com`), otherwise the article links inside the feed will be wrong.
 
 ## Bilingual Support
 

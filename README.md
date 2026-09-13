@@ -35,11 +35,14 @@ npm install
 
 ``` json
     "hexo": "^7.0.0",
+    "hexo-asset-img": "^1.2.0",
     "hexo-generator-archive": "^2.0.0",
     "hexo-generator-category": "^2.0.0",
+    "hexo-generator-feed": "^4.0.0",
     "hexo-generator-index": "^3.0.0",
     "hexo-generator-search": "^2.4.3",
     "hexo-generator-tag": "^2.0.0",
+    "hexo-image-link": "^0.0.6",
     "hexo-renderer-ejs": "^2.0.0",
     "hexo-renderer-marked": "^6.0.0",
     "hexo-renderer-pug": "^3.0.0",
@@ -59,8 +62,8 @@ npm install
 | `hexo-generator-search`        | 站内搜索                                                     |
 | `hexo-filter-mermaid-diagrams` | Mermaid 图表                                                 |
 | `sharp`                        | 图片自动压缩（配合主题 `_config.yml` 中的 `compress_images` 配置） |
-| `hexo-asset-img`               | 使用 `img` 标签插入文章图片                                  |
-| `hexo-image-link`              | 使用 `img` 标签插入文章图片                                  |
+
+> 注：`hexo-generator-feed`（RSS 订阅）、`hexo-asset-img`、`hexo-image-link` 已是主题的**必需依赖**（见上方依赖清单），随 `npm install` 一起安装，无需单独处理。
 
 #### ① 文章字数统计
 
@@ -132,14 +135,30 @@ mermaid:
 
 #### ⑤ 使用 img 标签插入图片
 
-如果希望在文章中直接使用 HTML 的 `img` 标签插入图片，可以安装：
-
-```bash
-npm install hexo-asset-img --save
-npm install hexo-image-link --save
-```
+`hexo-asset-img` 与 `hexo-image-link` 已作为**必需依赖**随主题安装（见上方依赖清单），可直接在文章中使用 HTML 的 `img` 标签插入图片，无需单独安装。
 
 当然hexo有其自带的图片插入方式,详见[hexo官方文档](https://hexo.io/zh-cn/docs/asset-folders)
+
+#### ⑥ RSS 订阅
+
+`hexo-generator-feed` 已作为**必需依赖**随主题安装,在 Hexo 根目录的 `_config.yml` 底部添加以下配置即可开启：
+
+```yaml
+# RSS 订阅
+feed:
+  type: atom
+  path: atom.xml
+  limit: 20
+  order_by: -date
+```
+
+开启后：
+
+- 首页作者卡片的邮箱右侧会出现 RSS 图标,点击即可访问订阅源；
+- 页面头部会自动声明 `<link rel="alternate">`,方便阅读器发现订阅源；
+- 订阅源地址为 `https://你的域名/atom.xml`。
+
+⚠️ 请务必把 Hexo 根目录 `_config.yml` 中的 `url` 改为你的真实站点地址(默认值是 `http://example.com`),否则订阅源里的文章链接会是错误的。
 
 ## 主题中英双语
 

@@ -85,7 +85,8 @@
   }
 
   // 按记录构建一张与主页卡片同构的副本
-  function buildPinnedCard(record) {
+  // dateInfo: { text, originalText } 从主页原卡片复制的本地化日期(可选)
+  function buildPinnedCard(record, dateInfo) {
     var card = document.createElement("article");
     card.className = "article-card";
     card.setAttribute("data-pinned-copy", record.url);
@@ -127,13 +128,33 @@
     if (record.date) {
       dateEl.setAttribute("datetime", record.date);
       dateEl.setAttribute("data-date-standard", record.date.slice(0, 10));
-      var d = new Date(record.date);
-      if (!isNaN(d.getTime())) {
-        dateEl.textContent = d.toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "short",
-          day: "2-digit",
-        });
+      if (dateInfo && dateInfo.text) {
+        // ★ 优先复用主页原卡片的日期文本与属性(已按界面语言本地化,
+        //   中英文切换时与相邻卡片行为完全一致)
+        dateEl.textContent = dateInfo.text;
+        if (dateInfo.originalText) {
+          dateEl.setAttribute("data-original-text", dateInfo.originalText);
+        }
+      } else {
+        // 原卡片不在当前分页时按界面语言自行计算
+        var d = new Date(record.date);
+        if (!isNaN(d.getTime())) {
+          var isEn =
+            window.i18n && typeof window.i18n.isEn === "function"
+              ? window.i18n.isEn()
+              : false;
+          if (isEn) {
+            dateEl.textContent = d.toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            });
+          } else {
+            dateEl.textContent =
+              d.getFullYear() + "年" + (d.getMonth() + 1) + "月" + d.getDate() + "日";
+          }
+          dateEl.setAttribute("data-original-text", dateEl.textContent);
+        }
       }
     }
     meta.appendChild(dateEl);
@@ -196,11 +217,35 @@
     });
 
     // 复制置顶卡片到最前(尺寸与排版延续首卡)
-    var card = buildPinnedCard(record);
+    // ★ 日期文本从原卡片复制(已按界面语言本地化);原卡片不在本页时按语言计算
+    var dateInfo = null;
+    var originalCard = null;
+    grid.querySelectorAll(":scope > .article-card").forEach(function (c) {
+      if (originalCard) return;
+      var a = c.querySelector(".article-title a");
+      if (a && a.getAttribute("href") === record.url) originalCard = c;
+    });
+    if (originalCard) {
+      var origDate = originalCard.querySelector(".article-date");
+      if (origDate) {
+        dateInfo = {
+          text: origDate.textContent.trim(),
+          originalText: origDate.getAttribute("data-original-text"),
+        };
+      }
+    }
+    var card = buildPinnedCard(record, dateInfo);
     if (typeof applyRandomLayout === "function") {
       applyRandomLayout([card], 0);
     }
     grid.insertBefore(card, grid.firstChild);
+
+    // 界面语言为英文时,让日期与语言切换逻辑对齐(转换/还原)
+    if (window.i18n && typeof window.i18n.translateDates === "function") {
+      try {
+        window.i18n.translateDates();
+      } catch (e) {}
+    }
 
     var image = card.querySelector(".article-image");
     if (image) {

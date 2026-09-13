@@ -44,6 +44,9 @@ if theme.author_card && theme.author_card.enable
               if theme.social.email
                 a.social-link(href=theme.social.email, data-title="Email")
                   i.fas.fa-envelope
+              if config.feed && config.feed.path
+                a.social-link(href=url_for(config.feed.path), target="_blank", rel="noopener", data-title="RSS")
+                  i.fas.fa-rss
             if theme.author_card.button_text && theme.author_card.button_link
               .author-cta
                 a.author-button(href=url_for(theme.author_card.button_link))= theme.author_card.button_text

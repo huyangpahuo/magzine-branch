@@ -44,8 +44,8 @@ html(lang=config.language)
     script(src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js")
 
     //- RSS
-    if feed
-      link(rel="alternate", href=feed, title=config.title, type="application/atom+xml")
+    if config.feed && config.feed.path
+      link(rel="alternate", href=url_for(config.feed.path), title=config.title, type="application/atom+xml")
 
     //- Favicon
     link(rel="icon", href=url_for(theme.favicon))
