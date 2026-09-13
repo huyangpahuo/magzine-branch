@@ -1,12 +1,12 @@
 # Magzine Theme
 
-A modern magazine-style Hexo theme with large-screen support, featuring a clean, elegant, and fast design.
+A modern magazine-style Hexo theme with large-screen support, simplicity, elegance, and fast performance.
 
 [中文](README.md)
 
 ## Preview
 
-Check out my [Blog](https://funingna-wakawaka.github.io/)
+Check out my [blog](https://funingna-wakawaka.github.io/)
 
 👉 [Documentation](https://funingna-wakawaka.github.io/2026/03/22/%E8%BD%AF%E4%BB%B6%E7%9B%B8%E5%85%B3/%E4%B8%BB%E9%A2%98%E7%9A%84%E4%B8%80%E4%BA%9B%E6%A0%87%E7%AD%BE%E8%AF%AD%E6%B3%95/)
 
@@ -18,7 +18,7 @@ Check out my [Blog](https://funingna-wakawaka.github.io/)
 git clone https://github.com/huyangpahuo/magzine-branch.git themes/magzine
 ```
 
-2. Modify the `_config.yml` file in your Hexo site and set the theme to Magzine:
+2. Modify the `_config.yml` file of your Hexo site and set the theme to Magzine:
 
 ```yaml
 theme: magzine
@@ -30,7 +30,7 @@ theme: magzine
 npm install
 ```
 
-⚠️ Make sure the `package.json` in your Hexo root directory contains the following dependencies:
+⚠️ Make sure that the `package.json` in the root directory of your Hexo project contains the following dependencies:
 
 ```json
 "hexo": "^7.0.0",
@@ -51,60 +51,40 @@ npm install
 "hexo-util": "^3.3.0"
 ```
 
-### Optional Enhancement Plugins
+### Additional Plugins
 
-The following plugins provide additional features. They are optional and will not affect the normal operation of the theme if not installed.
+The following plugins provide additional functionality:
 
 | Plugin | Function |
-| ------------------------------ | ------------------------------------------------------------ |
-| `hexo-wordcount` | Article word count / Reading time |
+| ------------------------------------- | ------------------------------------------------------------ |
+| `hexo-wordcount` | Word count / Reading time |
 | `hexo-generator-search` | Site search |
 | `hexo-filter-mermaid-diagrams` | Mermaid diagrams |
-| `sharp` | Automatic image compression (used with the `compress_images` setting in the theme's `_config.yml`) |
+| `sharp` | Automatic image compression (used together with the `compress_images` option in the theme's `_config.yml`) |
+| `hexo-generator-feed` | RSS feed |
+| `hexo-asset-img`<br>`hexo-image-link` | Insert images using the `img` tag |
 
-> Note: `hexo-generator-feed` (RSS feed), `hexo-asset-img` and `hexo-image-link` are now **required dependencies** of the theme (see the dependency list above). They are installed automatically with `npm install` and need no extra setup.
+#### ① Automatic Image Compression
 
-#### ① Article Word Count
+The theme supports automatic compression of images in articles and other image resources. This process may take some time.
 
-Run the following command in the Hexo root directory:
+Compressing 2,262 images with a total size of 2.52 GB takes approximately 7–8 minutes. You can adjust the image compression quality in `_config.yml`.
 
-```bash
-npm install hexo-wordcount --save
-```
+There are two ways to trigger image compression:
 
-#### ② Automatic Image Compression
-
-Run the following command in the Hexo root directory:
-
-```bash
-npm install sharp --save
-```
-
-The theme supports automatic compression of article images and other image resources. The process may take some time.
-
-Compressing 1,500 images totaling 1.5 GB takes approximately 2–3 minutes, depending on the settings in `_config.yml`.
-
-There are two ways to trigger the image compression:
-
-- (1) `hexo clean` + `hexo generate` + `hexo generate` + `hexo deploy` (Compress and deploy only)
-- (2) `hexo clean` + `hexo generate` + `hexo server` + `hexo deploy` (Compress, preview, and deploy)
+- (1) `hexo clean` + `hexo generate` + `hexo generate` + `hexo deploy` (compress and deploy only)
+- (2) `hexo clean` + `hexo generate` + `hexo server` + `hexo deploy` (compress, preview, and deploy)
 
 The following output indicates that the process completed successfully:
 
-```text
-🚀 [Image Compressor] Starting image optimization..
-🎉 [Image Compressor] Finished! Processed 619 images. Saved 190.29 MB.
-```
-
-#### ③ Search Function
-
-Run the following command in the Hexo root directory:
-
 ```bash
-npm install hexo-generator-search@^2.4.3 --save
+🚀 [Image Compressor] Starting image optimization...
+🎉 [Image Compressor] Finished! Processed 2262 images. Saved 1644.56 MB.
 ```
 
-Then add the following configuration to the bottom of the `_config.yml` file in the Hexo root directory:
+#### ② Search
+
+Add the following configuration to the bottom of the `_config.yml` file in the root directory of your Hexo project:
 
 ```yaml
 # Search
@@ -115,15 +95,9 @@ search:
   format: html
 ```
 
-#### ④ Mermaid Diagrams
+#### ③ Mermaid Diagrams
 
-Run the following command in the Hexo root directory:
-
-```bash
-npm install hexo-filter-mermaid-diagrams --save
-```
-
-Then add the following configuration to the bottom of the `_config.yml` file:
+Then add the following configuration to the bottom of the `_config.yml` file in the root directory of your Hexo project:
 
 ```yaml
 # mermaid
@@ -132,18 +106,28 @@ mermaid:
   version: "10.6.1"
 ```
 
-#### ⑤ Insert Images Using the `img` Tag
+#### ④ Insert Images Using the `img` Tag
 
-`hexo-asset-img` and `hexo-image-link` are installed as **required dependencies** of the theme (see the dependency list above). You can insert images directly into articles using HTML's `img` tag — no extra installation needed.
+`hexo-asset-img` and `hexo-image-link` allow you to insert images using HTML's `img` tag directly in your posts.
 
-Hexo also provides its own built-in image insertion method. See the [official Hexo documentation](https://hexo.io/zh-cn/docs/asset-folders) for details.
-
-#### ⑥ RSS Feed
-
-`hexo-generator-feed` is installed as a **required dependency** of the theme. Add the following configuration to the bottom of your `_config.yml` to enable it:
+You still need to add or configure the following settings at the bottom of the `_config.yml` file in the root directory of your Hexo project:
 
 ```yaml
-# RSS feed
+post_asset_folder: true
+marked:
+  prependRoot: true
+  postAsset: true
+  relative_link: false
+```
+
+Of course, Hexo also provides its own built-in method for inserting images. See the [official Hexo documentation](https://hexo.io/zh-cn/docs/asset-folders) for details.
+
+#### ⑤ RSS Feed
+
+Add the following configuration to the bottom of the `_config.yml` file in the root directory of your Hexo project to enable RSS:
+
+```yaml
+# RSS Feed
 feed:
   type: atom
   path: atom.xml
@@ -151,30 +135,34 @@ feed:
   order_by: -date
 ```
 
-Once enabled:
+The feed URL is:
 
-- An RSS icon appears next to the email icon in the homepage author card, linking to your feed;
-- A `<link rel="alternate">` declaration is added to the page head automatically;
-- The feed URL is `https://your-domain/atom.xml`.
+`https://your-domain.com/atom.xml`
 
-⚠️ Make sure to change `url` in your Hexo root `_config.yml` to your real site address (the default is `http://example.com`), otherwise the article links inside the feed will be wrong.
+⚠️ Make sure to change the `url` in the `_config.yml` file in the root directory of your Hexo project to your actual site URL (the default value is `http://example.com`). Otherwise, the article links in the feed will be incorrect.
 
-## Bilingual Support
+```yaml
+# URL
+## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
+url: http://example.com
+```
 
-Due to my limited knowledge, I am currently unable to implement full i18n support. The theme currently supports Chinese and English.
+## Bilingual Theme
 
-## AI Comment Function
+Due to my limited knowledge, I am currently unable to implement full i18n support, so the theme currently only supports Chinese and English.
 
-See the [article](https://funingna-wakawaka.github.io/2026/04/26/%E8%BD%AF%E4%BB%B6%E7%9B%B8%E5%85%B3/%E7%BB%99Blog%E5%A2%9E%E5%8A%A0AI%E6%80%BB%E7%BB%93%E5%8A%9F%E8%83%BD/) for instructions.
+## AI Comment Feature
+
+See this [article](https://funingna-wakawaka.github.io/2026/04/26/%E8%BD%AF%E4%BB%B6%E7%9B%B8%E5%85%B3/%E7%BB%99Blog%E5%A2%9E%E5%8A%A0AI%E6%80%BB%E7%BB%93%E5%8A%9F%E8%83%BD/) for instructions.
 
 ## License
 
-This theme is licensed under the **Apache License Version 2.0**. You are free to use, modify, and distribute this theme in accordance with the license.
+This theme is open-sourced under the **Apache License Version 2.0**. You are free to use, modify, and distribute this theme as long as you comply with the terms of the license.
 
 ## Acknowledgements
 
-Thanks to [forever218](https://github.com/forever218).
+Special thanks to [forever218](https://github.com/forever218).
 
-This theme is a fork of the [magzine theme](https://github.com/forever218/hexo-theme-magzine). Due to the extensive modifications I have made, as well as the use of Vibe Coding + manual review, there may be overlooked issues or hidden bugs, and the theme may lack stability.
+This theme is a branch version of the [magzine theme](https://github.com/forever218/hexo-theme-magzine). Since my modifications are extensive and were developed through Vibe Coding + manual review, there may be things I have overlooked and hidden bugs, so stability is not guaranteed.
 
-It is no longer suitable for merging back into the original theme.
+If you encounter any issues, feel free to report them through an issue. Alternatively, you can let AI fix the problem and submit a PR!

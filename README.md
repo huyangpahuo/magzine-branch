@@ -52,34 +52,20 @@ npm install
     "hexo-util": "^3.3.0"
 ```
 
-### 可选增强插件
+### 增强插件
 
-以下插件用于提供额外功能，不安装也不会影响主题的正常运行
+以下插件用于提供额外功能
 
-| 插件                           | 功能                                                         |
-| ------------------------------ | ------------------------------------------------------------ |
-| `hexo-wordcount`               | 文章字数统计 / 阅读时长                                      |
-| `hexo-generator-search`        | 站内搜索                                                     |
-| `hexo-filter-mermaid-diagrams` | Mermaid 图表                                                 |
-| `sharp`                        | 图片自动压缩（配合主题 `_config.yml` 中的 `compress_images` 配置） |
+| 插件                                  | 功能                                                         |
+| ------------------------------------- | ------------------------------------------------------------ |
+| `hexo-wordcount`                      | 文章字数统计 / 阅读时长                                      |
+| `hexo-generator-search`               | 站内搜索                                                     |
+| `hexo-filter-mermaid-diagrams`        | Mermaid 图表                                                 |
+| `sharp`                               | 图片自动压缩（配合主题 `_config.yml` 中的 `compress_images` 配置） |
+| `hexo-generator-feed`                 | RSS订阅                                                      |
+| `hexo-asset-img`<br>`hexo-image-link` | 使用img标签插入图片                                          |
 
-> 注：`hexo-generator-feed`（RSS 订阅）、`hexo-asset-img`、`hexo-image-link` 已是主题的**必需依赖**（见上方依赖清单），随 `npm install` 一起安装，无需单独处理。
-
-#### ① 文章字数统计
-
-在 Hexo 根目录执行：
-
-```bash
-npm install hexo-wordcount --save
-```
-
-#### ② 图片自动压缩
-
-在 Hexo 根目录执行：
-
-```bash
-npm install sharp --save
-```
+#### ① 图片自动压缩
 
 主题支持自动压缩文章及其他图片资源,耗时可能较长
 
@@ -97,15 +83,9 @@ npm install sharp --save
 🎉 [Image Compressor] Finished! Processed 2262 images. Saved 1644.56 MB.
 ```
 
-#### ③ 搜索功能
+#### ② 搜索功能
 
-在 Hexo 根目录执行：
-
-```bash
-npm install hexo-generator-search@^2.4.3 --save
-```
-
-然后在 Hexo 根目录的 `_config.yml` 底部添加：
+在 Hexo 根目录的 `_config.yml` 底部添加：
 
 ```yaml
 # Search
@@ -116,13 +96,7 @@ search:
   format: html
 ```
 
-#### ④ Mermaid 图表
-
-在 Hexo 根目录执行：
-
-```bash
-npm install hexo-filter-mermaid-diagrams --save
-```
+#### ③ Mermaid 图表
 
 然后在 Hexo 根目录的 `_config.yml` 底部添加：
 
@@ -133,15 +107,25 @@ mermaid:
   version: "10.6.1"
 ```
 
-#### ⑤ 使用 img 标签插入图片
+#### ④ 使用 img 标签插入图片
 
-`hexo-asset-img` 与 `hexo-image-link` 已作为**必需依赖**随主题安装（见上方依赖清单），可直接在文章中使用 HTML 的 `img` 标签插入图片，无需单独安装。
+`hexo-asset-img` 与 `hexo-image-link` 可直接在文章中使用 HTML 的 `img` 标签插入图片
+
+仍需要的操作是在 Hexo 根目录的 `_config.yml` 底部添加或者设置：
+
+```yaml
+post_asset_folder: true
+marked:
+  prependRoot: true
+  postAsset: true
+relative_link: false
+```
 
 当然hexo有其自带的图片插入方式,详见[hexo官方文档](https://hexo.io/zh-cn/docs/asset-folders)
 
-#### ⑥ RSS 订阅
+#### ⑤ RSS 订阅
 
-`hexo-generator-feed` 已作为**必需依赖**随主题安装,在 Hexo 根目录的 `_config.yml` 底部添加以下配置即可开启：
+在 Hexo 根目录的 `_config.yml` 底部添加以下配置即可开启：
 
 ```yaml
 # RSS 订阅
@@ -152,13 +136,17 @@ feed:
   order_by: -date
 ```
 
-开启后：
+订阅源地址为 `https://你的域名/atom.xml`。
 
-- 首页作者卡片的邮箱右侧会出现 RSS 图标,点击即可访问订阅源；
-- 页面头部会自动声明 `<link rel="alternate">`,方便阅读器发现订阅源；
-- 订阅源地址为 `https://你的域名/atom.xml`。
+⚠️ 请务必把 Hexo 根目录 `_config.yml` 中的 `url` 改为你的真实站点地址(默认值是 `http://example.com`),否则订阅源里的文章链接会是错误的
 
-⚠️ 请务必把 Hexo 根目录 `_config.yml` 中的 `url` 改为你的真实站点地址(默认值是 `http://example.com`),否则订阅源里的文章链接会是错误的。
+```yaml
+# URL
+## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
+url: http://example.com
+```
+
+
 
 ## 主题中英双语
 
@@ -180,4 +168,4 @@ feed:
 
 本主题是[magzine主题](https://github.com/forever218/hexo-theme-magzine)的分支版本,由于我的修改过于巨大而且为Vibe Coding+人工 review,可能存在我忽视的地方以及潜藏bug,缺乏稳定性
 
-已经不适合合并原主题
+如果有什么问题你可以通过issue告诉我,或者你也可以让ai修好然后pr哦
