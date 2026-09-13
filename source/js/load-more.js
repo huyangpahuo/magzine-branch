@@ -164,9 +164,19 @@ function initLoadMore() {
     num.className = "pager-num";
     num.type = "text";
     num.inputMode = "numeric";
+    num.enterKeyHint = "go"; // 手机虚拟键盘显示"前往"
     num.value = cur;
     num.setAttribute("aria-label", "页码,可输入后点击加载更多跳转");
     num.title = getText("pageEditable");
+
+    // ★ 页码键盘跳转:电脑端回车/空格、手机端虚拟键盘回车,
+    //   行为与点击"加载更多文章"完全一致(编辑页码→跳转,未改→追加/翻页)
+    num.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        loadMoreBtn.click();
+      }
+    });
 
     const next = document.createElement("button");
     next.className = "pager-arrow pager-next";
