@@ -22,6 +22,9 @@
   "use strict";
 
   if (window.__magzinePjax) return;
+  // 读者在设置面板关闭了"无感刷新":保持传统整页加载,不做任何拦截
+  // (reader-settings.js 在 <head> 先执行,此处可读到读者设置)
+  if (window.__readerSettings && window.__readerSettings.pjax === "off") return;
   window.__magzinePjax = true;
 
   // 历史滚动交给 pjax 管理,避免浏览器自动恢复与我们的 swap 打架

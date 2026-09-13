@@ -22,9 +22,14 @@ if theme.cover && theme.cover.enable
     (function() {
       var cover = document.getElementById('blog-cover');
       if (!cover) return;
-      
+
+      // 读者在设置面板关掉了封面(reader-settings.js 在 <head> 先执行,此处可读到):
+      // 必须连同滚动锁定一起跳过,否则封面被隐藏后 body 仍处于 overflow:hidden,
+      // 页面没有滚动条也无法上下滚动。
+      var readerOff = window.__readerSettings && window.__readerSettings.cover === 'off';
+
       // 如果当前是在 iframe/模态窗口中，或者用户已经点过“开始旅行”了
-      if (window.self !== window.top || sessionStorage.getItem('hasSeenCover') === 'true') {
+      if (window.self !== window.top || readerOff || sessionStorage.getItem('hasSeenCover') === 'true') {
         // 立即隐藏，避免任何闪烁和遮挡
         cover.style.display = 'none';
       } else {

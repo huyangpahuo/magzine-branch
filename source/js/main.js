@@ -22,6 +22,8 @@ document.addEventListener("DOMContentLoaded", function () {
 function initTypingEffect() {
   const typingElement = document.getElementById("typing-text");
   if (!typingElement) return;
+  // 读者设置关闭了首页图片:hero 已被隐藏,不再启动打字循环
+  if (window.__readerSettings && window.__readerSettings.hero === "off") return;
   // pjax: 封面元素常驻不替换,只允许启动一次,否则多个打字循环会互相覆盖
   if (typingElement.dataset.typingBound) return;
   typingElement.dataset.typingBound = "1";

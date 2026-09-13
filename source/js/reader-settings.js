@@ -62,6 +62,10 @@
     if (rs.cover === "off") css += "#blog-cover{display:none!important}";
     if (rs.color_picker === "off")
       css += ".theme-color-picker-container{display:none!important}";
+    // 首页图片(hero)与碎碎念顶部横幅:由读者设置关闭时直接隐藏渲染出的节点
+    if (rs.hero === "off") css += ".hero-section{display:none!important}";
+    if (rs.murmur_banner === "off")
+      css += ".murmur-banner{display:none!important}";
     if (rs.toc === "hide")
       css +=
         ".toc-sidebar,#table-of-contents,.mobile-toc-toggle{display:none!important}";
@@ -106,6 +110,23 @@
         if (rs.music_position) player.dataset.pcPosition = rs.music_position;
       }
     }
+
+    // 首页文章卡片大小(覆盖 config 的 article_list.card_size)
+    if (rs.card_size) {
+      var grid = document.querySelector(".articles-grid");
+      if (grid)
+        grid.classList.toggle("card-size-large", rs.card_size === "large");
+    }
+
+    // 作者卡片宽度(覆盖 config 的 author_card.width)
+    if (rs.author_card_width) {
+      var authorCard = document.querySelector(".author-card");
+      if (authorCard)
+        authorCard.classList.toggle(
+          "author-card--large",
+          rs.author_card_width === "large",
+        );
+    }
   });
 
   /* ============ 电脑端右键设置面板 ============ */
@@ -118,6 +139,11 @@
     if (window.self !== window.top) return;
     if (!(window.theme && window.theme.reader_settings && window.theme.reader_settings.enable))
       return;
+    // ★ 幂等守卫:pjax 换页后会重新派发 DOMContentLoaded(见 pjax-init.js),
+    //   若不拦截,每换一页就会再创建一个面板并叠加在一起——
+    //   点击关闭按钮只关掉最上面一层,看起来就像"必须点两次才能关闭"。
+    if (window.__rsPanelInit) return;
+    window.__rsPanelInit = true;
 
     var items = window.theme.reader_settings.items || {};
 
@@ -160,31 +186,33 @@
 
     // 面板章节定义:show 由主题功能决定,渲染由 config 的 items 决定
     // ★ "选项是否显示"必须用未打补丁的原始配置(__themeRaw)判断:
-    //   若用 window.theme,读者关掉某开关后 enable 变 false,选项会自己消失
+    //   若用 window.theme,读者关掉某开关后 enable 变 false,选项会自己消失;
+    //   同时 config.yml 中设为 false 的模块(或其上级模块关闭)一律不显示,
+    //   例如 pjax.enable:false 时面板不出现"无感刷新"开关。
     var rawTheme = window.__themeRaw || window.theme;
     var available = [
       {
         key: "music_player", label: "音乐播放器",
-        show: !!(window.theme.music_player && window.theme.music_player.enable),
+        show: !!(rawTheme.music_player && rawTheme.music_player.enable),
         items: [
           { key: "music_style", label: "形态", type: "select",
-            options: [["pill", "圆条型"], ["card", "卡片"]], def: window.theme.music_player.style || "pill" },
+            options: [["pill", "圆条型"], ["card", "卡片"]], def: (rawTheme.music_player && rawTheme.music_player.style) || "pill" },
           { key: "music_position", label: "位置(电脑端)", type: "select",
-            options: [["floating", "悬浮左侧"], ["header", "导航栏内"]], def: window.theme.music_player.pc_position || "floating" },
+            options: [["floating", "悬浮左侧"], ["header", "导航栏内"]], def: (rawTheme.music_player && rawTheme.music_player.pc_position) || "floating" },
         ],
       },
       {
         key: "pet", label: "桌宠",
-        show: !!(window.theme.pet && window.theme.pet.enable),
+        show: !!(rawTheme.pet && rawTheme.pet.enable),
         items: [
           { key: "pet", label: "启用桌宠", type: "toggle", def: "on" },
           { key: "pet_pretext", label: "文字穿梭效果", type: "toggle",
-            def: (window.theme.pet.pretext_interaction && window.theme.pet.pretext_interaction.enable) ? "on" : "off" },
+            def: (rawTheme.pet && rawTheme.pet.pretext_interaction && rawTheme.pet.pretext_interaction.enable) ? "on" : "off" },
         ],
       },
       {
         key: "sakana", label: "Sakana 小人",
-        show: !!(window.theme.sakana && window.theme.sakana.enable),
+        show: !!(rawTheme.sakana && rawTheme.sakana.enable),
         items: [{ key: "sakana", label: "显示 Sakana", type: "toggle", def: "on" }],
       },
       {
@@ -192,12 +220,12 @@
         items: [
           { key: "navbar", label: "样式", type: "select",
             options: [["bubble", "气泡式"], ["fill", "填充式"]],
-            def: (window.theme.navbar && window.theme.navbar.style) || "bubble" },
+            def: (rawTheme.navbar && rawTheme.navbar.style) || "bubble" },
         ],
       },
       {
         key: "theme_color", label: "主题色",
-        show: !!(window.theme.color_picker && window.theme.color_picker.enable),
+        show: !!(rawTheme.color_picker && rawTheme.color_picker.enable),
         items: [{ key: "color_picker", label: "显示调色盘", type: "toggle", def: "on" }],
       },
       {
@@ -209,16 +237,25 @@
       },
       {
         key: "cover", label: "封面",
-        show: !!(window.theme.cover && window.theme.cover.enable),
+        show: !!(rawTheme.cover && rawTheme.cover.enable),
         items: [{ key: "cover", label: "启用封面", type: "toggle", def: "on" }],
       },
       {
+        key: "hero", label: "首页图片",
+        // config 里 hero.enable 为 false 时整个模块不渲染,面板同样不显示
+        show: !!(rawTheme.hero && rawTheme.hero.enable),
+        items: [{ key: "hero", label: "启用首页图片", type: "toggle", def: "on" }],
+      },
+      {
         key: "article_view", label: "文章浏览",
-        show: !!(window.theme.article_list),
+        show: !!(rawTheme.article_list),
         items: [
           { key: "article_view", label: "浏览方式", type: "select",
             options: [["modal", "模态窗口"], ["direct", "直接打开"]],
-            def: window.theme.article_list.view_mode || "modal" },
+            def: (rawTheme.article_list && rawTheme.article_list.view_mode) || "modal" },
+          { key: "card_size", label: "卡片大小", type: "select",
+            options: [["normal", "标准"], ["large", "大"]],
+            def: (rawTheme.article_list && rawTheme.article_list.card_size) || "normal" },
           // 置顶开关仅在主题开启 last_read_pin 功能时显示(见上方 rawTheme 说明)
           ...(rawTheme.last_read_pin && rawTheme.last_read_pin.enable !== false
             ? [{ key: "last_read_pin", label: "置顶已阅读文章", type: "toggle", def: "on" }]
@@ -226,13 +263,34 @@
         ],
       },
       {
+        key: "pjax", label: "无感刷新",
+        // config 里 pjax.enable 为 false 时主题已改用整页加载,面板不再提供开关
+        show: !!(rawTheme.pjax && rawTheme.pjax.enable !== false),
+        items: [{ key: "pjax", label: "启用无感刷新", type: "toggle", def: "on" }],
+      },
+      {
+        key: "murmur_banner", label: "万花筒",
+        // config 里 murmur.banner.enable 为 false 时横幅不渲染,面板同样不显示
+        show: !!(rawTheme.murmur && rawTheme.murmur.banner && rawTheme.murmur.banner.enable !== false),
+        items: [{ key: "murmur_banner", label: "显示顶部横幅", type: "toggle", def: "on" }],
+      },
+      {
+        key: "author_card", label: "作者卡片",
+        show: !!(rawTheme.author_card && rawTheme.author_card.enable),
+        items: [
+          { key: "author_card_width", label: "宽度", type: "select",
+            options: [["normal", "标准"], ["large", "大"]],
+            def: (rawTheme.author_card && rawTheme.author_card.width) || "normal" },
+        ],
+      },
+      {
         key: "image_viewer", label: "图片查看器", show: true,
         items: [
           { key: "image_mode", label: "切换方式(电脑端)", type: "select",
             options: [["peek", "两侧预览图"], ["buttons", "上一张/下一张"]],
-            def: (window.theme.image_viewer && window.theme.image_viewer.desktop_switch_mode) || "peek" },
+            def: (rawTheme.image_viewer && rawTheme.image_viewer.desktop_switch_mode) || "peek" },
           { key: "image_thumbs", label: "电脑端缩略图", type: "toggle",
-            def: (window.theme.image_viewer && window.theme.image_viewer.desktop_thumbnails !== false) ? "on" : "off" },
+            def: (rawTheme.image_viewer && rawTheme.image_viewer.desktop_thumbnails !== false) ? "on" : "off" },
         ],
       },
       {

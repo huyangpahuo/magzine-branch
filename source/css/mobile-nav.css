@@ -101,7 +101,7 @@
   }
 
   .ns-text {
-    fill: #0592a6;
+    fill: var(--accent-color); /* 跟随调色盘主题色,避免写死颜色与主题不一致 */
     font-size: 18px;
     font-weight: 600;
     text-anchor: middle;

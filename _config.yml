@@ -4,8 +4,8 @@ logo: /images/0.png
 # 首页图
 # Hero Section
 hero:
-  enable: false # 是否开启首页图片
-  background_image: /images/11.webp
+  enable: true # 是否开启首页图片
+  background_image: /images/24.png
   typing_text: 有志者事竟成多么美好的世界呀
   typing_speed: 100
   delete_speed: 50
@@ -155,6 +155,7 @@ wordcount:
   enable: true # 是否在文章元数据区域显示字数和预计阅读时间
 
 # 桌面宠物配置(建议保持当前配置,数值调高浏览器会非常卡顿,甚至崩溃)
+# 出于性能考虑,若一个段落超过800字桌宠自动忽略
 pet:
   enable: true # 设为 false 即可关闭桌宠
   mobile_enable: false # 是否在手机移动端启用桌宠 (出于性能考虑，默认建议关闭)
@@ -183,7 +184,11 @@ reader_settings:
     theme_color: true # 调色盘显示
     click_effect: true # 鼠标点击效果
     cover: true # 启用封面
-    article_view: true # 文章浏览方式(含"置顶已阅读文章"开关)
+    hero: true # 启用首页图片
+    article_view: true # 文章浏览方式/卡片大小(含"置顶已阅读文章"开关)
+    pjax: true # 无感刷新开关
+    murmur_banner: true # 碎碎念(万花筒)顶部横幅开关
+    author_card: true # 作者卡片宽度
     image_viewer: true # 图片切换方式与电脑缩略图
     falling_leaves: true # 落叶效果
 
@@ -236,7 +241,7 @@ author_card:
   intro_banner: "/images/1.png" # 关于页"关于我"贴纸卡片的背景横幅图
   # 作者卡片背景动画
   background_animation:
-    enable: false # 默认为false，启用后会在没有背景图片时显示动态背景
+    enable: true # 默认为false，启用后会在没有背景图片时显示动态背景
     type: geometric # 背景动画类型：particles, geometric, gradient
     color_scheme: auto # 颜色方案：auto（自动跟随主题）、light、dark
     interactive: true # 是否启用鼠标交互效果
@@ -292,15 +297,7 @@ theme_config:
     google_analytics_id: ""
     baidu_analytics_id: ""
 
-  # 搜索功能,需要安装hexo-generator-search插件,执行npm install hexo-generator-search
-  # 然后前往hexo根目录的_config.yml文件(不是你现在看的这个文件)最底部添加以下内容
-  #----------------------------
-  #search:
-  #path: search.json
-  #field: post
-  #content: true
-  #format: html
-  #----------------------------
+  # 搜索功能(需安装 hexo-generator-search 依赖  npm install hexo-generator-search)
   search:
     enabled: true
     provider: "local" # local, algolia
@@ -345,7 +342,7 @@ inject:
     - <script src="/js/postai.js"></script> #ai
     #以下是数学公式支持
     - <script src="/js/math-support.js"></script> # 数学公式
-    #以下是鼠标点击效果,仅可启用一个
+    #以下是鼠标点击效果
     - <script src="/js/click-heart.js"></script> # 鼠标点击爱心文字特效
     - <script src="/js/click-fireworks.js"></script> # 鼠标点击三角烟花特效(与爱心特效二选一,由读者设置决定)
 
@@ -356,7 +353,6 @@ inject:
 
 # 语言切换功能
 #本主题翻译功能不是很成熟,不满足i18n需求,只满足中英转换,请前往themes\magzine\source\js\lang-switch.js自定义翻译文本
-#结合浏览器翻译插件---沉浸式翻译(https://immersivetranslate.com/en/)  体验更佳
 
 # AI摘要配置
 ai_summary:
