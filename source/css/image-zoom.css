@@ -255,6 +255,51 @@ body.dark-mode .toolbar-btn:hover {
 }
 
 /* =========================================================
+   右上角关闭按钮(电脑端/手机端常驻,不随控件显隐变化)
+   ========================================================= */
+.viewer-close {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border-radius: 50%;
+  color: #ffffff;
+  cursor: pointer;
+  z-index: 10006; /* 高于工具栏(10004)与两侧预览(10002),胶片模式下也可见 */
+  transition: background 0.25s ease, transform 0.25s ease;
+  -webkit-user-select: none;
+  user-select: none;
+  outline: none;
+}
+
+.viewer-close svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+  pointer-events: none;
+}
+
+.viewer-close:hover {
+  background: rgba(0, 0, 0, 0.7);
+  transform: scale(1.08);
+}
+
+body.dark-mode .viewer-close {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+body.dark-mode .viewer-close:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+/* =========================================================
    底部缩略图
    ========================================================= */
 .viewer-thumbs {
@@ -378,6 +423,19 @@ body.dark-mode .viewer-thumbs {
   .toolbar-btn::after,
   .nav-btn::after {
     display: none;
+  }
+
+  /* 关闭按钮:手机端略小并避开状态栏安全区 */
+  .viewer-close {
+    top: calc(12px + env(safe-area-inset-top, 0px));
+    right: 14px;
+    width: 40px;
+    height: 40px;
+  }
+
+  .viewer-close svg {
+    width: 20px;
+    height: 20px;
   }
 
   /* 工具栏保持在底部(位置不变) */
