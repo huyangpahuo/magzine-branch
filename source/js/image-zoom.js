@@ -33,6 +33,14 @@
   }
 
   document.addEventListener("DOMContentLoaded", function () {
+    // ★ 幂等守卫:direct 模式下文章页经 pjax 加载,pjax 换页会重新派发
+    //   DOMContentLoaded;若无守卫,每换一页就往 body 叠加一个一模一样的
+    //   查看器,点击空白/关闭按钮一次只关掉最上层,看起来就要点很多次。
+    //   查看器节点挂在 body(pjax 只替换 main),单实例可跨页面复用,
+    //   打开时的图片列表是点击当下查询的,无需重建。
+    if (window.__imageViewerInit) return;
+    window.__imageViewerInit = true;
+
     /* ============ 配置 ============ */
     const cfg = Object.assign(
       {
