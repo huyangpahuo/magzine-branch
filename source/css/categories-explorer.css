@@ -1,0 +1,537 @@
+/* ===== 分类页"文件夹"视图(模仿系统文件管理器,仅电脑端) =====
+   结构(layout/categories.pug):
+   .categories-view-toolbar  页面右上角的"竖排/文件夹"切换
+   .categories-explorer      资源管理器主体
+     .cx-sidebar             左侧分类文件夹列表(宽度可拖动)
+     .cx-resizer             侧边栏拖动分隔条
+     .cx-main                右侧内容区(头部 + 文章卡片)
+   竖排/文件夹切换由 .categories-content 上的 explorer-on 类驱动;
+   网格/列表两种排列由 .categories-explorer 上的 view-grid/view-list 类驱动。
+   默认隐藏(no-js 回退竖排),所有交互见 js/categories-explorer.js */
+
+/* ---- 视图切换工具栏 ---- */
+.categories-view-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-bottom: var(--spacing-md);
+}
+
+.cx-mode-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  color: var(--secondary-color);
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.cx-mode-btn i {
+  font-size: 0.78rem;
+}
+
+.cx-mode-btn:hover {
+  color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.cx-mode-btn.active {
+  color: #fff;
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+/* ---- 资源管理器主体:默认隐藏,切换到文件夹视图时展开 ---- */
+.categories-explorer {
+  display: none;
+  height: clamp(440px, 70vh, 760px);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background: var(--card-background);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  --cx-sidebar-w: 220px;
+}
+
+.categories-content.explorer-on .categories-accordion {
+  display: none;
+}
+
+.categories-content.explorer-on .categories-explorer {
+  display: flex;
+}
+
+/* ---- 左侧文件夹列表 ---- */
+.cx-sidebar {
+  flex: 0 0 var(--cx-sidebar-w);
+  width: var(--cx-sidebar-w);
+  min-width: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 10px 8px;
+  background: rgba(0, 0, 0, 0.03);
+  border-right: 1px solid var(--border-color);
+  scrollbar-width: thin;
+  scrollbar-gutter: stable;
+}
+
+.cx-sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.cx-sidebar::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+.cx-folder {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  margin-bottom: 2px;
+  font-size: 0.88rem;
+  color: var(--text-color);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.cx-folder i {
+  flex: 0 0 auto;
+  color: var(--accent-color);
+  font-size: 1rem;
+}
+
+.cx-folder-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cx-folder-count {
+  flex: 0 0 auto;
+  min-width: 22px;
+  padding: 1px 7px;
+  font-size: 0.72rem;
+  text-align: center;
+  color: var(--secondary-color);
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 999px;
+}
+
+.cx-folder:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.cx-folder.active {
+  background: color-mix(in srgb, var(--accent-color) 16%, transparent);
+  color: var(--accent-color);
+  font-weight: 600;
+}
+
+.cx-folder.active .cx-folder-count {
+  color: var(--accent-color);
+  background: color-mix(in srgb, var(--accent-color) 20%, transparent);
+}
+
+/* ---- 拖动分隔条 ---- */
+.cx-resizer {
+  flex: 0 0 6px;
+  cursor: col-resize;
+  background: transparent;
+  transition: background var(--transition-fast);
+}
+
+.cx-resizer:hover,
+body.cx-resizing .cx-resizer {
+  background: color-mix(in srgb, var(--accent-color) 35%, transparent);
+}
+
+body.cx-resizing {
+  cursor: col-resize;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* ---- 右侧内容区 ---- */
+.cx-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.cx-main-header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.cx-main-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.cx-main-title i {
+  color: var(--accent-color);
+}
+
+.cx-main-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cx-main-count {
+  flex: 0 0 auto;
+  padding: 1px 8px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--secondary-color);
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 999px;
+}
+
+/* 头部右侧操作区:排序 + 网格/列表 */
+.cx-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+/* 按日期 / 按字母 排序切换 */
+.cx-sort-toggle {
+  display: flex;
+}
+
+.cx-sort-btn {
+  height: 28px;
+  padding: 0 12px;
+  font-size: 0.75rem;
+  color: var(--secondary-color);
+  background: transparent;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.cx-sort-btn:first-child {
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+}
+
+.cx-sort-btn:last-child {
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  border-left: none;
+}
+
+.cx-sort-btn:hover {
+  color: var(--accent-color);
+}
+
+.cx-sort-btn.active {
+  color: #fff;
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+/* 网格/列表切换 */
+.cx-layout-toggle {
+  display: flex;
+  flex: 0 0 auto;
+}
+
+.cx-layout-btn {
+  width: 32px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.82rem;
+  color: var(--secondary-color);
+  background: transparent;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.cx-layout-btn:first-child {
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+}
+
+.cx-layout-btn:last-child {
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  border-left: none;
+}
+
+.cx-layout-btn:hover {
+  color: var(--accent-color);
+}
+
+.cx-layout-btn.active {
+  color: #fff;
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+/* ---- 文章卡片容器(内部滚动) ---- */
+.cx-items {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  /* 始终预留滚动条位置,切换分类/排列时内容区宽度不跳动 */
+  scrollbar-gutter: stable;
+}
+
+.cx-items::-webkit-scrollbar {
+  width: 6px;
+}
+
+.cx-items::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+.cx-pane {
+  display: none;
+}
+
+.cx-empty {
+  padding: 48px 16px;
+  text-align: center;
+  color: var(--secondary-color);
+  font-size: 0.9rem;
+}
+
+/* 文章项公共外观 */
+.cx-item {
+  display: flex;
+  color: var(--text-color);
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  transition: background var(--transition-fast), transform var(--transition-fast);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.cx-item:hover {
+  background: rgba(0, 0, 0, 0.045);
+}
+
+.cx-item:hover .cx-item-name {
+  color: var(--accent-color);
+}
+
+.cx-thumb-wrap {
+  flex: 0 0 auto;
+  overflow: hidden;
+  background: var(--border-color);
+  border-radius: 8px;
+}
+
+.cx-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.cx-thumb-icon {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  color: var(--secondary-color);
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* 标题单行显示,过长以 ... 结尾 */
+.cx-item-name {
+  font-size: 0.84rem;
+  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color var(--transition-fast);
+}
+
+.cx-item-date {
+  font-size: 0.72rem;
+  color: var(--secondary-color);
+  white-space: nowrap;
+  /* 等宽数字:日期列宽不随数字字形变化,保证名称框宽度恒定 */
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- 网格视图:大缩略图 + 名称(仿文件管理器图标排列) ---- */
+/* 布局作用在激活的 .cx-pane 上(.cx-items 的直接子元素是 pane 而非卡片) */
+.categories-explorer.view-grid .cx-pane.active {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(136px, 1fr));
+  gap: 12px;
+  padding: 16px;
+  align-content: start;
+}
+
+.categories-explorer.view-grid .cx-item {
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 8px 12px;
+  text-align: center;
+}
+
+.categories-explorer.view-grid .cx-item:hover {
+  transform: translateY(-2px);
+}
+
+.categories-explorer.view-grid .cx-thumb-wrap {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+}
+
+.categories-explorer.view-grid .cx-item-name {
+  width: 100%;
+}
+
+.categories-explorer.view-grid .cx-item-date {
+  margin-top: -2px;
+}
+
+/* ---- 列表视图:小缩略图 + 名称 + 日期(仿文件管理器详细信息) ---- */
+.categories-explorer.view-list .cx-pane.active {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px;
+}
+
+.categories-explorer.view-list .cx-item {
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+}
+
+.categories-explorer.view-list .cx-item:last-child {
+  border-bottom: none;
+}
+
+.categories-explorer.view-list .cx-thumb-wrap {
+  width: 76px;
+  height: 48px;
+}
+
+.categories-explorer.view-list .cx-item-name {
+  /* 基准为 0 的纯填充:文本框宽度只由容器决定,不随标题长短变化 */
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.categories-explorer.view-list .cx-item-date {
+  flex: 0 0 74px;
+  width: 74px;
+  text-align: right;
+  margin-left: auto;
+}
+
+/* ---- 深色模式 ---- */
+body.dark-mode .categories-explorer {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .cx-sidebar {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+body.dark-mode .cx-folder:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+body.dark-mode .cx-folder-count,
+body.dark-mode .cx-main-count {
+  background: rgba(255, 255, 255, 0.09);
+}
+
+body.dark-mode .cx-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+body.dark-mode .cx-thumb-icon {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+body.dark-mode .categories-explorer.view-list .cx-item {
+  border-bottom-color: var(--border-color);
+}
+
+/* ---- 桌面端:文件夹视图时内容区加宽到窗口宽度 ----
+   .post-container 默认 max-width:800px,资源管理器会被挤得很窄。
+   这里用 :has() 在文件夹视图激活时放宽 .post-wrapper/.post-container 的
+   宽度限制(比 100vw 负边距硬撑更稳,不会被滚动条裁掉右边框),
+   高度也随视口拉高,更接近文件管理器的观感 */
+@media (min-width: 769px) {
+  /* .post-wrapper 基础样式是 display:flex(toc.css),其子项 .post-container
+     会按内容宽度收缩(flex-grow:0),导致窗口大小随文章标题变化。
+     文件夹视图下改为块级布局并强制撑满,尺寸与内容彻底解耦 */
+  body:has(.categories-content.explorer-on) .post-wrapper {
+    display: block;
+    max-width: none;
+    padding: 0 16px;
+  }
+
+  body:has(.categories-content.explorer-on) .post-wrapper .post-container {
+    display: block;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .categories-content.explorer-on .categories-explorer {
+    height: clamp(500px, calc(100vh - 240px), 920px);
+  }
+}
+
+/* ---- 手机端:不提供文件夹视图,保持竖排 ---- */
+@media (max-width: 768px) {
+  .categories-view-toolbar {
+    display: none;
+  }
+
+  .categories-content.explorer-on .categories-accordion {
+    display: flex;
+  }
+
+  .categories-content.explorer-on .categories-explorer {
+    display: none;
+  }
+}

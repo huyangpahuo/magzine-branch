@@ -50,7 +50,19 @@
       else if theme.categories.layout === 'accordion'
         // 展开式分类布局
         if site.categories && site.categories.length
-          - var sortedCategories = site.categories.toArray().sort(function(a, b) { return (b.posts ? b.posts.length : 0) - (a.posts ? a.posts.length : 0); })
+          //- 合并大小写/空格差异造成的重复分类(如 hexo 与 Hexo,见 scripts/merge-categories.js)
+          - var sortedCategories = merged_categories()
+
+          //- 电脑端视图切换工具栏(竖排 / 文件夹,由 categories-explorer.js 接管)
+          if theme.categories.explorer !== false
+            .categories-view-toolbar
+              button.cx-mode-btn(type="button", data-mode="classic")
+                i.fas.fa-align-left
+                span 竖排
+              button.cx-mode-btn(type="button", data-mode="explorer")
+                i.fas.fa-folder
+                span 文件夹
+
           .categories-accordion
             each category, index in sortedCategories
               // 根据配置决定是否显示没有文章的分类
@@ -73,7 +85,7 @@
                   if category.posts && category.posts.length
                     .category-posts(style="display: none;")
                       .post-list
-                        each post in category.posts.toArray()
+                        each post in category.posts
                           .post-item
                             .post-item-inner
                               .post-item-title
@@ -93,6 +105,55 @@
                         i.fas fa-inbox
                         h3 该分类下暂无文章
                         p 尝试浏览其他分类
+
+          //- 文件夹视图(仅电脑端显示,手机端由 CSS 强制回退竖排):
+          //- 左侧分类文件夹列表,右侧当前分类的文章卡片,支持网格/列表两种排列,
+          //- 侧边栏与内容区之间的分隔条可拖动调宽(见 categories-explorer.js)
+          if theme.categories.explorer !== false
+            - var cxUseDefault = theme.theme_config.post && theme.theme_config.post.use_default_cover !== false
+            - var cxDefaultCover = theme.theme_config.post && theme.theme_config.post.default_cover ? theme.theme_config.post.default_cover : '/images/19.png'
+            .categories-explorer
+              .cx-sidebar
+                .cx-folder-list
+                  each category, ci in sortedCategories
+                    if category.posts && category.posts.length || theme.categories.show_empty_categories
+                      button.cx-folder(type="button", class=ci === 0 ? "active" : "", data-name=category.name)
+                        i.fas.fa-folder
+                        span.cx-folder-name= category.name
+                        span.cx-folder-count= category.posts ? category.posts.length : 0
+              .cx-resizer
+              .cx-main
+                .cx-main-header
+                  .cx-main-title
+                    i.fas.fa-folder-open
+                    span.cx-main-name= sortedCategories[0] ? sortedCategories[0].name : ''
+                    span.cx-main-count= sortedCategories[0] && sortedCategories[0].posts ? sortedCategories[0].posts.length : 0
+                  .cx-header-actions
+                    .cx-sort-toggle
+                      button.cx-sort-btn(type="button", data-sort="date") 按日期
+                      button.cx-sort-btn(type="button", data-sort="alpha") 按字母
+                    .cx-layout-toggle
+                      button.cx-layout-btn(type="button", data-layout="grid")
+                        i.fas.fa-th-large
+                      button.cx-layout-btn(type="button", data-layout="list")
+                        i.fas.fa-list
+                .cx-items
+                  each category, ci in sortedCategories
+                    if category.posts && category.posts.length || theme.categories.show_empty_categories
+                      .cx-pane(class=ci === 0 ? "active" : "", data-name=category.name)
+                        if category.posts && category.posts.length
+                          each post in category.posts
+                            - var cxCover = post.cover ? (post.cover.indexOf('/') === 0 ? post.cover : post.path.replace(/\\/g, '/').split('/').slice(0, -1).join('/') + '/' + post.cover) : (cxUseDefault ? cxDefaultCover : null)
+                            a.cx-item(href=url_for(post.path))
+                              .cx-thumb-wrap
+                                if cxCover
+                                  img.cx-thumb(src=url_for(cxCover), alt=post.title, loading="lazy")
+                                else
+                                  i.fas.fa-file-lines.cx-thumb-icon
+                              span.cx-item-name= post.title
+                              span.cx-item-date= date(post.date, "YYYY-MM-DD")
+                        else
+                          .cx-empty 该分类下暂无文章
         else
           .no-categories
             .empty-state

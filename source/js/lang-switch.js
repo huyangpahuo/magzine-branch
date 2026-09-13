@@ -421,6 +421,15 @@ document.addEventListener("DOMContentLoaded", function () {
     标准: "Normal",
     大: "Large",
 
+    //分类页文件夹视图(仅电脑端)
+    竖排: "List",
+    文件夹: "Folders",
+    网格视图: "Grid View",
+    列表视图: "List View",
+    按日期: "By Date",
+    按字母: "By Name",
+    该分类下暂无文章: "No posts in this category",
+
     //碎碎念
     万花筒: "Murmur",
     "暂无碎碎念，去记录点什么吧~": "No murmurs yet, go record something~",

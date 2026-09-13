@@ -154,8 +154,9 @@ document.addEventListener("DOMContentLoaded", function () {
       // ★★★ 新增：加入了 .search-result-link 选择器 ★★★
       // ★★★ 新增：加入了 .archive-post-title a 选择器，修复归档页标题不触发模态窗口的问题 ★★★
       // ★★★ 新增：加入了 .post-item-title a 选择器，修复分类/相关标签/相关分类页标题不触发模态窗口的问题 ★★★
+      // ★★★ 新增：加入了 .cx-item 选择器，分类页"文件夹"视图的文章卡片也走模态窗口 ★★★
       const articleLinks = document.querySelectorAll(
-        ".article-title a, .article-image a, .read-more, .search-result-link, .archive-post-title a, .post-item-title a",
+        ".article-title a, .article-image a, .read-more, .search-result-link, .archive-post-title a, .post-item-title a, .cx-item",
       );
 
       articleLinks.forEach((link) => {
@@ -191,6 +192,11 @@ document.addEventListener("DOMContentLoaded", function () {
             this.parentElement.classList.contains("post-item-title")
           ) {
             initialTitle = this.textContent.trim();
+          }
+          // ★ 分类页"文件夹"视图的卡片:取内部的名称元素
+          else if (this.classList.contains("cx-item")) {
+            const cxName = this.querySelector(".cx-item-name");
+            if (cxName) initialTitle = cxName.textContent.trim();
           } else {
             // 2. 向上找到共同的卡片容器
             const card = this.closest(".article-card");

@@ -374,6 +374,7 @@ categories:
   layout: accordion # accordion (展开式) or page (跳转式)
   accordion_animation: true # 是否启用展开/折叠动画
   show_empty_categories: true # 是否显示没有文章的分类
+  explorer: true # 分类页"文件夹"视图(仅电脑端,可在页面上与竖排互相切换)
 
 # Table of Contents (目录) 设置
 toc:
