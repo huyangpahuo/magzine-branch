@@ -25,14 +25,15 @@ function postHideInline(args) {
     textColor = params[3];
   } else {
     // 旧格式或参数不足，使用默认值
-    displayText = "点击查看隐藏内容";
+    displayText = "点击查看";
     bgColor = "#FF7242";
     textColor = "#fff";
   }
 
-  return `<span class="hide-inline" 
-                data-hidden-content="${content}" 
+  return `<span class="hide-inline"
+                data-hidden-content="${content}"
                 data-display-text="${displayText}"
+                data-label="👆 点击查看"
                 style="background-color: ${bgColor}; color: ${textColor};">${displayText}</span>`;
 }
 

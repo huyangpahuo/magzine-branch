@@ -18,20 +18,12 @@ document.addEventListener("DOMContentLoaded", function () {
   hideInlineElements.forEach((element) => {
     let isRevealed = false;
 
-    // 2. 初始状态翻译补救
-    // 虽然 lang-switch.js 会翻译 innerText，但 data-display-text 属性里的值还是中文
-    // 为了防止点击恢复后变回中文，我们���以在这里做个预处理（可选，但推荐）
-    const rawDisplayText = element.getAttribute("data-display-text");
-    if (rawDisplayText && window.i18n && window.i18n.isEn()) {
-      // 如果当前是英文模式，但这属性还是中文，我们不用改属性，但在恢复时记得翻译它
-    }
-
     element.addEventListener("click", function () {
       if (!isRevealed) {
         const hiddenContent = this.getAttribute("data-hidden-content");
-        // 获取默认显示文本，通常是 "点击查看隐藏内容"
+        // 获取默认显示文本，通常是 "点击查看"
         const displayText =
-          this.getAttribute("data-display-text") || "点击查看隐藏内容";
+          this.getAttribute("data-display-text") || "点击查看";
 
         // 保存原始样式
         const originalBgColor = this.style.backgroundColor;
@@ -43,6 +35,8 @@ document.addEventListener("DOMContentLoaded", function () {
         this.style.color = "inherit";
         this.style.borderBottom = "none";
         this.style.cursor = "default";
+        // ★ 标记展开状态:悬停时不再浮出"点击查看"提示(仅隐藏态显示)
+        this.classList.add("revealed");
         isRevealed = true;
 
         // 添加一个小的提示，表明可以点击恢复
@@ -63,13 +57,14 @@ document.addEventListener("DOMContentLoaded", function () {
           e.stopPropagation();
 
           // ★★★ 核心修改 2：翻译恢复后的文本 ★★★
-          // 如果 displayText 是 "点击查看隐藏内容"，t() 会把它变成 "Click to reveal..."
+          // 如果 displayText 是 "点击查看"，t() 会把它变成 "Click to view"
           element.textContent = t(displayText);
 
           element.style.backgroundColor = originalBgColor;
           element.style.color = originalTextColor;
           element.style.borderBottom = "";
           element.style.cursor = "pointer";
+          element.classList.remove("revealed");
           isRevealed = false;
         });
       }

@@ -217,6 +217,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 隐藏内容
     点击查看隐藏内容: "Click to reveal hidden content",
+    点击查看: "Click to view",
+    "👆 点击查看": "👆 Click to view",
     " (点击恢复)": " (Click to hide again)",
 
     // AI摘要
@@ -608,7 +610,7 @@ document.addEventListener("DOMContentLoaded", function () {
       characterData: true,
       attributes: true,
       // 👇 关键修改：把 aria-label 也加入监听阵营！
-      attributeFilter: ["data-title", "aria-label"],
+      attributeFilter: ["data-title", "aria-label", "data-label"],
     });
   }
 

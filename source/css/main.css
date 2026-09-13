@@ -2550,7 +2550,7 @@ body.dark-mode .notification-error {
 }
 
 .hide-inline::before {
-  content: '👆 点击查看';
+  content: attr(data-label); /* 文本由 data-label 提供,可跟随界面语言翻译 */
   position: absolute;
   bottom: 100%;
   left: 50%;
@@ -2569,6 +2569,11 @@ body.dark-mode .notification-error {
 
 .hide-inline:hover::before {
   opacity: 1;
+}
+
+/* ★ 展开后的隐藏文本不再浮出"点击查看"提示,该提示仅在隐藏状态显示 */
+.hide-inline.revealed::before {
+  display: none;
 }
 
 /* Dark mode styles */

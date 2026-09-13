@@ -372,6 +372,11 @@ img.inline {
   border-bottom: 1px solid var(--border-color);
 }
 
+/* 暗色模式:标签栏与悬停背景使用暗色适配 */
+body.dark-mode .nav-tabs {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
 .tab-btn {
   padding: 0.75rem 1.25rem;
   background: none;
@@ -382,9 +387,18 @@ img.inline {
   transition: var(--transition-normal);
 }
 
+body.dark-mode .tab-btn {
+  color: rgba(255, 255, 255, 0.75);
+}
+
 .tab-btn:hover {
   background-color: #eeeeee;
   color: var(--primary-color);
+}
+
+body.dark-mode .tab-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--accent-color);
 }
 
 .tab-btn.active {
