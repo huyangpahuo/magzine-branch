@@ -355,7 +355,7 @@ inject:
 #本主题翻译功能不是很成熟,不满足i18n需求,只满足中英转换,请前往themes\magzine\source\js\lang-switch.js自定义翻译文本
 
 # 阿尼亚自定义鼠标指针
-# 由 tools/anya-cursor-convert.py 把 Windows 光标包(.ani/.cur)转换成 PNG 帧序列,
+# 由 .agents/skills/web-cursor-converter/scripts/cursor_convert.py 把 Windows 光标包(.ani/.cur)转换成 PNG 帧序列,
 # 资源位于主题 source/cursors/anya/,CSS+JS 负责按原始帧率逐帧播放。
 # 仅桌面端生效;触屏设备和系统"减少动态效果"下自动退回静态第 0 帧。
 cursor:

@@ -1,7 +1,7 @@
 /**
  * 阿尼亚自定义鼠标指针(cursor.css)
  *
- * 资源由 tools/anya-cursor-convert.py 从 Windows 光标包(.ani/.cur)转换而来,
+ * 资源由 .agents/skills/web-cursor-converter/scripts/cursor_convert.py 从 Windows 光标包(.ani/.cur)转换而来,
  * 帧图与热点数据在 /cursors/anya/ 下。
  *
  * 两层设计:

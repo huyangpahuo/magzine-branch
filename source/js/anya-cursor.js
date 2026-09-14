@@ -2,7 +2,7 @@
  * 阿尼亚自定义鼠标指针(anya-cursor.js)
  *
  * 浏览器的 CSS cursor 不支持动画图(浏览器原生只认静态 .cur/.png),
- * 所以由 tools/anya-cursor-convert.py 把 Windows 光标包(.ani)逐帧转成 PNG,
+ * 所以由 .agents/skills/web-cursor-converter/scripts/cursor_convert.py 把 Windows 光标包(.ani)逐帧转成 PNG,
  * 这里再按 .ani 自带的帧率(1 jiffie = 1/60 秒)用定时器逐帧切换 CSS 变量,
  * cursor.css 里通过 var() 引用这些变量,实现"会动的鼠标指针"。
  *
