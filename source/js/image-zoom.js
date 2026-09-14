@@ -256,6 +256,8 @@
 
     /* ============ 打开 / 关闭 ============ */
     function openViewer(clickedImg) {
+      // 全篇统一序列:轮播图里的图片和普通文章图片一起按出现顺序翻阅
+      // (轮播图自身的点击由 carousel.js 调 window.openImageViewer 进入)
       const imgs = Array.from(document.querySelectorAll(".post-content img"));
       if (imgs.length === 0) return;
       state.images = imgs;
@@ -281,7 +283,12 @@
       slideBusy = false;
     }
 
+    // 暴露给轮播图等外部模块:点击轮播图当前图片时打开查看器
+    window.openImageViewer = openViewer;
+
     // 事件委托:点击文章内图片打开(pjax 换页后依旧有效)
+    // 轮播图内的图片 pointer-events:none,点击落在轮播容器上,
+    // 由 carousel.js 统一调用 openImageViewer,这里不会重复触发
     document.addEventListener("click", function (e) {
       const img = e.target.closest(".post-content img");
       if (img) openViewer(img);

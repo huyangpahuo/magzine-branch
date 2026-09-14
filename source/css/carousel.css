@@ -1,0 +1,219 @@
+/**
+ * carousel.css | 文章内图片轮播(配合 scripts/tag/carousel.js)
+ *
+ * 结构:
+ *   .carousel
+ *     .carousel-viewport     视口,按 --carousel-ratio 定高
+ *       .carousel-track      轨道,横向排列,translateX 切换
+ *         .carousel-slide    单张
+ *       .carousel-prev/.carousel-next
+ *     .carousel-caption      说明文字(当前张的才显示)
+ *     .carousel-dots         圆点指示器
+ *     .carousel-counter      页码
+ *
+ * JS(scripts 对应的 source/js/carousel.js)负责切换/自动播放/触摸滑动。
+ */
+
+.carousel {
+  position: relative;
+  margin: var(--spacing-lg, 1.5rem) 0;
+  border-radius: var(--radius-lg, 16px);
+  overflow: hidden;
+  background: var(--card-background-color, #fff);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+  outline: none;
+  /* 拖动切换时不允许选中文字/图片,否则会出现系统拖拽重影 */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.carousel:focus-visible {
+  box-shadow: 0 0 0 2px var(--accent-color, #ff6b6b);
+}
+
+.carousel-viewport {
+  position: relative;
+  width: 100%;
+  /* 窗口固定高度(默认模式),图片用 object-fit 等比缩放;
+     传了 ratio 参数的轮播走 aspect-ratio 宽高比模式 */
+  height: var(--carousel-h, 480px);
+  overflow: hidden;
+  /* 横向滑动手势归轮播,纵向滚动还给页面 */
+  touch-action: pan-y;
+}
+
+/* ratio 宽高比模式 */
+.carousel.ratio-mode .carousel-viewport {
+  height: auto;
+  aspect-ratio: var(--carousel-ratio, 16 / 9);
+}
+
+/* 手机响应式:固定高度按屏宽收缩,避免小屏上窗口过高 */
+@media (max-width: 768px) {
+  .carousel:not(.ratio-mode) .carousel-viewport {
+    height: clamp(220px, 58vw, 400px);
+  }
+}
+
+.carousel-track {
+  display: flex;
+  height: 100%;
+  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  /* JS 滑动跟手时由脚本改成 transition:none */
+  will-change: transform;
+}
+
+.carousel-slide {
+  flex: 0 0 100%;
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+.carousel .carousel-slide img {
+  width: 100%;
+  height: 100%;
+  /* contain=等比缩放不裁剪(默认) / cover=裁剪铺满 */
+  object-fit: var(--carousel-fit, contain);
+  display: block;
+  /* 关键:清掉主题全局 .post-content img 的 margin:24px 0,
+     否则图片盒子在窗口里整体下坠、底部被裁,看起来不居中 */
+  margin: 0;
+  user-select: none;
+  /* 禁用原生拖拽(拖动翻页时会拖出系统级图片重影) */
+  -webkit-user-drag: none;
+  /* 点击交给轮播容器统一处理,也避免触发图片查看器的委托 */
+  pointer-events: none;
+}
+
+/* ---------- 左右箭头 ---------- */
+
+.carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.4rem;
+  height: 2.4rem;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.25s ease, background 0.25s ease;
+  z-index: 2;
+}
+
+.carousel:hover .carousel-arrow,
+.carousel:focus-within .carousel-arrow {
+  opacity: 1;
+}
+
+.carousel-arrow:hover {
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.carousel-prev {
+  left: 0.75rem;
+}
+
+.carousel-next {
+  right: 0.75rem;
+}
+
+/* 触屏设备没有悬停,箭头常显(半透明) */
+@media (hover: none) {
+  .carousel-arrow {
+    opacity: 0.6;
+  }
+}
+
+/* ---------- 说明文字 ---------- */
+
+.carousel-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 1.8rem 1rem 0.6rem;
+  color: #fff;
+  font-size: 0.85rem;
+  text-align: center;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.55));
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.carousel-caption.active {
+  opacity: 1;
+}
+
+/* ---------- 圆点指示器 ---------- */
+
+.carousel-dots {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.6rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.45rem;
+  z-index: 2;
+}
+
+.carousel-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.25s ease;
+}
+
+.carousel-dot.active {
+  background: #fff;
+  transform: scale(1.2);
+}
+
+/* 有说明文字时圆点上移,避免压字 */
+.carousel.has-caption .carousel-dots {
+  bottom: 2.4rem;
+}
+
+/* ---------- 页码 ---------- */
+
+.carousel-counter {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.75rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  z-index: 2;
+  user-select: none;
+}
+
+/* 单图时隐藏全部控件 */
+.carousel-single .carousel-arrow,
+.carousel-single .carousel-dots,
+.carousel-single .carousel-counter {
+  display: none;
+}
+
+/* 暗色模式下让卡片底色跟主题走,其余配色本身在图片上,无需变化 */
+body.dark-mode .carousel {
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+}

@@ -268,7 +268,7 @@ function ChucklePostAI(AI_option) {
       controller = new AbortController();
       signal = controller.signal;
 
-      const apiUrl = "在这里填上你在cloudfare的worker page链接";
+      const apiUrl = "https://deepseek.3930088367.workers.dev/";
 
       try {
         const response = await fetch(apiUrl, {

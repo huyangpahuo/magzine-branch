@@ -82,6 +82,8 @@ html(lang=config.language)
     != css('css/link')
     != css('css/murmur')
     != css('css/404')
+    != css('css/cursor')
+    != css('css/carousel')
 
 
     //- Theme color variables from config
@@ -195,6 +197,12 @@ html(lang=config.language)
     != js('js/table')
     != js('js/video-embed')
     != js('js/mobile-scale')
+    != js('js/carousel')
+
+    //- 阿尼亚自定义鼠标指针(帧数据由转换脚本生成;可在 config.yml 关闭)
+    if theme.cursor && theme.cursor.enable
+      != js('cursors/anya/data')
+      != js('js/anya-cursor')
 
     //- PJAX 无感刷新(自研实现,放最后加载;可在 config.yml 关闭)
     if theme.pjax && theme.pjax.enable !== false
