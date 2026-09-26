@@ -50,7 +50,6 @@
       step: 0.1,
     },
     { key: "hover", label: "悬停触发", type: "checkbox" },
-    { key: "idle_splat", label: "空闲喷发", type: "checkbox" },
     { key: "bloom", label: "辉光", type: "checkbox" },
     { key: "__splats", label: "随机喷发", type: "button" },
   ];
@@ -63,7 +62,7 @@
     density_dissipation: 1,
     velocity_dissipation: 0.2,
     hover: true,
-    idle_splat: true,
+    idle_splat: false,
     bloom: false,
   };
 
@@ -109,7 +108,8 @@
 
     var opts = {
       hover: params.hover !== false,
-      idleSplat: params.idle_splat !== false,
+      // 空闲时不自动喷发;流体只由悬停/触摸交互或面板按钮触发。
+      idleSplat: false,
       colorSource: params.color_source || "image",
       quality: params.quality || "high",
     };
@@ -305,9 +305,6 @@
 
     var lastUpdateTime = Date.now();
     var colorUpdateTimer = 0;
-    var idleTimer = 0;
-    // 首次空闲喷发放晚一点,避免刚进页面就来一下(像自动点击,还卡)
-    var idleNext = 8000 + Math.random() * 4000;
 
     var pointers = [new PointerData()];
     var touchPointers = {}; // identifier → PointerData
@@ -392,17 +389,6 @@
       applyInputs();
       if (!config.PAUSED) step(dt);
       render(null);
-      // 空闲喷发:hero 可见且用户没在操作时,隔几秒来一发保持流动感
-      if (opts.idleSplat && !config.PAUSED) {
-        idleTimer += dt * 1000;
-        if (idleTimer > idleNext) {
-          idleTimer = 0;
-          idleNext = 5000 + Math.random() * 4000;
-          idleSplat();
-        }
-      } else {
-        idleTimer = 0;
-      }
       requestAnimationFrame(frame);
     }
 
@@ -729,18 +715,6 @@
         var dy = 1000 * (Math.random() - 0.5);
         splat(x, y, dx, dy, color);
       }
-    }
-
-    function idleSplat() {
-      var color = generateColor();
-      color.r *= 4;
-      color.g *= 4;
-      color.b *= 4;
-      var x = 0.2 + Math.random() * 0.6;
-      var y = 0.25 + Math.random() * 0.5;
-      var dx = 400 * (Math.random() - 0.5);
-      var dy = 400 * (Math.random() - 0.5);
-      splat(x, y, dx, dy, color);
     }
 
     function splat(x, y, dx, dy, color) {
@@ -1405,9 +1379,6 @@
             break;
           case "hover":
             opts.hover = !!value;
-            break;
-          case "idle_splat":
-            opts.idleSplat = !!value;
             break;
           case "curl":
             config.CURL = value;

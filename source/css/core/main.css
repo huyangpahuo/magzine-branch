@@ -327,13 +327,23 @@ p {
 }
 
 /* ===== Hero Section ===== */
+/* 卡片化:与下方作者名片/文章卡片保持一致的宽度与圆角,
+   不再是 100vh 全幅通栏(与页面其他区块样式脱节) */
 .hero-section {
   position: relative;
-  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  width: calc(100% - var(--content-padding) * 2);
+  max-width: var(--max-width); /* 与作者卡片和文章容器同宽 */
+  height: 56vh;
+  min-height: 360px;
+  max-height: 520px;
+  margin: 5.5rem auto var(--spacing-lg); /* 顶部避开固定导航 */
+  border-radius: var(--radius-lg); /* 与 .author-card 同圆角 */
+  border: 1px solid var(--border-color);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 }
 
 .hero-background {
@@ -1681,6 +1691,11 @@ p {
     font-size: 2rem;
   }
 
+  .hero-section {
+    min-height: 300px;
+    margin-top: 5rem;
+  }
+
   .articles-grid {
     grid-template-columns: 1fr;
   }
@@ -1845,7 +1860,8 @@ p {
 
 /* ===== Author Card Styles ===== */
 .author-card-section {
-  padding: calc(var(--spacing-2xl) * 2) 0 var(--spacing-sm) 0;
+  /* Hero 下方保留少量呼吸空间,避免作者卡片离 Hero 过远 */
+  padding: var(--spacing-lg) 0 var(--spacing-sm) 0;
   background-color: var(--background-color);
 }
 
@@ -3331,7 +3347,7 @@ mjx-container:not([display="true"]) {
 }
 
 .author-card-section:has(.author-card-foldable.folded) {
-  padding-top: var(--spacing-sm);
+  padding-top: 0;
 }
 
 /* 拉绳:细绳 + 圆球,挂在名片下方 */
@@ -3381,6 +3397,11 @@ mjx-container:not([display="true"]) {
 /* 名片收起后,拉绳"被拉长"垂下来 */
 .author-card-section:has(.author-card-foldable.folded) .pull-cord-line {
   height: 64px;
+}
+
+/* 收起后把拉绳上端接到 Hero 底部,不让它悬在中间空白处 */
+.author-card-section:has(.author-card-foldable.folded) .author-card-pull-cord {
+  margin-top: calc(-1 * var(--spacing-lg));
 }
 
 .author-card-pull-cord:hover .pull-cord-line {

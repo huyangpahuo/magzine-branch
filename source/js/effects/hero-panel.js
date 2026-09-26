@@ -377,7 +377,9 @@
     panel.appendChild(body);
     if (state.collapsed) panel.classList.add("collapsed");
     mounted.panel = panel;
-    mounted.layer.appendChild(panel);
+    // 面板放到 hero 容器本身,避免被特效层的 stacking context 压在标题文字下面。
+    // 画布仍留在 .hero-fx-layer 中,只让控制面板浮到文字之上。
+    mounted.heroEl.appendChild(panel);
 
     function setCollapsed(c) {
       state.collapsed = c;

@@ -27,7 +27,7 @@ hero:
       density_dissipation: 1 # 消散速度 0-4,越小拖尾越长
       velocity_dissipation: 0.2 # 速度衰减
       hover: true # 鼠标悬停即产生流体(无需按下)
-      idle_splat: true # 空闲时随机喷发,保持画面流动感
+      idle_splat: false # 禁止空闲时自动喷发,仅悬停或手动点击“随机喷发”时触发
       bloom: false # 辉光(较耗性能)
 
 # Article List 首页文章卡片大小
