@@ -1,0 +1,484 @@
+# ============================================================
+# 英文字典
+# 键 = 稳定的词条 ID(与 zh.yml 一一对应),值 = 英文译文
+# 构建期由 scripts/other/lang-dict.js 与 zh.yml 拉链合成运行时字典
+# 新增词条:在 zh.yml / en.yml 里加同名键即可,重新 hexo generate 生效
+# ============================================================
+
+# ---- 站点通用 ----
+_meta:
+  flag: "🇺🇸"
+  label: English
+
+site:
+  owner_name: Huyangpahuo
+  tagline: "Ciallo, the Smiling Magician~ (∠・ω< )⌒☆"
+  copyright: "© 2025 Huyangpahuo. All rights reserved."
+
+# ---- 导航 ----
+nav:
+  home: Home
+  about_me: About Me
+  about: About
+  archives: Archives
+  more: More
+  anime: Anime
+  links: Links
+  tags: Tags
+  categories: Categories
+  writings: Writings
+
+# ---- 首页 Hero ----
+hero:
+  scroll_down: Scroll Down to Explore More
+  welcome: Welcome to my wonderful world
+  start_journey: Start Your Journey
+
+# ---- 首页 Hero 特效面板 ----
+hero_panel:
+  effects: Effects
+  effects_badge: "✦ Effects"
+  title: Hero Effects
+  panel: Hero Effects Panel
+  watercolor: Watercolor
+  animation_speed: Animation Speed
+  glow_intensity: Glow Intensity
+  hover_interaction: Hover Interaction
+  collapse: Collapse Panel
+  fluid_sim: Fluid Simulation
+  color_source: Color Source
+  image_palette: Image Palette
+  image_palette_alt: Image Palette
+  random_colors: Random Colors
+  quality: Quality
+  quality_high: High
+  quality_medium: Medium
+  quality_low: Low
+  curl_strength: Curl Strength
+  brush_size: Brush Size
+  dissipation: Dissipation
+  hover_trigger: Hover Trigger
+  bloom: Bloom
+  random_splat: Random Splat
+
+# ---- 刚读过 / 代码块 ----
+recent:
+  label: Recently Read
+  pin: Pin Recently Read
+
+code:
+  expand: Expand Code
+  collapse: Collapse Code
+  copy: Copy Code
+  copy_success: Copy successful!
+  copy_failed: Copy failed
+  not_found: Code content not found
+
+# ---- 关于页 ----
+about:
+  no_data: No Data
+  skills_title: My Skill Points
+  murmur: Random Thoughts
+  contact: Contact
+  intro_1: "Hello everyone! Welcome to my personal blog space."
+  intro_2: "I’ll occasionally share some bits of knowledge from various fields (though I’m pretty much a noob in all of them 😅). I’ll also write about some ideas related to Unity and Godot game development."
+  intro_3: "Honestly, I don’t have much skill—just a beginner who mostly copy-pastes stuff. I’m basically a half-baked learner who doesn’t understand much and can’t live without GPT, Gemini, and Claude, the three great gods @_@"
+  contact_email: Email
+  contact_bilibili: Bilibili
+  # 兴趣卡片(已有 about.yml 的 title_en/description_en/details_en 显式字段,此处为字典兜底)
+  card_1_title: Escape the Backrooms
+  card_1_desc: Search for hope of survival through endless shifting levels
+  card_1_details: "Next time the Skin Stealer comes, don’t block the door, you idiot"
+  card_2_title: Balatro
+  card_2_desc: "Once you start, you can’t put it down"
+  card_2_details: "And that’s how I got completely addicted"
+  card_3_title: Watchdog
+  card_3_desc: Brings a realistic American city atmosphere to life
+  card_3_details: "That's Right, I'm Alanwalker"
+  card_4_title: Minecraft
+  card_4_desc: Infinite survival and exploration, endless creative possibilities
+  card_4_details: "Ready to join the server and loot other people’s houses, kids?"
+  card_5_title: Sifu
+  card_5_desc: Every move is a strike, not an apology
+  card_5_details: "This… is martial virtue.jpg"
+  card_6_title: MiSide
+  card_6_desc: Fulfills all my anime fantasies
+  card_6_details: "Fantasy ruined. skull skull skull"
+
+# ---- 关于页 个人信息 ----
+profile:
+  name: Name
+  age: Age
+  age_value: 19 years old
+  university: University
+  university_value: Henan Normal University, Software Engineering
+  hobbies: Hobbies
+  hobbies_value: Making games and drawing
+  skills: Skills
+  skills_value: Eat well, sleep well, repeat
+  identity: Identity
+  identity_value: Anime Enthusiast
+
+# ---- 技能标签 ----
+skill:
+  photography_editing: Photography & Video Editing
+  pixel_anime_art: Pixel Art & Anime-style Illustration
+  logo_vector: Logo & Vector Design
+  programming: Programming Languages
+  blender: Blender Modeling
+  computer_graphics: Computer Graphics
+  wechat_miniprogram: WeChat Mini Program Development
+  game_dev: Game Development
+  novel: Novel Writing
+  minecraft_modding: Minecraft Modding
+  english: English
+  japanese: Japanese
+  frontend_db: Frontend & Database Development
+  android: Android App Development
+
+# ---- 404 页面 ----
+error404:
+  title: "Oops, the page got lost~"
+  desc: "The page you're looking for doesn't exist, or it ran off into the 2D world (´･ω･`)"
+  back_home: "Don't worry — hit the button below to head home!"
+  browse_archives: Browse the Archives
+
+# ---- 手机端刻度尺导航 ----
+mobile:
+  scale_hint: "Slide to explore · Tap to open"
+
+# ---- 分类 ----
+category:
+  all: All Categories
+  empty: No Categories
+  start_adding: Start Adding Categories to Your Posts
+  related: Category
+  back_to_all: Back to All Categories
+  no_posts: No posts in this category
+
+# ---- 标签 ----
+tag:
+  empty: No Tags
+  start_adding: Start Adding Tags to Your Posts
+  related: Tag
+  discover: Discover
+  related_posts: related posts
+  back_to_all: Back to All Tags
+
+# ---- 计数 / 通用 ----
+common:
+  back_home: Back to Home
+  total: Total
+  posts_unit: Posts
+  copy: Copy
+
+# ---- 友链页 ----
+link:
+  portals: Portals
+  slogan: "Where there's a will there's a way kind of beautiful"
+  empty: "No link data found. Please add entries to source/_data/link.yml"
+  add: Add Link
+  welcome: "Everyone is welcome to exchange links!"
+  my_info: "Here’s my site ~(=^_^)ノ☆:"
+  rule_anyone: "As long as you're willing to read my edgy articles, feel free to add my link~"
+  rule_template: "Use the template below and leave your info in the comments 😃 I’ll definitely check it out!"
+  watch_forever: "I’ll be watching all of you from the shadows haha o(￣ヘ￣o＃) ~"
+  avatar_missing: "Avatar ran away~"
+  copy_info: Copy Link Info
+  copy_template: Copy Template
+  shuffle: "Shuffle!"
+
+# ---- 评论区 ----
+comments:
+  title: Comments
+  nickname: Nickname
+  url: URL
+  required: Required
+  optional: Optional
+  preview: Preview
+  submit: Submit
+  empty: No Comments
+  twikoo_loaded: Twikoo comments loaded successfully
+
+# ---- 追番页 UI ----
+anime:
+  my_list: My Anime List
+  empty: "No anime data found. Please make sure anime.yml exists in source/_data/anime/"
+  watched: Watched
+  click_to_watch: Click to Watch
+  loading: "Loading..."
+  episodes_sources: "Episodes/Sources"
+  loading_short: "Loading..."
+  episodes: Episodes
+  playlist: Playlist
+  characters: Characters
+  autoplay_next: "Next episode will play automatically..."
+  last_episode: "This is the last episode~"
+  no_episodes: No episode data for this source
+  no_bangumi_url: "Please configure bangumi_url in source/_data/anime.yml"
+  parse_error: "Failed to parse Bangumi ID. Please check your anime.yml"
+  no_characters: No character information available
+  load_failed: "Failed to load. Please check your network connection"
+  source_not_found: "No playable source found for \"{t}\". Please check the yml config!"
+  # 番剧标题(已有各 yml 的 title_en 显式字段,此处为字典兜底)
+  title_01: Jujutsu Kaisen 0
+  title_02: Jujutsu Kaisen Season 1
+  title_03: Jujutsu Kaisen Season 2
+  title_04: Jujutsu Kaisen Season 3
+  title_05: "JoJo's Bizarre Adventure"
+  title_06: "JoJo's Bizarre Adventure: Stardust Crusaders"
+  title_07: "JoJo's Bizarre Adventure: Stardust Crusaders – Battle in Egypt"
+  title_08: "JoJo's Bizarre Adventure: Golden Wind"
+  title_09: "JoJo's Bizarre Adventure: Diamond Is Unbreakable"
+  title_10: "JoJo's Bizarre Adventure: Stone Ocean"
+  title_11: "JoJo's Bizarre Adventure: Steel Ball Run"
+  title_12: Thus Spoke Kishibe Rohan
+  title_13: SPY×FAMILY Season 1
+  title_14: SPY×FAMILY Season 2
+  title_15: "SPY×FAMILY CODE: White"
+  title_16: Cells at Work! Season 1
+  title_17: Cells at Work! Season 2
+  title_18: Cells at Work! CODE BLACK
+  title_19: Dr. Stone Season 1
+  title_20: "Dr. Stone: Stone Wars"
+  title_21: "Dr. Stone: Ryusui"
+  title_22: "Dr. Stone: New World"
+  title_23: "Dr. Stone: Science Future"
+  title_24: Attack on Titan Season 1
+  title_25: Attack on Titan Season 2
+  title_26: Attack on Titan Season 3
+  title_27: Attack on Titan Final Season
+  title_28: Chainsaw Man
+  title_29: "Chainsaw Man – The Movie: Reze Arc"
+
+# ---- 更多菜单 ----
+more:
+  site_1: My another Site
+  site_2: My Other Site (Doge)
+  github_alt: My Github Alternate Account
+  gitee: My Gitee
+  csdn: My CSDN
+
+# ---- 隐藏内容 ----
+hidden:
+  reveal: Click to reveal hidden content
+  click_view: Click to view
+  click_view_icon: "👆 Click to view"
+  click_restore: " (Click to hide again)"
+
+# ---- AI 摘要 ----
+ai:
+  name: Alona
+  introduce: Introduce
+  inspiration: Inspiration
+  generate: Generate Summary
+  greeting: "Hello Sensei! I am Alona, powered by OpenAI GPT-4o. How can I help you today? 😊"
+  generating: "Generating..."
+  please_wait: "Please wait..."
+  # 以下为 AI 面板的运行期文案与提示词({name}/{title}/{content} 为占位符)
+  init: "{name} is initializing..."
+  error: "{name} encountered an error while requesting AI. Please try again later."
+  rate_limited: "Too many requests. Please try AI again later."
+  prompt_inspiration: "You are an inspiration generator. Give the user an interesting, short inspiration quote. Keep it under 100 characters. Do not use paragraphs, bullet points or line breaks."
+  prompt_summary: "Please generate a concise summary of the following article in ENGLISH. Keep it under 200 characters. Do not use line breaks or make comments, just summarize the main points. Article title and content: {content}"
+  content_wrapper: "Article title: {title}. Article content: {content}"
+
+# ---- 文章 ----
+post:
+  click_read: "Click to Read ->"
+  read_full: Read More
+  prev: "← Previous"
+  next: "Next →"
+  load_more: Load More Articles
+  loading: "Loading..."
+  no_more: "No more articles~"
+  load_error: Error loading articles
+  minutes: min
+  words: words
+  found_results: "Found {n} results"
+  untitled: Untitled
+
+# ---- 目录 ----
+toc:
+  title: Directory
+  empty: No Directory
+
+# ---- 搜索 ----
+search:
+  placeholder: "Search Articles..."
+  index_missing: Search index not loaded
+  no_results: No results found
+
+# ---- 图片查看器 ----
+viewer:
+  prev: Previous
+  next: Next
+  rotate: "Rotate 90°"
+  lock: Lock Orientation
+  unlock: Unlock Orientation
+  save: Save Image
+
+# ---- 分享 ----
+share:
+  title: Share this article
+  twitter: Twitter
+  facebook: Facebook
+  linkedin: LinkedIn
+  wechat: WeChat
+  weibo: Weibo
+  copy_link: Copy Link
+  copied: "Copied!"
+  link_copied: "Link copied to clipboard!"
+  wechat_scan: WeChat Scan to Share
+  wechat_tip: "Open WeChat, tap 'Discover', use 'Scan' to share this page to Moments."
+
+# ---- 主页作者名片拉绳 ----
+author_card:
+  hide: Hide Card
+  show: Show Card
+
+# ---- 置顶徽章 ----
+badge:
+  pinned: Pinned
+
+# ---- 调色盘 ----
+palette:
+  custom_color: Custom Theme Color
+
+# ---- Sakana 小人 ----
+sakana:
+  switch_character: Switch Character
+
+# ---- 音乐播放器 ----
+music:
+  expand: Expand Player
+  collapse: Collapse Player
+  prev: Previous
+  next: Next
+  loop_list: Loop List
+  loop_one: Loop One
+  play_pause: "Play/Pause"
+  not_playing: Not Playing
+  no_songs: "Please configure songs in _config.yml"
+
+# ---- 照片墙 ----
+wall:
+  leave_mark: Leave your mark here
+  message: Leave a Message
+  message_board: Message Board
+  title: PhotoWall
+
+# ---- 桌宠 ----
+pet:
+  drag_1: "Let go of me!!!"
+  drag_2: "Help!!!"
+  drag_3: "I hate you~ boohoo"
+  click_1: Stop poking me
+  click_2: "So annoying!"
+  click_3: "You poked me again!"
+  right_click_1: "Don't right-click me, got it?"
+  right_click_2: "What are you doing?"
+  fall_1: Hmph
+  fall_2: Ouch
+  idle_1: "Why are you ignoring me?"
+  idle_2: "Talk to me!"
+  idle_3: "I'm so bored"
+  idle_4: "Sensei, I want to listen to music"
+  idle_5: "I'm so sleepy"
+  idle_6: "Can you play a song? I want to listen to music!!!"
+  no_right_click: "Don't right-click me"
+
+# ---- 桌宠设置面板 ----
+pet_settings:
+  music_control: Global Music Control
+  no_music: No music loaded
+  sound_effects: Character Sound Effects
+  mute: Mute
+  unmute: Unmute
+
+# ---- Mermaid 图表 ----
+mermaid:
+  zoom_in: Zoom In
+  zoom_out: Zoom Out
+  reset: Reset Zoom
+  restore: Restore
+  copy_source: Copy Source Code
+  copied_check: "Copied ✓"
+  copied: Copied
+  fullscreen: View Fullscreen
+  expand: Expand Chart
+  collapse: Collapse Chart
+
+# ---- 表格 ----
+table:
+  copy: Copy Table
+  expand: Expand Table
+  collapse: Collapse Table
+
+# ---- 读者设置面板 ----
+settings:
+  title: Settings
+  close: Close
+  reset: Reset Defaults
+  apply: Apply
+  music_player: Music Player
+  form: Style
+  form_pill: Pill
+  form_card: Card
+  position_desktop: "Position (Desktop)"
+  position_float_left: Floating Left
+  position_navbar: In Navbar
+  pet: Desktop Pet
+  pet_enable: Enable Pet
+  text_repel: Text Repel Effect
+  sakana_widget: "Sakana Widget"
+  sakana_show: "Show Sakana"
+  navbar: Navbar
+  style: Style
+  style_bubble: Bubble
+  style_filled: Filled
+  theme_color: Theme Color
+  show_palette: Show Color Picker
+  effect: Effect
+  click_effect: Click Effect
+  heart_text: Heart Text
+  triangle_fireworks: Triangle Fireworks
+  cover: Cover
+  cover_enable: Enable Cover
+  hero_fx_enable: Enable Hero Effects
+  reading: Article Reading
+  view_mode: View Mode
+  modal: Modal Window
+  direct: Open Directly
+  pin_last_read: Pin Last Read Article
+  image_viewer: Image Viewer
+  switch_mode_desktop: "Switch Mode (Desktop)"
+  side_preview: Side Preview
+  prev_next: "Prev/Next Buttons"
+  desktop_thumbs: Desktop Thumbnails
+  leaves: Falling Leaves
+  leaves_enable: Enable Leaves
+  hero_image: Hero Image
+  hero_image_enable: Enable Hero Image
+  pjax: Instant Refresh
+  pjax_enable: Enable Instant Refresh
+  top_banner: Show Top Banner
+  author_card: Author Card
+  width: Width
+  card_size: Card Size
+  size_normal: Normal
+  size_large: Large
+
+# ---- 分类页文件夹视图(仅电脑端) ----
+categories_view:
+  list: List
+  folders: Folders
+  grid: Grid View
+  list_view: List View
+  sort_date: By Date
+  sort_name: By Name
+
+# ---- 碎碎念/万花筒 ----
+murmur:
+  title: Murmur
+  empty: "No murmurs yet, go record something~"

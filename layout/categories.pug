@@ -30,7 +30,7 @@
                 .post-item
                   .post-item-inner
                     .post-item-title
-                      a(href=url_for(post.path))= post.title
+                      a(href=url_for(post.path), data-i18n-zh=post.title)&attributes(i18n_attrs(post, 'title'))= post.title
                     .post-item-meta
                       .post-meta-left
                         span.post-date
@@ -89,7 +89,7 @@
                           .post-item
                             .post-item-inner
                               .post-item-title
-                                a(href=url_for(post.path))= post.title
+                                a(href=url_for(post.path), data-i18n-zh=post.title)&attributes(i18n_attrs(post, 'title'))= post.title
                               .post-item-meta
                                 .post-meta-left
                                   span.post-date
@@ -147,10 +147,10 @@
                             a.cx-item(href=url_for(post.path))
                               .cx-thumb-wrap
                                 if cxCover
-                                  img.cx-thumb(src=url_for(cxCover), alt=post.title, loading="lazy")
+                                  img.cx-thumb(src=url_for(cxCover), alt=post.title, loading="lazy")&attributes(i18n_attrs(post, 'title', 'alt'))
                                 else
                                   i.fas.fa-file-lines.cx-thumb-icon
-                              span.cx-item-name= post.title
+                              span.cx-item-name(data-i18n-zh=post.title)&attributes(i18n_attrs(post, 'title'))= post.title
                               span.cx-item-date= date(post.date, "YYYY-MM-DD")
                         else
                           .cx-empty 该分类下暂无文章

@@ -29,8 +29,16 @@ function initTypingEffect() {
   typingElement.dataset.typingBound = "1";
 
   // Get typing text from theme config or use default
-  const typingText =
+  // ★ 打字机文本按当前界面语言取词:文本由本脚本逐字写入,.hero-typing 又在
+  //   翻译层的跳过名单里(避免每 50ms 触发一次翻译),所以必须在这里主动取译文。
+  const typingTextZh =
     typingElement.getAttribute("data-text") || "Welcome to my blog";
+  function currentTypingText() {
+    return window.i18n && typeof window.i18n.get === "function"
+      ? window.i18n.get(typingTextZh)
+      : typingTextZh;
+  }
+  let typingText = currentTypingText();
   const typingSpeed = parseInt(typingElement.getAttribute("data-speed")) || 100;
   const deleteSpeed =
     parseInt(typingElement.getAttribute("data-delete-speed")) || 50;
@@ -41,10 +49,28 @@ function initTypingEffect() {
   let i = 0;
   let isDeleting = false;
   let isPaused = false;
+  let running = false; // 循环是否仍在运行(非循环模式下打完即停)
+  // ★ 代际令牌:语言切换会重置打字进度,此时旧的 setTimeout 链必须被淘汰,
+  //   否则新旧两条链会同时推进 i(新链从 0 开始、旧链继续减),导致 i 越界、文本永久空白
+  let gen = 0;
 
-  function typeWriter() {
+  // 语言切换:换成新语言的文本重新打字(从头开始,丢弃旧链)
+  document.addEventListener("langchange", function () {
+    typingText = currentTypingText();
+    gen++;
+    i = 0;
+    isDeleting = false;
+    isPaused = false;
+    running = false;
+    typingElement.textContent = "";
+    typeWriter(gen);
+  });
+
+  function typeWriter(myGen) {
+    if (myGen !== gen) return; // 已被新语言/新链淘汰
+    running = true;
     if (isPaused) {
-      setTimeout(typeWriter, pauseDuration);
+      setTimeout(() => typeWriter(myGen), pauseDuration);
       isPaused = false;
       return;
     }
@@ -56,9 +82,12 @@ function initTypingEffect() {
       if (i === typingText.length) {
         isPaused = true;
         setTimeout(() => {
+          if (myGen !== gen) return;
           if (shouldLoop) {
             isDeleting = true;
-            typeWriter();
+            typeWriter(myGen);
+          } else {
+            running = false;
           }
         }, pauseDuration);
         return;
@@ -67,12 +96,16 @@ function initTypingEffect() {
       typingElement.textContent = typingText.substring(0, i - 1);
       i--;
 
-      if (i === 0) {
+      if (i <= 0) {
+        i = 0;
         isDeleting = false;
         isPaused = true;
         setTimeout(() => {
+          if (myGen !== gen) return;
           if (shouldLoop) {
-            typeWriter();
+            typeWriter(myGen);
+          } else {
+            running = false;
           }
         }, pauseDuration / 2);
         return;
@@ -80,10 +113,11 @@ function initTypingEffect() {
     }
 
     const speed = isDeleting ? deleteSpeed : typingSpeed;
-    setTimeout(typeWriter, speed);
+    setTimeout(() => typeWriter(myGen), speed);
   }
 
-  typeWriter();
+  gen++;
+  typeWriter(gen);
 }
 
 // ===== Smooth Scroll =====

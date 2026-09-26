@@ -385,10 +385,13 @@ inject:
     #以下是背景动画特效
     - <script defer src="/js/effects/falling-leaves.js"></script> # 梧桐落叶特效
     #以下是语言切换支持
+    # ★ lang-dict.js 由 themes/magzine/language/{zh,en}.yml 构建期生成,必须先于 lang-switch.js 加载
+    - <script defer src="/js/core/lang-dict.js"></script> # 语言字典(由 yml 生成)
     - <script defer src="/js/core/lang-switch.js"></script> # 语言切换脚本
 
 # 语言切换功能
-#本主题翻译功能不是很成熟,不满足i18n需求,只满足中英转换,请前往themes\magzine\source\js\lang-switch.js自定义翻译文本
+#翻译词条统一维护在 themes/magzine/language/zh.yml 与 en.yml(键=中文原文,值=译文),
+#修改后重新 hexo generate 即可,不要直接改 public/js/core/lang-dict.js(构建会覆盖)。
 
 # 阿尼亚自定义鼠标指针
 # 由 .agents/skills/web-cursor-converter/scripts/cursor_convert.py 把 Windows 光标包(.ani/.cur)转换成 PNG 帧序列,

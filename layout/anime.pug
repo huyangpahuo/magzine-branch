@@ -51,14 +51,20 @@ script(src="https://cdn.jsdelivr.net/npm/artplayer/dist/artplayer.js")
         - var episodesJson = item.episodes ? JSON.stringify(item.episodes) : "[]";
         - var defaultUrl = item.url || "";
         
-        a.bili-card-wrapper(href="javascript:void(0);" data-url=defaultUrl data-title=item.title data-bangumi=item.bangumi_url data-sources=sourcesJson data-episodes=episodesJson)
+        //- data-title-zh:观看历史的稳定键(不会被翻译层改写;data-title 在
+        //- 非中文模式下会被翻译,用它做键会导致切语言后徽章错乱)
+        //- data-own-context-menu:本卡片自己响应右键(弹出"登场角色"),
+        //- 让全局右键设置面板跳过,避免两个面板重叠(见 reader-settings.js)
+        a.bili-card-wrapper(href="javascript:void(0);" data-url=defaultUrl data-title=item.title data-title-zh=item.title data-bangumi=item.bangumi_url data-sources=sourcesJson data-episodes=episodesJson data-own-context-menu="1")&attributes(i18n_attrs(item, 'title', 'data-title'))
           .bili-card
+            //- h3 放在 cover-wrapper 之外:watched-badge/play-overlay 都是
+            //- 绝对定位锚定 cover-wrapper,标题混在里面会让徽章随标题高度乱飘
             .cover-wrapper
-              img(src=item.cover alt=item.title loading="lazy" referrerpolicy="no-referrer")
+              img(src=item.cover alt=item.title loading="lazy" referrerpolicy="no-referrer")&attributes(i18n_attrs(item, 'title', 'alt'))
               .watched-badge(style="display:none;") 已观看
               .play-overlay
                 span.play-text 点击观看
-            h3= item.title
+            h3(data-i18n-zh=item.title)&attributes(i18n_attrs(item, 'title'))= item.title
     else
       p(style="grid-column: 1 / -1; text-align: center;") 暂无追番数据，请确保已在 source/_data/anime/ 目录下创建了 yml 文件
 

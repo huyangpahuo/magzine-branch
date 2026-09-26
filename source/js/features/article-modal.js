@@ -61,6 +61,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (titleElement) {
           newTitle = titleElement.textContent.trim();
+          // 非中文模式优先用 front-matter 的显式译文属性
+          // (iframe 内翻译可能尚未执行;顺序:当前语言 → 英文兜底)
+          const curLang =
+            window.i18n && typeof window.i18n.lang === "function"
+              ? window.i18n.lang()
+              : localStorage.getItem("site_lang") || "zh";
+          if (curLang !== "zh") {
+            const own = titleElement.getAttribute("data-i18n-" + curLang);
+            const en = titleElement.getAttribute("data-i18n-en");
+            if (own) newTitle = own;
+            else if (en) newTitle = en;
+          }
         } else {
           // 2. 如果没找到 h1，尝试获取 title 标签的内容
           newTitle = iframeDoc.title.split(" - ")[0]; // 通常 title 是 "文章名 - 站点名"，我们要去掉站点名
@@ -145,7 +157,18 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
       if (modal.classList.contains("active") && e.data.title) {
-        modalTitle.textContent = e.data.title;
+        // 非中文模式优先展示显式译文(当前语言 → 英文兜底 → 中文原文)
+        const curLang =
+          window.i18n && typeof window.i18n.lang === "function"
+            ? window.i18n.lang()
+            : localStorage.getItem("site_lang") || "zh";
+        let shown = e.data.title;
+        if (curLang !== "zh") {
+          const own = e.data["title_" + curLang];
+          if (own) shown = own;
+          else if (e.data.title_en) shown = e.data.title_en;
+        }
+        modalTitle.textContent = shown;
       }
     });
 

@@ -82,8 +82,8 @@ function initLoadMore() {
   loadMoreBtn.dataset.loadMoreInit = "1";
 
   // 2. 获取当前语言状态 (从 localStorage 读取)
-  function isEnglish() {
-    return localStorage.getItem("site_lang") === "en";
+  function curLang() {
+    return localStorage.getItem("site_lang") || "zh";
   }
 
   // 3. 定义多语言文本
@@ -91,31 +91,37 @@ function initLoadMore() {
     loading: {
       zh: '<span class="loading"></span> 加载中...',
       en: '<span class="loading"></span> Loading...',
+      ja: '<span class="loading"></span> 読み込み中...',
     },
     loadMore: {
       zh: "加载更多文章",
       en: "Load More Articles",
+      ja: "記事をさらに読み込む",
     },
     pageEditable: {
       zh: "页码可编辑:输入后点“加载更多文章”跳转",
       en: "Editable page: type a number and click Load More to jump",
+      ja: "ページ番号を編集:入力して「記事をさらに読み込む」でジャンプ",
     },
     noMore: {
       zh: "没有了哦~",
       en: "No more articles~",
+      ja: "記事はこれ以上ありません~",
     },
     invalid: {
       zh: "无效页码哦~",
       en: "Invalid page number~",
+      ja: "無効なページ番号です~",
     },
     error: {
       zh: "加载文章失败",
       en: "Error loading articles",
+      ja: "記事の読み込みに失敗しました",
     },
   };
 
   // 获取辅助函数：根据当前语言返回文本
-  const getText = (key) => (isEnglish() ? texts[key].en : texts[key].zh);
+  const getText = (key) => texts[key][curLang()] || texts[key].zh;
 
   // ===== ‹ 页码 › 翻页器 =====
   // 页码 = 当前已完整展示的页数;箭头直接翻到对应页(pjax 无感)
@@ -193,12 +199,19 @@ function initLoadMore() {
   renderPager();
 
 
-  // 初始化按钮文字
-  if (isEnglish()) {
-    if (loadMoreBtn.innerText.trim() === "加载更多文章") {
-      loadMoreBtn.innerText = texts.loadMore.en;
-    }
+  // 按钮文案按当前语言直接渲染(不依赖翻译层,避免与 pjax/防抖时序竞争)
+  if (curLang() !== "zh" && !loadMoreBtn.dataset.appended) {
+    loadMoreBtn.innerText = getText("loadMore");
   }
+
+  // 语言切换后同步按钮与页码提示
+  document.addEventListener("langchange", () => {
+    if (loadMoreBtn.dataset.appended === "1") return;
+    loadMoreBtn.innerText = getText("loadMore");
+    loadMoreBtn.style.opacity = "";
+    loadMoreBtn.disabled = false;
+    renderPager();
+  });
 
   // "无效页码"提示:短暂替换按钮文字后复原
   let invalidTimer = null;
@@ -299,17 +312,8 @@ function initLoadMore() {
 
             // 如果链接不存在，才放入待插入列表
             if (newLink && !existingLinks.includes(newLink)) {
-              // 处理英文模式下的静态文本翻译
-              if (isEnglish()) {
-                const readMore = article.querySelector(".read-more");
-                if (readMore && readMore.innerText.includes("阅读更多")) {
-                  readMore.innerText = "Read More →";
-                }
-                const readOverlay = article.querySelector(".read-text");
-                if (readOverlay && readOverlay.innerText.includes("点击阅读")) {
-                  readOverlay.innerText = "Click to Read ->";
-                }
-              }
+              // 静态文本("阅读全文"/"点击阅读->"等)统一交给翻译层处理,
+              // 见下方 window.i18n.translateNode(articlesGrid),此处不再单独打补丁
 
               // 设置初始透明度为0，用于动画
               article.style.opacity = "0";
@@ -354,7 +358,7 @@ function initLoadMore() {
           if (
             window.i18n &&
             typeof window.i18n.translateNode === "function" &&
-            isEnglish()
+            curLang() !== "zh"
           ) {
             window.i18n.translateNode(articlesGrid);
             // ★★★ 新增：调用日期翻译函数，处理新加载文章的日期 ★★★

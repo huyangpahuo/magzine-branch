@@ -243,11 +243,19 @@ document.addEventListener("DOMContentLoaded", function () {
     localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
     updateBadges();
   }
+  // 观看历史统一用中文原标题作键:data-title 在非中文模式下会被翻译层
+  // 改写,直接用它做键会导致切换语言后徽章错乱/丢失
+  function stableTitle(el) {
+    return (
+      el.getAttribute("data-title-zh") || el.getAttribute("data-title") || ""
+    );
+  }
+
   function updateBadges() {
     if (!isHistoryEnabled) return;
     const history = getHistory();
     document.querySelectorAll(".bili-card-wrapper").forEach((card) => {
-      const title = card.getAttribute("data-title");
+      const title = stableTitle(card);
       const badge = card.querySelector(".watched-badge");
       if (history[title] && badge) badge.style.display = "block";
     });
@@ -279,7 +287,7 @@ document.addEventListener("DOMContentLoaded", function () {
     card.addEventListener("click", function (e) {
       if (e.button !== 0) return;
 
-      const title = this.getAttribute("data-title");
+      const title = stableTitle(this);
       const defaultUrl = this.getAttribute("data-url"); // 兼容没有 sources 只有单个 url 的旧版
 
       // 读取 YAML 中配置好的本地源
@@ -293,7 +301,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // 无论移动端PC端，若是既没有直链也没数据，一律提示并返回，不弹空模态框
       if (yamlSources.length === 0 && !defaultUrl) {
-        alert(`未能找到《${title}》的播放源，请检查 yml 配置！`);
+        alert(
+          window.i18n && typeof window.i18n.format === "function"
+            ? window.i18n.format("未能找到《{t}》的播放源，请检查 yml 配置！", { t: title })
+            : `未能找到《${title}》的播放源，请检查 yml 配置！`,
+        );
         return;
       }
 

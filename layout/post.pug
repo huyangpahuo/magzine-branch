@@ -19,7 +19,7 @@
           - }
           - var defaultCover = theme.theme_config.post && theme.theme_config.post.default_cover ? theme.theme_config.post.default_cover : '/images/19.png'
           - var coverPath = page.cover ? getCoverPath(page.cover, page.path) : defaultCover
-          img(src=url_for(coverPath), alt=page.title)
+          img(src=url_for(coverPath), alt=page.title)&attributes(i18n_attrs(page, 'title', 'alt'))
 
       .post-meta
         //- 分类
@@ -61,18 +61,21 @@
             span= min2read(page.content)
             span(style="margin-left: 3px") 分钟
 
-      h1.post-title= page.title
+      h1.post-title(data-i18n-zh=page.title)&attributes(i18n_attrs(page, 'title'))= page.title
 
       //- ★★★ 新增：当本文章页在"文章模态窗口"的 iframe 中被打开/切换（点击上一篇/下一篇）时，
       //- 主动通知父窗口更新模态框标题，避免依赖 iframe 的 load 事件时机不稳定的问题 ★★★
-      - var articleModalTitleJSON = JSON.stringify(page.title || '')
+      //- 携带各语言显式标题(zh 原文 + front-matter 里的 title_<lang>),
+      //- 父窗口按当前语言挑选,缺译时回退英文/中文
+      - var modalTitles = { zh: page.title || '', en: page.title_en || '' }
+      - if (page.title_ja) modalTitles.ja = page.title_ja
       script.
         (function () {
           try {
-            var __articleModalTitle = !{articleModalTitleJSON};
+            var __t = !{JSON.stringify(modalTitles)};
             if (window.self !== window.top && window.parent && typeof window.parent.postMessage === 'function') {
               window.parent.postMessage(
-                { type: 'article-modal-title-update', title: __articleModalTitle },
+                { type: 'article-modal-title-update', title: __t.zh, title_en: __t.en, title_ja: __t.ja || '' },
                 window.location.origin
               );
             }
@@ -130,13 +133,13 @@
         .post-nav.prev
           a(href=url_for(page.prev.path))
             span.nav-label ← 上一篇
-            span.nav-title= page.prev.title
+            span.nav-title(data-i18n-zh=page.prev.title)&attributes(i18n_attrs(page.prev, 'title'))= page.prev.title
 
       if page.next
         .post-nav.next
           a(href=url_for(page.next.path))
             span.nav-label 下一篇 →
-            span.nav-title= page.next.title
+            span.nav-title(data-i18n-zh=page.next.title)&attributes(i18n_attrs(page.next, 'title'))= page.next.title
 
     if theme.share && theme.share.enable
       .post-share
@@ -189,10 +192,10 @@ if page.related_posts && page.related_posts.length
                   - }
                   - var defaultCover = theme.theme_config.post && theme.theme_config.post.default_cover ? theme.theme_config.post.default_cover : '/images/19.png'
                   - var coverPath = post.cover ? getCoverPath(post.cover, post.path) : defaultCover
-                  img(src=url_for(coverPath), alt=post.title)
+                      img(src=url_for(coverPath), alt=post.title)&attributes(i18n_attrs(post, 'title', 'alt'))
             .related-content
               h4.related-title
-                a(href=url_for(post.path))= post.title
+                a(href=url_for(post.path), data-i18n-zh=post.title)&attributes(i18n_attrs(post, 'title'))= post.title
               .related-date
 
                 time(datetime=date_xml(post.date))= date(post.date, "MMM DD, YYYY")

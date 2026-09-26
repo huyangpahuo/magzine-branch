@@ -441,7 +441,9 @@
 @media (max-width: 768px) {
     .bili-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 16px;
+        /* 行距留出标题悬挂的空间(标题绝对定位在圆形封面下方 -28px) */
+        row-gap: 46px;
+        column-gap: 16px;
     }
 
     .bili-card-wrapper {
@@ -458,6 +460,8 @@
         background: transparent;
         /* 取消原本的方形背景 */
         border: 2px solid rgba(150, 150, 150, 0.2);
+        /* ★ 关键:手机端标题悬挂在圆形封面下方,不能被卡片裁掉 */
+        overflow: visible;
     }
 
     .cover-wrapper {
@@ -537,7 +541,9 @@
 @media (max-width: 480px) {
     .bili-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 24px;
+        /* 同 768 断点:留出标题悬挂空间 */
+        row-gap: 46px;
+        column-gap: 24px;
         margin-bottom: 20px;
     }
 }

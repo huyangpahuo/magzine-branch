@@ -23,7 +23,7 @@
           
           .archive-info
             h3.archive-post-title
-              a(href=url_for(post.path))= post.title
+              a(href=url_for(post.path), data-i18n-zh=post.title)&attributes(i18n_attrs(post, 'title'))= post.title
             
             .archive-meta
               if post.categories && post.categories.length

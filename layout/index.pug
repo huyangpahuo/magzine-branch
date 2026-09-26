@@ -12,7 +12,7 @@ if theme.hero && theme.hero.enable
     .hero-fx-layer
     .hero-content
       .hero-typing
-        #typing-text(data-text=theme.hero.typing_text || 'Welcome to my blog', data-speed=theme.hero.typing_speed || 100, data-delete-speed=theme.hero.delete_speed || 50, data-pause=theme.hero.pause_duration || 2000, data-loop=theme.hero.typing_loop !== false)
+        #typing-text(data-text=theme.hero.typing_text || 'Welcome to my blog', data-speed=theme.hero.typing_speed || 100, data-delete-speed=theme.hero.delete_speed || 50, data-pause=theme.hero.pause_duration || 2000, data-loop=(theme.hero.typing_loop !== false ? 'true' : 'false'))
       .hero-scroll
         .scroll-indicator
           .scroll-mouse
@@ -49,7 +49,7 @@ section.articles-section
                 - }
                 - var defaultCover = theme.theme_config.post && theme.theme_config.post.default_cover ? theme.theme_config.post.default_cover : '/images/19.png'
                 - var coverPath = article.cover ? getCoverPath(article.cover, article.path) : defaultCover
-                img(src=url_for(coverPath), alt=article.title, loading="lazy")
+                img(src=url_for(coverPath), alt=article.title, loading="lazy")&attributes(i18n_attrs(article, 'title', 'alt'))
                 //- ★★★ 新增：悬停遮罩层 ★★★
                 .read-overlay
                   span.read-text(data-label="点击阅读->") 点击阅读->
@@ -62,11 +62,13 @@ section.articles-section
               time.article-date(datetime=date_xml(article.date), data-date-standard=date(article.date, 'YYYY-MM-DD'))= date(article.date, "MMM DD, YYYY")
             
             h3.article-title
-              a(href=url_for(article.path))= article.title
-            
+              a(href=url_for(article.path), data-i18n-zh=article.title)&attributes(i18n_attrs(article, 'title'))= article.title
+
             if theme.article_list.show_excerpt && article.excerpt
               .article-excerpt
-                != article.excerpt
+                //- 摘要正文单独一层:非中文模式用 front-matter 的 description_<lang> 整体替换,
+                //- 中文模式恢复原始摘要 HTML(见 lang-switch.js 的显式属性处理)
+                .excerpt-body&attributes(i18n_attrs(article, 'description'))!= article.excerpt
                 a.read-more(href=url_for(article.path)) Read more →
             
             .article-tags

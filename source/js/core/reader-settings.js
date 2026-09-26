@@ -412,8 +412,11 @@
       panel.classList.remove("open");
     }
 
-    /* ---- 右键打开(跳过桌宠;模态窗口打开时也不弹,见文件头说明) ---- */
+    /* ---- 右键打开(跳过自带右键菜单的元素与桌宠;模态窗口打开时也不弹,见文件头说明) ----
+       data-own-context-menu:元素自己会响应右键(如追番卡片弹出"登场角色"),
+       若这里再弹设置面板会与之重叠,因此带此标记的区域一律跳过。 */
     document.addEventListener("contextmenu", function (e) {
+      if (e.target.closest("[data-own-context-menu]")) return;
       if (e.target.closest("#pet-root, .reader-settings-panel")) return;
       // 模态窗口打开时,右键落在模态标题栏/遮罩等父页面区域 → 同样不弹面板
       if (document.querySelector(".article-modal.active")) return;

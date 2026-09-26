@@ -9,11 +9,14 @@ main.about-page
 
   .about-container
     //- 头部
+    //- name_en / bio_en: 主题配置里可选的英文名与英文简介(见 _config.yml 的 author_card)
     .about-header
       .about-avatar
         img(src=url_for(theme.author_card && theme.author_card.avatar ? theme.author_card.avatar : '/img/avatar.png'), alt="Avatar")
-      h1.about-name= theme.author_card && theme.author_card.name ? theme.author_card.name : 'Your Name'
-      p.about-bio= theme.author_card && theme.author_card.bio ? theme.author_card.bio : 'Your Bio'
+      - var authorName = theme.author_card && theme.author_card.name ? theme.author_card.name : 'Your Name'
+      - var authorBio = theme.author_card && theme.author_card.bio ? theme.author_card.bio : 'Your Bio'
+      h1.about-name(data-i18n-zh=authorName)&attributes(i18n_attrs(theme.author_card || {}, 'name'))= authorName
+      p.about-bio(data-i18n-zh=authorBio)&attributes(i18n_attrs(theme.author_card || {}, 'bio'))= authorBio
 
     //- 卡片展示区 (保持不变)
     .interests-showcase
@@ -28,13 +31,13 @@ main.about-page
             .card-bg(style=`${bgStyle} background-size: cover; background-position: center;`)
 
             .card-content
-              h3.card-title= card.title
+              h3.card-title(data-i18n-zh=card.title)&attributes(i18n_attrs(card, 'title'))= card.title
               .card-description
-                p= card.description
+                p(data-i18n-zh=card.description)&attributes(i18n_attrs(card, 'description'))= card.description
               .card-icon
                 i(class=card.icon)
               .card-hover-content
-                p= card.details
+                p(data-i18n-zh=card.details)&attributes(i18n_attrs(card, 'details'))= card.details
       else
          p(style="text-align:center; opacity:0.6") 暂无数据
     //- 详情区域

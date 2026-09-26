@@ -145,19 +145,23 @@
         // 原卡片不在当前分页时按界面语言自行计算
         var d = new Date(record.date);
         if (!isNaN(d.getTime())) {
-          var isEn =
-            window.i18n && typeof window.i18n.isEn === "function"
-              ? window.i18n.isEn()
-              : false;
-          if (isEn) {
+          var jrLang =
+            window.i18n && typeof window.i18n.lang === "function"
+              ? window.i18n.lang()
+              : localStorage.getItem("site_lang") || "zh";
+          if (jrLang === "en") {
             dateEl.textContent = d.toLocaleDateString("en-US", {
               year: "numeric",
               month: "short",
               day: "numeric",
             });
-          } else {
+          } else if (jrLang === "zh") {
             dateEl.textContent =
               d.getFullYear() + "年" + (d.getMonth() + 1) + "月" + d.getDate() + "日";
+          } else {
+            // 其他语言统一国际格式:2026-9-14
+            dateEl.textContent =
+              d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
           }
           dateEl.setAttribute("data-original-text", dateEl.textContent);
         }

@@ -1,0 +1,406 @@
+# ============================================================
+# Русский словарь
+# 键 = 稳定的词条 ID(与 zh.yml 一一对应),值 = 俄语译文
+# 构建期由 scripts/other/lang-dict.js 与 zh.yml 拉链合成运行时字典
+# ============================================================
+_meta:
+  flag: "🇷🇺"
+  label: Русский
+
+site:
+  owner_name: Хуян Пахо
+  tagline: Ciallo, волшебник улыбок~ (∠・ω< )⌒☆
+  copyright: © 2025 Хуян Пахо. Все права защищены.
+nav:
+  home: Главная
+  about_me: Обо мне
+  about: Профиль
+  archives: Архив
+  more: Ещё
+  anime: Аниме
+  links: Ссылки
+  tags: Теги
+  categories: Категории
+  writings: Статьи
+hero:
+  scroll_down: Прокрутите вниз, чтобы узнать больше
+  welcome: Добро пожаловать в мой удивительный мир
+  start_journey: Начать путешествие
+hero_panel:
+  effects: Эффекты
+  effects_badge: ✦ Эффекты
+  title: Эффекты главной
+  panel: Панель эффектов главной
+  watercolor: Акварельное свечение
+  animation_speed: Скорость анимации
+  glow_intensity: Интенсивность свечения
+  hover_interaction: Реакция на наведение
+  collapse: Свернуть панель
+  fluid_sim: Симуляция жидкости
+  color_source: Источник цвета
+  image_palette: Основной цвет фона
+  image_palette_alt: Палитра фона
+  random_colors: Случайные цвета
+  quality: Качество
+  quality_high: Высокое
+  quality_medium: Среднее
+  quality_low: Низкое
+  curl_strength: Сила завихрения
+  brush_size: Размер кисти
+  dissipation: Скорость затухания
+  hover_trigger: Запуск при наведении
+  bloom: Свечение
+  random_splat: Случайные всплески
+recent:
+  label: Недавно прочитано
+  pin: Закрепить прочитанное
+code:
+  expand: Развернуть код
+  collapse: Свернуть код
+  copy: Копировать код
+  copy_success: Скопировано
+  copy_failed: Не удалось скопировать
+  not_found: Код не найден
+about:
+  no_data: Нет данных
+  skills_title: Мои навыки
+  murmur: Мысли вслух
+  contact: Контакты
+  intro_1: Привет всем! Добро пожаловать в мой личный блог
+  intro_2: Я время от времени делюсь знаниями из разных областей (хотя во всех я новичок), а также мыслями о разработке игр на Unity и Godot
+  intro_3: Честно говоря, талантами не блещу — просто новичок, который в основном копирует. Почти ничего не понимаю и не могу жить без GPT, Gemini и Claude — трёх великих богов @_@
+  contact_email: Почта
+  contact_bilibili: Bilibili
+  card_1_title: Побег из Закулисья
+  card_1_desc: Поиск надежды на выживание среди бесконечных уровней
+  card_1_details: В следующий раз, когда придёт Скинстилер, не блокируй дверь
+  card_2_title: Balatro
+  card_2_desc: Начнёшь — не оторвёшься
+  card_2_details: И вот я полностью подсел
+  card_3_title: Watch Dogs
+  card_3_desc: Придаёт игре реализм американского города
+  card_3_details: Да, это я, Цзяхao
+  card_4_title: Minecraft
+  card_4_desc: Бесконечное выживание и исследование, чудеса творчества
+  card_4_details: Готовы зайти на сервер и обчистить чужие дома, дети?
+  card_5_title: Sifu
+  card_5_desc: Каждое движение — удар, а не извинение
+  card_5_details: Это… и есть боевая добродетель.jpg
+  card_6_title: MiSide
+  card_6_desc: Исполнила все мои аниме-фантазии
+  card_6_details: Фантазия умерла. череп череп череп
+profile:
+  name: Имя
+  age: Возраст
+  age_value: 19 лет
+  university: Университет
+  university_value: Хэнаньский педагогический университет, программная инженерия
+  hobbies: Хобби
+  hobbies_value: Делаю игры и рисую
+  skills: Умения
+  skills_value: Поесть, поспать и снова поесть
+  identity: Кто я
+  identity_value: Любитель аниме
+skill:
+  photography_editing: Фото и видеомонтаж
+  pixel_anime_art: Пиксель-арт и аниме-иллюстрации
+  logo_vector: Логотипы и векторная графика
+  programming: Языки программирования
+  blender: Моделирование в Blender
+  computer_graphics: Компьютерная графика
+  wechat_miniprogram: Мини-программы WeChat
+  game_dev: Разработка игр
+  novel: Написание романов
+  minecraft_modding: Моды для Minecraft
+  english: Английский
+  japanese: Японский
+  frontend_db: Фронтенд и базы данных
+  android: Разработка Android-приложений
+error404:
+  title: Ой, страница заблудилась~
+  desc: Страницы, которую вы ищете, не существует, или она убежала в мир аниме (´･ω･`)
+  back_home: Не волнуйтесь — нажмите кнопку ниже, чтобы вернуться домой!
+  browse_archives: Посмотреть архив
+mobile:
+  scale_hint: Свайп в сторону · нажмите для выбора
+category:
+  all: Все категории
+  empty: Нет категорий
+  start_adding: Начните добавлять категории к статьям
+  related: Категория
+  back_to_all: Ко всем категориям
+  no_posts: В этой категории нет статей
+tag:
+  empty: Нет тегов
+  start_adding: Начните добавлять теги к статьям
+  related: Тег
+  discover: Статьи с тегом «
+  related_posts: »
+  back_to_all: Ко всем тегам
+common:
+  back_home: На главную
+  total: Всего
+  posts_unit: статей
+  copy: Копировать
+link:
+  portals: Портал
+  slogan: Где есть воля, там есть и путь — какой прекрасный мир
+  empty: Нет данных о ссылках. Добавьте их в source/_data/link.yml
+  add: Добавить ссылку
+  welcome: Все желающие могут обменяться ссылками!
+  my_info: Вот мой сайт ~(=^_^)ノ☆：
+  rule_anyone: Если вам интересно читать мои статьи — добавляйте мою ссылку
+  rule_template: Используйте шаблон ниже и напишите мне в комментариях 😃 я обязательно посмотрю!
+  watch_forever: Я буду следить за вами из тени, ха-ха o(￣ヘ￣o＃) ~
+  avatar_missing: Аватар убежал~
+  copy_info: Копировать данные ссылки
+  copy_template: Копировать шаблон
+  shuffle: Перемешать!
+comments:
+  title: Комментарии
+  nickname: Никнейм
+  url: URL
+  required: Обязательно
+  optional: Необязательно
+  preview: Предпросмотр
+  submit: Отправить
+  empty: Нет комментариев
+  twikoo_loaded: Комментарии Twikoo загружены
+anime:
+  my_list: Мой список аниме
+  empty: Нет данных об аниме. Убедитесь, что файлы созданы в source/_data/anime/
+  watched: Просмотрено
+  click_to_watch: Смотреть
+  loading: Загрузка...
+  episodes_sources: Серии/источники
+  loading_short: Загрузка...
+  episodes: Серии
+  playlist: Плейлист
+  characters: Персонажи
+  autoplay_next: Следующая серия начнётся автоматически...
+  last_episode: Это последняя серия~
+  no_episodes: Нет данных о сериях для этого источника
+  no_bangumi_url: Не настроен bangumi_url
+  parse_error: Не удалось разобрать Bangumi ID
+  no_characters: Нет информации о персонажах
+  load_failed: Не удалось загрузить. Проверьте подключение к сети
+  source_not_found: Не найден источник воспроизведения для «{t}». Проверьте конфигурацию yml!
+  title_01: Магическая битва 0
+  title_02: Магическая битва 1 сезон
+  title_03: Магическая битва 2 сезон
+  title_04: Магическая битва 3 сезон
+  title_05: Невероятные приключения ДжоДжо
+  title_06: 'Невероятные приключения ДжоДжо: Крестовый поход'
+  title_07: 'Невероятные приключения ДжоДжо: Крестовый поход — Битва в Египте'
+  title_08: 'Невероятные приключения ДжоДжо: Золотой ветер'
+  title_09: 'Невероятные приключения ДжоДжо: Несокрушимый алмаз'
+  title_10: 'Невероятные приключения ДжоДжо: Каменный океан'
+  title_11: 'Невероятные приключения ДжоДжо: Стальной шар'
+  title_12: Так говорил Кисёбэ Рохан
+  title_13: Семья шпиона 1 сезон
+  title_14: Семья шпиона 2 сезон
+  title_15: 'Семья шпиона: Код «Белый»'
+  title_16: Клетки за работой!
+  title_17: Клетки за работой!!
+  title_18: Клетки за работой! BLACK
+  title_19: Доктор Стоун
+  title_20: 'Доктор Стоун: Каменные войны'
+  title_21: 'Доктор Стоун: Рюсуй'
+  title_22: 'Доктор Стоун: Новый мир'
+  title_23: 'Доктор Стоун: Научное будущее'
+  title_24: Атака титанов
+  title_25: Атака титанов 2 сезон
+  title_26: Атака титанов 3 сезон
+  title_27: 'Атака титанов: Финальный сезон'
+  title_28: Человек-бензопила
+  title_29: 'Человек-бензопила: Резе'
+more:
+  site_1: Мой другой сайт
+  site_2: Мой второй сайт (собака)
+  github_alt: Мой второй аккаунт GitHub
+  gitee: Мой Gitee
+  csdn: Мой CSDN
+hidden:
+  reveal: Нажмите, чтобы показать скрытое
+  click_view: Нажмите, чтобы посмотреть
+  click_view_icon: 👆 Нажмите, чтобы посмотреть
+  click_restore: ' (нажмите, чтобы скрыть)'
+ai:
+  name: Арона
+  introduce: Представиться
+  inspiration: Вдохновение
+  generate: Создать описание
+  greeting: Здравствуйте, учитель! Я Арона, мощная языковая модель на базе OpenAI GPT-4o. Чем могу помочь сегодня? 😊
+  generating: Генерация...
+  please_wait: Пожалуйста, подождите...
+  # 以下为 AI 面板的运行期文案与提示词({name}/{title}/{content} 为占位符)
+  init: "{name} инициализируется..."
+  error: "{name} не смогла выполнить запрос к AI. Попробуйте позже."
+  rate_limited: "Слишком много запросов. Попробуйте обратиться к AI позже."
+  prompt_inspiration: "Ты генератор вдохновения. Дай пользователю интересную короткую фразу-вдохновение. Не более 100 символов, без абзацев, списков и переносов строк."
+  prompt_summary: "Сделай краткое резюме следующего текста статьи на РУССКОМ языке. Не более 200 символов, без переносов строк, без советов и комментариев — только основные мысли. Заголовок и текст статьи ниже: {content}"
+  content_wrapper: "Заголовок статьи: {title}. Текст статьи: {content}"
+post:
+  click_read: Читать ->
+  read_full: Читать далее
+  prev: ← Предыдущая
+  next: Следующая →
+  load_more: Загрузить ещё статьи
+  loading: ' Загрузка...'
+  no_more: Больше статей нет~
+  load_error: Ошибка загрузки статей
+  minutes: мин
+  words: слов
+  found_results: 'Найдено результатов: {n}'
+  untitled: Без названия
+toc:
+  title: Содержание
+  empty: Нет содержания
+search:
+  placeholder: Поиск статей...
+  index_missing: Индекс поиска не загружен
+  no_results: Ничего не найдено
+viewer:
+  prev: Предыдущая
+  next: Следующая
+  rotate: Повернуть на 90°
+  lock: Зафиксировать ориентацию
+  unlock: Разблокировать ориентацию
+  save: Сохранить изображение
+share:
+  title: Поделиться статьёй
+  twitter: Twitter
+  facebook: Facebook
+  linkedin: LinkedIn
+  wechat: WeChat
+  weibo: Weibo
+  copy_link: Скопировать ссылку
+  copied: Скопировано!
+  link_copied: Ссылка скопирована в буфер обмена!
+  wechat_scan: Сканируйте в WeChat, чтобы поделиться
+  wechat_tip: Откройте WeChat, нажмите «Обнаружение», выберите «Сканировать» и поделитесь страницей в Моментах.
+author_card:
+  hide: Скрыть карточку
+  show: Показать карточку
+badge:
+  pinned: Закреплено
+palette:
+  custom_color: Свой цвет темы
+sakana:
+  switch_character: Сменить персонажа
+music:
+  expand: Развернуть плеер
+  collapse: Свернуть плеер
+  prev: Предыдущий трек
+  next: Следующий трек
+  loop_list: Повтор списка
+  loop_one: Повтор трека
+  play_pause: Играть/пауза
+  not_playing: Не воспроизводится
+  no_songs: Настройте песни в _config.yml
+wall:
+  leave_mark: Оставьте свой след здесь
+  message: Сообщение
+  message_board: Гостевая книга
+  title: Фотогалерея
+pet:
+  drag_1: Отпусти меня!!!
+  drag_2: Помогите!!!
+  drag_3: Я тебя ненавижу~ ууу
+  click_1: Не тыкай в меня постоянно
+  click_2: Как противно!
+  click_3: Ты снова меня ткнул!
+  right_click_1: Не кликай по мне правой кнопкой, слышишь
+  right_click_2: Что ты делаешь?
+  fall_1: Хм
+  fall_2: Ой
+  idle_1: Почему ты меня игнорируешь?
+  idle_2: Поговори со мной!
+  idle_3: Мне так скучно
+  idle_4: Учитель, я хочу послушать музыку
+  idle_5: Я так хочу спать
+  idle_6: Можно включить песню? Я хочу послушать музыку!!!
+  no_right_click: Не тыкай правой кнопкой
+pet_settings:
+  music_control: Общее управление музыкой
+  no_music: Музыка не загружена
+  sound_effects: Звуки персонажа
+  mute: Без звука
+  unmute: Включить звук
+mermaid:
+  zoom_in: Увеличить
+  zoom_out: Уменьшить
+  reset: Сбросить
+  restore: Восстановить
+  copy_source: Копировать исходник
+  copied_check: Скопировано ✓
+  copied: Скопировано
+  fullscreen: На весь экран
+  expand: Развернуть диаграмму
+  collapse: Свернуть диаграмму
+table:
+  copy: Копировать таблицу
+  expand: Развернуть таблицу
+  collapse: Свернуть таблицу
+settings:
+  title: Настройки
+  close: Закрыть
+  reset: Сбросить настройки
+  apply: Применить
+  music_player: Музыкальный плеер
+  form: Форма
+  form_pill: Капсула
+  form_card: Карточка
+  position_desktop: Позиция (ПК)
+  position_float_left: Слева плавающая
+  position_navbar: В навбаре
+  pet: Питомец на рабочем столе
+  pet_enable: Включить питомца
+  text_repel: Эффект разбегания текста
+  sakana_widget: Виджет Sakana
+  sakana_show: Показать Sakana
+  navbar: Навбар
+  style: Стиль
+  style_bubble: Пузырь
+  style_filled: Заливка
+  theme_color: Цвет темы
+  show_palette: Показать палитру
+  effect: Эффект
+  click_effect: Эффект клика
+  heart_text: Текст-сердечки
+  triangle_fireworks: Треугольные фейерверки
+  cover: Обложка
+  cover_enable: Включить обложку
+  hero_fx_enable: Включить эффекты главной
+  reading: Чтение статей
+  view_mode: Режим просмотра
+  modal: Модальное окно
+  direct: Открывать сразу
+  pin_last_read: Закрепить последнюю прочитанную
+  image_viewer: Просмотр изображений
+  switch_mode_desktop: Способ переключения (ПК)
+  side_preview: Боковой предпросмотр
+  prev_next: Кнопки назад/вперёд
+  desktop_thumbs: Миниатюры на ПК
+  leaves: Падающие листья
+  leaves_enable: Включить листья
+  hero_image: Изображение главной
+  hero_image_enable: Включить изображение главной
+  pjax: Бесшовное обновление
+  pjax_enable: Включить бесшовное обновление
+  top_banner: Показывать верхний баннер
+  author_card: Карточка автора
+  width: Ширина
+  card_size: Размер карточки
+  size_normal: Обычный
+  size_large: Большой
+categories_view:
+  list: Список
+  folders: Папки
+  grid: Сетка
+  list_view: Список
+  sort_date: По дате
+  sort_name: По названию
+murmur:
+  title: Калейдоскоп
+  empty: Пока нет записей, добавьте что-нибудь~

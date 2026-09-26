@@ -74,8 +74,8 @@ function initSearch() {
     });
 
   // Handle search input
-  searchInput.addEventListener("input", function () {
-    const query = this.value.trim().toLowerCase();
+  function runSearch() {
+    const query = searchInput.value.trim().toLowerCase();
 
     // Clear results if query is too short
     if (query.length < 2) {
@@ -110,6 +110,14 @@ function initSearch() {
 
     // Display results
     displaySearchResults(results, query);
+  }
+
+  searchInput.addEventListener("input", runSearch);
+
+  // 语言切换后重绘结果:计数与"无结果"文案是运行时按当前语言生成的,
+  // 不在字典里,必须重跑一次才会更新(见 lang-switch.js 的 langchange 事件)
+  document.addEventListener("langchange", function () {
+    if (searchInput.value.trim().length >= 2) runSearch();
   });
 
   // 把 markdown/HTML 混合的原始内容转成纯文本摘要:
@@ -134,20 +142,19 @@ function initSearch() {
       return;
     }
 
-    // ★★★ 修改点 3：处理带有变量的翻译 ★★★
-    // 逻辑：如果是英文模式，拼接英文格式；否则用中文格式
-    let countHtml = "";
-    if (window.i18n && window.i18n.isEn()) {
-      countHtml = `Found ${results.length} results`;
-    } else {
-      countHtml = `找到 ${results.length} 个结果`;
+    // ★ 带变量的计数文案走 i18n.format(语言字典缺译时自动回退英文) ★
+    let countHtml = `找到 ${results.length} 个结果`;
+    if (window.i18n && typeof window.i18n.format === "function") {
+      countHtml = window.i18n.format("找到 {n} 个结果", {
+        n: results.length,
+      });
     }
 
     let html = `<div class="search-results-count">${countHtml}</div>`;
 
     results.forEach((result) => {
       // Highlight matching text
-      let title = result.title || "无标题";
+      let title = result.title || t("无标题");
       let content = toPlainText(result.content);
 
       // Simple highlight for title

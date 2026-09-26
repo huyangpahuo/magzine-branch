@@ -139,6 +139,42 @@ body:not(.dark-mode) .hero-fx-btn:hover {
   -webkit-backdrop-filter: blur(14px);
   border: 1px solid rgba(255, 255, 255, 0.14);
   box-shadow: 0 10px 34px rgba(0, 0, 0, 0.35);
+  /* ★ 面板设置项较多,内容超出时给出明确可见的侧边滚动条。
+     系统默认滚动条在 Windows/Chromium 上是"悬浮式"的:不滚动就自动淡出,
+     面板又是窄条浮层,用户基本看不到还有更多设置,因此这里自定义成
+     6px 主题色细条(自定义伪元素会强制其常驻、不自动隐藏)。
+     注意:全局 html{scrollbar-color} 会被所有子元素继承,而只要 scrollbar-color
+     不是 auto,Chromium 就会忽略 ::-webkit-scrollbar 自定义样式、退化成
+     系统宽滚动条——所以这里显式复位为 auto。 */
+  scrollbar-color: auto;
+}
+
+.hero-fx-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.hero-fx-body::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  margin: 8px 0; /* 上下留白,避免贴到面板圆角 */
+}
+
+.hero-fx-body::-webkit-scrollbar-thumb {
+  background: var(--accent-color, #0ff);
+  border-radius: 999px;
+  border: none;
+}
+
+.hero-fx-body::-webkit-scrollbar-thumb:hover {
+  filter: brightness(1.15);
+}
+
+/* Firefox:不支持 -webkit- 伪元素,用标准属性达到同样效果 */
+@supports not selector(::-webkit-scrollbar) {
+  .hero-fx-body {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-color, #0ff) rgba(255, 255, 255, 0.1);
+  }
 }
 
 .hero-fx-panel.collapsed .hero-fx-body {
@@ -205,6 +241,13 @@ body:not(.dark-mode) .hero-fx-btn:hover {
   cursor: pointer;
   font-size: 0.84rem;
   padding: 2px 0;
+  /* 长语言(俄语等)下允许换行,避免把右侧开关挤出面板 */
+  min-width: 0;
+  text-align: left;
+}
+
+.hero-fx-item-text {
+  overflow-wrap: break-word;
 }
 
 .hero-fx-item-icon {
@@ -242,10 +285,14 @@ body:not(.dark-mode) .hero-fx-btn:hover {
 }
 
 .hero-fx-ctl-label {
-  flex: 0 1 62px;
+  /* 标签宽度略放宽,并允许换行:俄语等长文案(如"Скорость затухания")
+     在固定 62px + nowrap 下会溢出压到右侧控件上 */
+  flex: 0 1 68px;
   min-width: 0;
   font-size: 0.76rem;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: break-word;
+  line-height: 1.3;
 }
 
 .hero-fx-ctl input[type="range"] {
@@ -364,7 +411,10 @@ body:not(.dark-mode) .hero-fx-btn:hover {
 
   .hero-fx-body {
     width: min(224px, calc(100vw - 24px));
-    max-height: min(46vh, calc(100% - 52px));
+    /* ★ 必须用具体值:父容器 .hero-fx-panel 是 auto 高度,百分比在 min() 里
+       无法解析,会让整条 max-height 失效——面板不受限地长高、顶出屏幕顶部
+       且无法滚动(手机上实测第一项被切掉且滚不到)。 */
+    max-height: min(46vh, 420px);
   }
 
   .hero-fx-item-body {
@@ -373,8 +423,9 @@ body:not(.dark-mode) .hero-fx-btn:hover {
   }
 
   .hero-fx-ctl-label {
-    flex-basis: clamp(50px, 20vw, 62px);
+    flex-basis: clamp(50px, 20vw, 68px);
     white-space: normal;
+    overflow-wrap: break-word;
     line-height: 1.2;
   }
 

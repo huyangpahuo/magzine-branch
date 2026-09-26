@@ -16,15 +16,15 @@ main.link-page
           a.link-card(href=item.link, target="_blank", rel="noopener", data-link-url=item.link, data-idx=idx)
             .link-card-inner
               .link-avatar(style="width: 60px; height: 60px; border-radius: 50%; overflow: hidden; flex-shrink: 0;")
-                img(src=item.avatar, alt=item.name, width="60", height="60", style="width: 100%; height: 100%; object-fit: cover;", data-fallback=url_for(theme.author_card && theme.author_card.avatar ? theme.author_card.avatar : '/images/0.png'))
+                img(src=item.avatar, alt=item.name, width="60", height="60", style="width: 100%; height: 100%; object-fit: cover;", data-fallback=url_for(theme.author_card && theme.author_card.avatar ? theme.author_card.avatar : '/images/0.png'))&attributes(i18n_attrs(item, 'name', 'alt'))
               .link-info
-                h3.link-name= item.name
+                h3.link-name(data-i18n-zh=item.name)&attributes(i18n_attrs(item, 'name'))= item.name
                 span.link-status(aria-hidden="true")
                 span.link-avatar-missing 头像跑掉了~
             .link-tooltip
               .tooltip-content
-                h4= item.name
-                p= item.description
+                h4(data-i18n-zh=item.name)&attributes(i18n_attrs(item, 'name'))= item.name
+                p(data-i18n-zh=item.description)&attributes(i18n_attrs(item, 'description'))= item.description
     else
       .no-links
         p 暂无友链数据，请在 source/_data/link.yml 中添加友链信息

@@ -1,0 +1,485 @@
+# ============================================================
+# 中文字典(默认语言)
+# 键 = 稳定的词条 ID(与 en.yml 一一对应),值 = 实际展示的中文文案
+# 构建期由 scripts/other/lang-dict.js 与 en.yml 拉链合成运行时字典
+# 新增词条:在 zh.yml / en.yml 里加同名键即可,重新 hexo generate 生效
+# ============================================================
+
+# ---- 站点通用 ----
+_meta:
+  flag: "🇨🇳"
+  label: 中文
+
+site:
+  owner_name: 胡杨怕火
+  tagline: "传递笑容魔法的Ciallo～(∠・ω< )⌒☆"
+  copyright: "© 2025 胡杨怕火. 保留所有权利."
+
+# ---- 导航 ----
+nav:
+  home: 首页
+  about_me: 关于我
+  about: 关于
+  archives: 归档
+  more: 更多
+  anime: 追番
+  links: 友链
+  tags: 标签
+  categories: 分类
+  writings: 文章
+
+# ---- 首页 Hero ----
+hero:
+  scroll_down: 向下滚动探索更多
+  welcome: 欢迎来到我的奇妙世界
+  start_journey: 开始你的旅行
+
+# ---- 首页 Hero 特效面板 ----
+hero_panel:
+  effects: 特效
+  effects_badge: "✦ 特效"
+  title: 首页特效
+  panel: 首页特效面板
+  watercolor: 水彩光晕
+  animation_speed: 动画速度
+  glow_intensity: 光晕强度
+  hover_interaction: 悬停交互
+  collapse: 收起面板
+  fluid_sim: 流体模拟
+  color_source: 取色
+  image_palette: 背景图主色
+  image_palette_alt: 背景图配色
+  random_colors: 随机彩色
+  quality: 质量
+  quality_high: 高
+  quality_medium: 中
+  quality_low: 低
+  curl_strength: 涡旋强度
+  brush_size: 笔刷大小
+  dissipation: 消散速度
+  hover_trigger: 悬停触发
+  bloom: 辉光
+  random_splat: 随机喷发
+
+# ---- 刚读过 / 代码块 ----
+recent:
+  label: 刚读过
+  pin: 刚读过置顶
+
+code:
+  expand: 展开代码
+  collapse: 折叠代码
+  copy: 复制代码
+  copy_success: 复制成功
+  copy_failed: 复制失败
+  not_found: 未找到代码内容
+
+# ---- 关于页 ----
+about:
+  no_data: 暂无数据
+  skills_title: 我的技能点
+  murmur: 碎碎念
+  contact: 联系方式
+  intro_1: "大家好! 欢迎来到我的个人Blog空间"
+  intro_2: "我会不定期的分享一些有关各个学科的知识的(当然我也是各个领域的彩笔),同时Unity和Godot游戏开发的一些想法也会写进去"
+  intro_3: "本人没什么实力只会当CV小白捏,完全是啥也不懂的半吊子,离不开GPT,Gemini还有Claude三个大神   @_@"
+  contact_email: 邮箱
+  contact_bilibili: 哔哩哔哩
+  # 兴趣卡片(已有 about.yml 的 title_en/description_en/details_en 显式字段,此处为字典兜底)
+  card_1_title: 逃离后室
+  card_1_desc: 在不断的切出层级中探寻生的希望
+  card_1_details: 下次窃皮者来的时候不要堵门你尔朵隆吗
+  card_2_title: 小丑牌
+  card_2_desc: 一旦拥有爱不释手
+  card_2_details: 结果就是玩上瘾了
+  card_3_title: 看门狗
+  card_3_desc: 赋予游戏以美国都市的真实感
+  card_3_details: "没错,我是嘉豪"
+  card_4_title: 我的世界
+  card_4_desc: "生存探索无限,创造缔造奇迹"
+  card_4_details: 准备好进服务器偷别人家了吗孩子们
+  card_5_title: 师父
+  card_5_desc: 抬手不是抱歉
+  card_5_details: "这,即是武德.jpg"
+  card_6_title: 米塔
+  card_6_desc: 满足了我对二次元的所有幻想
+  card_6_details: "幻想死了 狗头狗头狗头"
+
+# ---- 关于页 个人信息 ----
+profile:
+  name: 称呼
+  age: 年龄
+  age_value: 19岁
+  university: 大学
+  university_value: 河南师范大学软件工程
+  hobbies: 爱好
+  hobbies_value: 做游戏和绘画
+  skills: 擅长
+  skills_value: 吃饱睡睡饱吃
+  identity: 身份
+  identity_value: 二次元爱好者
+
+# ---- 技能标签 ----
+skill:
+  photography_editing: 摄影和剪辑
+  pixel_anime_art: 像素画和二次元绘画
+  logo_vector: Logo和矢量图设计
+  programming: 各种计算机语言
+  blender: Blender建模
+  computer_graphics: 计算机图形学
+  wechat_miniprogram: 微信小程序
+  game_dev: 游戏制作
+  novel: 写小说
+  minecraft_modding: 我的世界模组制作
+  english: 英语
+  japanese: 日语
+  frontend_db: 前端和数据库
+  android: 安卓应用制作
+
+# ---- 404 页面 ----
+error404:
+  title: "哎呀, 页面迷路了~"
+  desc: "你要找的页面不存在, 或者它跑去二次元了 (´･ω･`)"
+  back_home: "别担心, 点击下面的按钮就能回家!"
+  browse_archives: 去逛归档
+
+# ---- 手机端刻度尺导航 ----
+mobile:
+  scale_hint: "左右滑动 · 点击选择"
+
+# ---- 分类 ----
+category:
+  all: 所有分类
+  empty: 暂无分类
+  start_adding: 开始为您的文章添加分类
+  related: 相关分类
+  back_to_all: 返回所有分类
+  no_posts: 该分类下暂无文章
+
+# ---- 标签 ----
+tag:
+  empty: 暂无标签
+  start_adding: 开始为您的文章添加标签
+  related: 相关标签
+  discover: 探索与
+  related_posts: 相关的所有文章
+  back_to_all: 返回所有标签
+
+# ---- 计数 / 通用 ----
+common:
+  back_home: 返回首页
+  total: 共有
+  posts_unit: 篇文章
+  copy: 复制
+
+# ---- 友链页 ----
+link:
+  portals: 传送门
+  slogan: 有志者事竟成多么美好的世界呀
+  empty: "暂无友链数据，请在 source/_data/link.yml 中添加友链信息"
+  add: 添加友链
+  welcome: "欢迎大家添加友链哦："
+  my_info: "这是我的友链 ~(=^_^)ノ☆ ："
+  rule_anyone: 只要你们愿意看我的中二文章都可以添加我的友链哦
+  rule_template: "使用以下模板在评论区告诉我你的友链😃我一定会看的!："
+  watch_forever: "我会一直视奸你们的哈哈哈  o(￣ヘ￣o＃) ~"
+  avatar_missing: "头像跑掉了~"
+  copy_info: 复制友链信息
+  copy_template: 复制模板
+  shuffle: "摇一摇~"
+
+# ---- 评论区 ----
+comments:
+  title: 评论区
+  nickname: 昵称
+  url: 网址
+  required: 必填
+  optional: 选填
+  preview: 预览
+  submit: 发送
+  empty: 没有评论
+  twikoo_loaded: Twikoo评论加载成功
+
+# ---- 追番页 UI ----
+anime:
+  my_list: 我的追番
+  empty: "暂无追番数据，请确保已在 source/_data/anime/ 目录下创建了 yml 文件"
+  watched: 已观看
+  click_to_watch: 点击观看
+  loading: "正在加载..."
+  episodes_sources: "选集/换源"
+  loading_short: "加载中..."
+  episodes: 选集
+  playlist: 播放列表
+  characters: 登场角色
+  autoplay_next: "即将自动播放下一集..."
+  last_episode: "已经是最后一集了~"
+  no_episodes: 该源暂无集数数据
+  no_bangumi_url: "未配置 bangumi_url"
+  parse_error: "无法解析 Bangumi ID"
+  no_characters: 暂无角色信息
+  load_failed: "加载失败，请检查网络"
+  source_not_found: "未能找到《{t}》的播放源，请检查 yml 配置！"
+  # 番剧标题(已有各 yml 的 title_en 显式字段,此处为字典兜底)
+  title_01: 咒术回战乙骨忧太篇
+  title_02: 咒术回战第一季
+  title_03: 咒术回战第二季
+  title_04: 咒术回战第三季
+  title_05: JOJO的奇妙冒险
+  title_06: "JOJO的奇妙冒险 星尘远征军"
+  title_07: "JOJO的奇妙冒险 星尘远征军 埃及篇"
+  title_08: "JOJO的奇妙冒险 黄金之风"
+  title_09: "JOJO的奇妙冒险 不灭钻石"
+  title_10: "JOJO的奇妙冒险 石之海"
+  title_11: "JOJO的奇妙冒险 飙马野郎"
+  title_12: 岸边露伴 一动也不动
+  title_13: 间谍过家家第一季
+  title_14: 间谍过家家第二季
+  title_15: "间谍过家家 代号白"
+  title_16: 工作细胞第一季
+  title_17: 工作细胞第二季
+  title_18: 工作细胞BLACK
+  title_19: 石纪元第一季
+  title_20: 石纪元第二季
+  title_21: 石纪元龙水篇
+  title_22: 石纪元第三季
+  title_23: 石纪元第四季
+  title_24: 进击的巨人第一季
+  title_25: 进击的巨人第二季
+  title_26: 进击的巨人第三季
+  title_27: 进击的巨人第四季
+  title_28: 电锯人
+  title_29: 电锯人蕾塞篇
+
+# ---- 更多菜单 ----
+more:
+  site_1: 我的另一个网站
+  site_2: "我的另二个网站(狗头)"
+  github_alt: 我的Github小号
+  gitee: 我的Gitee
+  csdn: 我的CDSN
+
+# ---- 隐藏内容 ----
+hidden:
+  reveal: 点击查看隐藏内容
+  click_view: 点击查看
+  click_view_icon: "👆 点击查看"
+  click_restore: " (点击恢复)"
+
+# ---- AI 摘要 ----
+ai:
+  name: 阿罗娜
+  introduce: 介绍自己
+  inspiration: 来点灵感
+  generate: 生成AI简介
+  greeting: "老师好, 我是阿罗娜, 一个基于OpenAI GPT-4o的强大语言模型, 今天有什么可以帮到您? 😊"
+  generating: "生成中. . ."
+  please_wait: "请等待. . ."
+  # 以下为 AI 面板的运行期文案与提示词({name}/{title}/{content} 为占位符)
+  # 提示词写在语言文件里,AI 的回复语言因此自动跟随界面语言
+  init: "{name}初始化中..."
+  error: "{name}请求AI出错了，请稍后再试。"
+  rate_limited: "请求过于频繁，请稍后再请求AI。"
+  prompt_inspiration: "你是一个灵感发生器，给用户提供有意思的灵感，不要超过100字，不要分段，不要分点，不要换行"
+  prompt_summary: "请根据以下文章内容生成一个简洁的摘要，不要超过200字，不要换行，不要提出建议或评论，只需总结文章主要内容。文章标题和内容如下：{content}"
+  content_wrapper: "文章标题：{title}。文章内容：{content}"
+
+# ---- 文章 ----
+post:
+  click_read: "点击阅读->"
+  read_full: 阅读全文
+  prev: "← 上一篇"
+  next: "下一篇 →"
+  load_more: 加载更多文章
+  loading: " 加载中..."
+  no_more: "没有了哦~"
+  load_error: 加载文章失败
+  minutes: 分钟
+  words: 字
+  found_results: "找到 {n} 个结果"
+  untitled: 无标题
+
+# ---- 目录 ----
+toc:
+  title: 目录
+  empty: 无目录
+
+# ---- 搜索 ----
+search:
+  placeholder: "搜索文章..."
+  index_missing: 搜索索引未加载
+  no_results: 没有找到相关结果
+
+# ---- 图片查看器 ----
+viewer:
+  prev: 上一张
+  next: 下一张
+  rotate: "旋转90°"
+  lock: 正向锁定
+  unlock: 解除锁定
+  save: 保存图片
+
+# ---- 分享 ----
+share:
+  title: 分享这篇文章到
+  twitter: 推特
+  facebook: 脸书
+  linkedin: 领英
+  wechat: 微信
+  weibo: 微博
+  copy_link: 点击复制链接
+  copied: "已复制!"
+  link_copied: "链接已复制到剪切板!"
+  wechat_scan: 微信扫一扫分享
+  wechat_tip: "打开微信，点击底部的\"发现\"，使用\"扫一扫\"即可将网页分享至朋友圈。"
+
+# ---- 主页作者名片拉绳 ----
+author_card:
+  hide: 收起名片
+  show: 展开名片
+
+# ---- 置顶徽章 ----
+badge:
+  pinned: 置顶
+
+# ---- 调色盘 ----
+palette:
+  custom_color: 自定义主题色
+
+# ---- Sakana 小人 ----
+sakana:
+  switch_character: 切换角色
+
+# ---- 音乐播放器 ----
+music:
+  expand: 展开播放器
+  collapse: 收起播放器
+  prev: 上一首
+  next: 下一首
+  loop_list: 列表循环
+  loop_one: 单曲循环
+  play_pause: "播放/暂停"
+  not_playing: 未在播放
+  no_songs: "请在 _config.yml 中配置歌曲"
+
+# ---- 照片墙 ----
+wall:
+  leave_mark: 在这里留下你的足迹
+  message: 留言
+  message_board: 留言板
+  title: 照片墙
+
+# ---- 桌宠 ----
+pet:
+  drag_1: "放开我!!!"
+  drag_2: "救命啊!!!"
+  drag_3: "我讨厌你~呜呜"
+  click_1: 不要老是戳我呀
+  click_2: "真讨厌!"
+  click_3: "你又点我了!"
+  right_click_1: 不要右键点我听到没有
+  right_click_2: 干什么啊
+  fall_1: 哼
+  fall_2: 哎呀
+  idle_1: 你怎么不理我了
+  idle_2: 快点和我说话
+  idle_3: 我好无聊啊
+  idle_4: 老师我想听歌
+  idle_5: 我好困啊
+  idle_6: "可以放首歌吗我想听歌!!!"
+  no_right_click: 不要右键戳我
+
+# ---- 桌宠设置面板 ----
+pet_settings:
+  music_control: 全局音乐控制
+  no_music: 未加载音乐
+  sound_effects: 角色音效
+  mute: 静音
+  unmute: 取消静音
+
+# ---- Mermaid 图表 ----
+mermaid:
+  zoom_in: 放大
+  zoom_out: 缩小
+  reset: 重置
+  restore: 复原
+  copy_source: 复制源码
+  copied_check: "已复制 ✓"
+  copied: 已复制
+  fullscreen: 全屏查看
+  expand: 展开图表
+  collapse: 折叠图表
+
+# ---- 表格 ----
+table:
+  copy: 复制表格
+  expand: 展开表格
+  collapse: 折叠表格
+
+# ---- 读者设置面板 ----
+settings:
+  title: 设置
+  close: 关闭
+  reset: 恢复默认
+  apply: 确定设置
+  music_player: 音乐播放器
+  form: 形态
+  form_pill: 圆条型
+  form_card: 卡片
+  position_desktop: "位置(电脑端)"
+  position_float_left: 悬浮左侧
+  position_navbar: 导航栏内
+  pet: 桌宠
+  pet_enable: 启用桌宠
+  text_repel: 文字穿梭效果
+  sakana_widget: "Sakana 小人"
+  sakana_show: "显示 Sakana"
+  navbar: 导航栏
+  style: 样式
+  style_bubble: 气泡式
+  style_filled: 填充式
+  theme_color: 主题色
+  show_palette: 显示调色盘
+  effect: 效果
+  click_effect: 鼠标点击效果
+  heart_text: 爱心文字
+  triangle_fireworks: 三角烟花
+  cover: 封面
+  cover_enable: 启用封面
+  hero_fx_enable: 启用首页特效
+  reading: 文章浏览
+  view_mode: 浏览方式
+  modal: 模态窗口
+  direct: 直接打开
+  pin_last_read: 置顶已阅读文章
+  image_viewer: 图片查看器
+  switch_mode_desktop: "切换方式(电脑端)"
+  side_preview: 两侧预览图
+  prev_next: "上一张/下一张"
+  desktop_thumbs: 电脑端缩略图
+  leaves: 落叶效果
+  leaves_enable: 启用落叶
+  hero_image: 首页图片
+  hero_image_enable: 启用首页图片
+  pjax: 无感刷新
+  pjax_enable: 启用无感刷新
+  top_banner: 显示顶部横幅
+  author_card: 作者卡片
+  width: 宽度
+  card_size: 卡片大小
+  size_normal: 标准
+  size_large: 大
+
+# ---- 分类页文件夹视图(仅电脑端) ----
+categories_view:
+  list: 竖排
+  folders: 文件夹
+  grid: 网格视图
+  list_view: 列表视图
+  sort_date: 按日期
+  sort_name: 按字母
+
+# ---- 碎碎念/万花筒 ----
+murmur:
+  title: 万花筒
+  empty: "暂无碎碎念，去记录点什么吧~"
