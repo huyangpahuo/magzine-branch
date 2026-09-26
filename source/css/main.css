@@ -3319,7 +3319,8 @@ figure.highlight .tag:hover {
 /* ===== 桌面宠物右键菜单 UI ===== */
 #pet-sound-menu {
   position: fixed;
-  z-index: 999999;
+  /* ★ 与桌宠同族层级:高于桌宠本体(2000),低于全屏查看器(9999+) */
+  z-index: 2001;
   display: none;
   background: rgba(var(--card-bg-rgb, 255, 255, 255), 0.85);
   border: 1px solid var(--border-color);

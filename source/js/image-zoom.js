@@ -127,6 +127,7 @@
 
     /* ============ 变换应用 ============ */
     function applyTransform(anim) {
+      if (anim) cancelAnimationFrame(panRaf); // 动画接管时终止惯性滑行
       viewImage.style.transition = anim
         ? "transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)"
         : "none";
@@ -181,44 +182,103 @@
       }
     }
 
-    /* ============ 底部缩略图(本图 + 前/后各 N 张) ============ */
+    /* ============ 底部缩略图 v2(全量胶片条,固定槽位中心裁剪) ============ */
     function renderThumbs() {
-      const range = isMobile() ? 2 : 3;
       const show = showThumbs();
       thumbsEl.style.display = show ? "flex" : "none";
       if (!show) return;
+      // 已渲染过且数量一致:只更新 active 态,避免每次切换重建(拖动滚动位置也不丢)
+      if (
+        thumbsEl.childElementCount === state.images.length &&
+        thumbsEl.dataset.rendered === "1"
+      ) {
+        thumbsEl.querySelectorAll(".thumb").forEach((t, i) => {
+          t.classList.toggle("active", i === state.index);
+        });
+        const active = thumbsEl.querySelector(".thumb.active");
+        if (active) active.scrollIntoView({ block: "nearest", inline: "center" });
+        return;
+      }
 
       thumbsEl.innerHTML = "";
-      const start = Math.max(0, state.index - range);
-      const end = Math.min(state.images.length - 1, state.index + range);
-
-      for (let i = start; i <= end; i++) {
+      thumbsEl.dataset.rendered = "1";
+      state.images.forEach((im, i) => {
         const t = document.createElement("div");
         t.className = "thumb" + (i === state.index ? " active" : "");
         const img = document.createElement("img");
-        img.src = state.images[i].currentSrc || state.images[i].src;
+        img.src = im.currentSrc || im.src;
         img.draggable = false;
+        img.loading = "lazy"; // 图多时按视口距离再下载
+        img.decoding = "async";
         t.appendChild(img);
-        // 距离越远透明度越低
-        const dist = Math.abs(i - state.index);
-        t.style.opacity = String(Math.max(0.3, 1 - dist * 0.18));
-        if (i === state.index) t.classList.add("active");
         t.addEventListener("click", (e) => {
           e.stopPropagation();
           if (i !== state.index) switchTo(i);
         });
         thumbsEl.appendChild(t);
-      }
+      });
 
-      // 手机端:当前缩略图滚动居中
       const active = thumbsEl.querySelector(".thumb.active");
-      if (active && isMobile()) {
-        active.scrollIntoView({ block: "nearest", inline: "center" });
-      }
+      if (active) active.scrollIntoView({ block: "nearest", inline: "center" });
     }
 
-    /* ============ 丝滑切换(贝塞尔曲线滑动) ============ */
-    function switchTo(index, animate = true) {
+    /* ---- 缩略图条:鼠标按住空白/任意处左右拖动滚动(参考参考站交互) ---- */
+    (function thumbDragScroll() {
+      let sd = null; // strip drag
+      thumbsEl.addEventListener("mousedown", (e) => {
+        e.preventDefault(); // 阻止图片原生拖拽/文本选择
+        sd = {
+          startX: e.clientX,
+          startScroll: thumbsEl.scrollLeft,
+          lastX: e.clientX,
+          lastT: Date.now(),
+          vx: 0,
+          moved: false,
+        };
+        thumbsEl.classList.add("dragging");
+      });
+      document.addEventListener("mousemove", (e) => {
+        if (!sd) return;
+        const dx = e.clientX - sd.startX;
+        if (Math.abs(dx) > 5) sd.moved = true;
+        const now = Date.now();
+        const dt = Math.max(1, now - sd.lastT);
+        sd.vx = (e.clientX - sd.lastX) / dt; // px/ms
+        sd.lastX = e.clientX;
+        sd.lastT = now;
+        thumbsEl.scrollLeft = sd.startScroll - dx;
+      });
+      document.addEventListener("mouseup", () => {
+        if (!sd) return;
+        const { vx, moved } = sd;
+        sd = null;
+        thumbsEl.classList.remove("dragging");
+        // ★ 只有真正拖动过才吞掉随后的 click;原地点击必须放行,
+        //   否则点缩略图不切图(旧实现用 class 判断,而 class 移除时机晚于 click)
+        thumbDragMoved = moved;
+        if (!moved) return;
+        // 轻微惯性滚动
+        let v = vx * 16;
+        const decel = () => {
+          if (Math.abs(v) < 0.5) return;
+          thumbsEl.scrollLeft -= v;
+          v *= 0.92;
+          requestAnimationFrame(decel);
+        };
+        requestAnimationFrame(decel);
+      });
+      // 拖动后的那次 click 吞掉(用旗标,不用 class——class 移除可能晚于 click)
+      let thumbDragMoved = false;
+      thumbsEl.addEventListener("click", (e) => {
+        if (thumbDragMoved) {
+          thumbDragMoved = false;
+          e.stopPropagation();
+        }
+      }, true);
+    })();
+
+    /* ============ 丝滑切换(贝塞尔曲线滑动;fromDx ≠ 0 时衔接拖动手势) ============ */
+    function switchTo(index, animate = true, fromDx = 0) {
       if (index < 0 || index >= state.images.length) return;
       if (index === state.index) return;
       const dir = index > state.index ? 1 : -1;
@@ -228,16 +288,12 @@
         return;
       }
       slideBusy = true;
-      // 当前图滑出
-      stage.style.transition =
-        "transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.4s ease";
-      stage.style.transform = `translateX(${dir * -18}%) scale(0.94)`;
-      stage.style.opacity = "0";
-      setTimeout(() => {
+
+      const enterNew = () => {
         loadImage(index);
         // 新图从另一侧滑入
         stage.style.transition = "none";
-        stage.style.transform = `translateX(${dir * 18}%) scale(0.94)`;
+        stage.style.transform = `translateX(${dir * (fromDx ? 42 : 18)}%) scale(${fromDx ? 0.97 : 0.94})`;
         stage.style.opacity = "0";
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
@@ -251,10 +307,46 @@
             }, 420);
           });
         });
-      }, 240);
+      };
+
+      if (fromDx) {
+        // ★ 拖动提交:从当前拖动位置顺着原方向快速滑出,衔接手势不回跳
+        stage.style.transition = "none";
+        stage.style.transform = `translateX(${fromDx}px)`;
+        void stage.offsetWidth; // 强制回流,让起始位置先生效
+        stage.style.transition =
+          "transform 0.26s cubic-bezier(0.5, 0, 0.75, 0.45), opacity 0.26s ease";
+        stage.style.transform = `translateX(${dir * -60}vw)`;
+        stage.style.opacity = "0";
+        setTimeout(enterNew, 260);
+        return;
+      }
+
+      // 当前图滑出(点击切换:淡出缩放)
+      stage.style.transition =
+        "transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.4s ease";
+      stage.style.transform = `translateX(${dir * -18}%) scale(0.94)`;
+      stage.style.opacity = "0";
+      setTimeout(enterNew, 240);
     }
 
     /* ============ 打开 / 关闭 ============ */
+    // 模态 iframe 内打开/关闭全屏查看器时通知父页面:
+    // 父页面的桌宠(z 2000)盖在模态之上,会挡住 iframe 内的查看器,
+    // 父页面收到消息后临时把桌宠沉到模态之下
+    function notifyParentViewer(open) {
+      // 直链模式:本页面就是父页面,直接静音/恢复桌宠粒子
+      if (window.PetLayers) {
+        if (open) window.PetLayers.muteParticles();
+        else window.PetLayers.unmuteParticles();
+      }
+      if (window.parent !== window) {
+        try {
+          window.parent.postMessage({ type: "magzine-viewer", open: open }, "*");
+        } catch (err) {}
+      }
+    }
+
     function openViewer(clickedImg) {
       // 全篇统一序列:轮播图里的图片和普通文章图片一起按出现顺序翻阅
       // (轮播图自身的点击由 carousel.js 调 window.openImageViewer 进入)
@@ -273,6 +365,7 @@
       loadImage(idx);
       imageViewer.classList.add("active");
       document.body.style.overflow = "hidden";
+      notifyParentViewer(true);
     }
 
     function closeViewer() {
@@ -281,6 +374,7 @@
       stage.style.transform = "";
       stage.style.opacity = "";
       slideBusy = false;
+      notifyParentViewer(false);
     }
 
     // 暴露给轮播图等外部模块:点击轮播图当前图片时打开查看器
@@ -395,54 +489,128 @@
       { passive: false },
     );
 
-    /* ============ 电脑端:左右拖动切换图片 / 单击图片隐藏切换类控件 ============ */
+    /* ============ 电脑端:左右拖动切换图片(1:1 跟手 + 橡皮筋 + 甩动) ============ */
     let drag = null;
     let clickTimer = null; // 延迟切换 ui-hidden,避免双击(缩放)误触发
     let lastImgClick = 0; // 识别双击:300ms 内第二次 mouseup 取消待定的切换
+    // ★ rAF 合帧:高回报率鼠标(500-1000Hz)下,逐事件写 style 会造成
+    //   每秒数百次样式重算 → 拖动一卡一卡。事件只记录坐标,每帧统一写一次。
+    let dragRaf = 0;
+    function scheduleDragFrame() {
+      if (dragRaf) return;
+      dragRaf = requestAnimationFrame(() => {
+        dragRaf = 0;
+        if (!drag) return;
+        if (state.zoomed) {
+          movePan(drag.curX, drag.curY);
+          return;
+        }
+        if (slideBusy) return;
+        // 1:1 跟手;到尽头后施加橡皮筋阻尼(越拖越紧)
+        let dx = drag.dx;
+        const canPrev = state.index > 0;
+        const canNext = state.index < state.images.length - 1;
+        if (dx > 0 && !canPrev) dx *= 0.32;
+        if (dx < 0 && !canNext) dx *= 0.32;
+        stage.style.transform = `translateX(${dx}px)`;
+        // 两侧预览图轻微视差,增强"拖动整卷胶片"的动感
+        if (peekPrev.style.display !== "none")
+          peekPrev.style.transform = `translateX(${Math.min(0, dx) * 0.12}px)`;
+        if (peekNext.style.display !== "none")
+          peekNext.style.transform = `translateX(${Math.max(0, dx) * 0.12}px)`;
+      });
+    }
+
     imageViewer.addEventListener("mousedown", (e) => {
       if (!imageViewer.classList.contains("active")) return;
       if (e.target.closest(".viewer-toolbar, .nav-btn, .viewer-thumbs, .viewer-peek, .viewer-close"))
         return;
-      drag = { startX: e.clientX, startY: e.clientY, dx: 0, dy: 0 };
-      // 放大状态下按住图片 → 准备平移
-      if (state.zoomed) startPan(e.clientX, e.clientY);
+      drag = {
+        startX: e.clientX,
+        startY: e.clientY,
+        lastX: e.clientX,
+        lastT: Date.now(),
+        curX: e.clientX,
+        curY: e.clientY,
+        vx: 0,
+        dx: 0,
+        dy: 0,
+      };
+      // 拖动期间:关闭过渡、提升合成层(整个手势只写一次)
+      stage.style.transition = "none";
+      stage.style.willChange = "transform";
+      // 放大状态下按住 → 准备平移(带惯性与回弹,见 movePan)
+      if (state.zoomed) {
+        startPan(e.clientX, e.clientY);
+        stage.classList.add("panning");
+      }
     });
     document.addEventListener("mousemove", (e) => {
       if (!drag) return;
+      const now = Date.now();
+      const dt = Math.max(1, now - drag.lastT);
+      drag.vx = (e.clientX - drag.lastX) / dt; // px/ms
+      drag.lastX = e.clientX;
+      drag.lastT = now;
       drag.dx = e.clientX - drag.startX;
       drag.dy = e.clientY - drag.startY;
-      if (state.zoomed) {
-        // 放大状态下拖动 = 平移查看不同区域(不触发切换)
-        movePan(e.clientX, e.clientY);
-        return;
-      }
-      // 跟手预览(阻尼),不支持自由拖动
-      if (!slideBusy) {
-        stage.style.transition = "none";
-        stage.style.transform = `translateX(${drag.dx * 0.35}px)`;
-      }
+      drag.curX = e.clientX;
+      drag.curY = e.clientY;
+      scheduleDragFrame(); // ★ 每帧最多写一次 style
     });
+    // ★ 拖动释放后会紧接着派发 click(落在空白处=关闭查看器),
+    //   拖过的那次 click 必须吞掉,否则"抓住空白处切图"变成"拖一下就关了"
+    let suppressViewerClick = false;
+    imageViewer.addEventListener(
+      "click",
+      (e) => {
+        if (suppressViewerClick) {
+          suppressViewerClick = false;
+          e.stopPropagation();
+          e.preventDefault();
+        }
+      },
+      true,
+    );
+
     document.addEventListener("mouseup", (e) => {
       if (!drag) return;
       const dx = drag.dx;
       const dy = drag.dy;
+      const vx = drag.vx; // px/ms,最后一次移动的瞬时速度
       const movedFar = Math.abs(dx) > 6 || Math.abs(dy) > 6;
       const wasZoomed = state.zoomed;
       drag = null;
+      cancelAnimationFrame(dragRaf);
+      stage.style.willChange = "";
+      if (movedFar) suppressViewerClick = true;
+      if (wasZoomed) {
+        stage.classList.remove("panning");
+        releasePan(vx, 0); // ★ 放开手:平移惯性滑行 + 边界回弹
+        return;
+      }
       stopPan();
       if (slideBusy) return;
-      if (wasZoomed) return; // 放大状态下鼠标拖动用于平移,不做切换
+      // 回弹两侧预览图的视差
+      peekPrev.style.transform = "";
+      peekNext.style.transform = "";
+      const vw = window.innerWidth;
+      const canPrev = state.index > 0;
+      const canNext = state.index < state.images.length - 1;
+      // ★ 甩动判定:拖过 12% 视口宽,或快速甩动(>0.6px/ms)
+      const goNext = canNext && (-dx > vw * 0.12 || vx < -0.6) && dx < 0;
+      const goPrev = canPrev && (dx > vw * 0.12 || vx > 0.6) && dx > 0;
+      if (goNext || goPrev) {
+        switchTo(state.index + (goNext ? 1 : -1), true, dx);
+        return;
+      }
+      // 未达阈值:弹性滑回原位
       stage.style.transition =
-        "transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1)";
-      stage.style.transform = "translateX(0) scale(1)";
-      if (dx < -60 && state.index < state.images.length - 1) {
-        switchTo(state.index + 1);
-      } else if (dx > 60 && state.index > 0) {
-        switchTo(state.index - 1);
-      } else if (!movedFar && e.target === viewImage) {
+        "transform 0.45s cubic-bezier(0.22, 1.4, 0.36, 1)";
+      stage.style.transform = "translateX(0)";
+      if (!movedFar && e.target === viewImage) {
         // 单击图片(非拖动):切换"左右缩略图/上一张下一张按钮/底部缩略图"的显隐。
         // 双击缩放会连触发两次 mouseup,300ms 内的第二次视为双击,取消待定的切换
-        // (工具栏的显隐逻辑独立,不受影响)
         const now = Date.now();
         const isSecondClick = now - lastImgClick < 300;
         lastImgClick = now;
@@ -510,6 +678,8 @@
     };
     let filmstrip = false;
     let pan = null; // 放大后的平移基准(手机单指/电脑鼠标共用)
+    let touchRaf = 0; // 触摸拖动 rAF 合帧
+    let latestTouch = null;
 
     function enterFilmstrip() {
       filmstrip = true;
@@ -592,31 +762,81 @@
       }
     }
 
-    /* ---- 放大后的平移(手机单指/电脑鼠标拖动共用),限制图片不拖出视口 ---- */
+    /* ---- 放大后的平移(手机单指/电脑鼠标拖动共用) ----
+       ★ 2026-09 手感升级(参考 PhotoSwipe):
+       拖动时边界软夹紧(橡皮筋:越界位移按 35% 衰减,拖得越远越紧);
+       松手后带惯性滑行(每帧速度 ×0.92 衰减),触碰边界立即弹性回位;
+       电脑端/手机端共用同一套手感。 */
+    let panRaf = 0;
+
     function startPan(x, y) {
+      // 基于起始时刻的渲染矩形,计算本次手势 tx/ty 的合法区间
+      // (图片边缘拖到视口边界为止;图小于视口时区间收敛为一点=居中锁定)
+      const rect = viewImage.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const rawMinX = state.tx + (vw - rect.width) - rect.left;
+      const rawMaxX = state.tx + (0 - rect.left);
+      const rawMinY = state.ty + (vh - rect.height) - rect.top;
+      const rawMaxY = state.ty + (0 - rect.top);
       pan = {
         startX: x,
         startY: y,
         startTx: state.tx,
         startTy: state.ty,
-        rect: viewImage.getBoundingClientRect(),
+        minX: Math.min(rawMinX, rawMaxX),
+        maxX: Math.max(rawMinX, rawMaxX),
+        minY: Math.min(rawMinY, rawMaxY),
+        maxY: Math.max(rawMinY, rawMaxY),
       };
     }
 
+    function softClamp(v, min, max) {
+      if (v < min) return min + (v - min) * 0.35; // 橡皮筋:越界部分 35% 衰减
+      if (v > max) return max + (v - max) * 0.35;
+      return v;
+    }
+
     function movePan(x, y) {
-      if (!pan || pan.startX === null) return;
-      const rect = pan.rect;
-      const vw = window.innerWidth;
-      const vh = window.innerHeight;
-      function clampAxis(base, delta, size, vp) {
-        const lo = Math.min(0, vp - size);
-        const hi = Math.max(0, vp - size);
-        const pos = Math.max(lo, Math.min(base + delta, hi));
-        return pos - base;
-      }
-      state.tx = pan.startTx + clampAxis(rect.left, x - pan.startX, rect.width, vw);
-      state.ty = pan.startTy + clampAxis(rect.top, y - pan.startY, rect.height, vh);
+      if (!pan) return;
+      state.tx = softClamp(pan.startTx + (x - pan.startX), pan.minX, pan.maxX);
+      state.ty = softClamp(pan.startTy + (y - pan.startY), pan.minY, pan.maxY);
       applyTransform(false);
+    }
+
+    /* 松手:惯性滑行,到边界弹性回位(vx/vy 单位 px/ms) */
+    function releasePan(vx, vy) {
+      cancelAnimationFrame(panRaf);
+      let vX = Math.max(-60, Math.min(60, (vx || 0) * 16)); // px/帧
+      let vY = Math.max(-60, Math.min(60, (vy || 0) * 16));
+      if (Math.abs(vX) < 0.4 && Math.abs(vY) < 0.4) {
+        springBack();
+        return;
+      }
+      const step = () => {
+        vX *= 0.92;
+        vY *= 0.92;
+        state.tx += vX;
+        state.ty += vY;
+        const over =
+          state.tx < pan.minX - 0.5 ||
+          state.tx > pan.maxX + 0.5 ||
+          state.ty < pan.minY - 0.5 ||
+          state.ty > pan.maxY + 0.5;
+        if (over || (Math.abs(vX) < 0.15 && Math.abs(vY) < 0.15)) {
+          springBack();
+          return;
+        }
+        applyTransform(false);
+        panRaf = requestAnimationFrame(step);
+      };
+      panRaf = requestAnimationFrame(step);
+    }
+
+    function springBack() {
+      state.tx = Math.max(pan.minX, Math.min(pan.maxX, state.tx));
+      state.ty = Math.max(pan.minY, Math.min(pan.maxY, state.ty));
+      applyTransform(true); // 过冲位置平滑插值回边界
     }
 
     function stopPan() {
@@ -639,7 +859,12 @@
           touch.startX = e.touches[0].clientX;
           touch.startY = e.touches[0].clientY;
           touch.lastX = e.touches[0].clientX;
+          touch.lastT = Date.now();
+          touch.panV = null; // 清掉上一轮速度,防止误判甩动
           touch.moved = false;
+          latestTouch = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+          stage.style.transition = "none";
+          stage.style.willChange = "transform";
           // 放大状态下单指按住 → 准备平移
           if (state.zoomed && !touch.pinch) {
             startPan(e.touches[0].clientX, e.touches[0].clientY);
@@ -676,11 +901,22 @@
         }
 
         // 单指
-        const dx = e.touches[0].clientX - touch.lastX;
-        touch.lastX = e.touches[0].clientX;
+        const t0 = e.touches[0];
+        const dx = t0.clientX - touch.lastX;
+        const now = Date.now();
+        const dt = Math.max(1, now - (touch.lastT || now));
+        // ★ 速度追踪对单指全程开启(放大平移的惯性与未放大的甩动判定都要用)
+        if (!touch.panV)
+          touch.panV = { x: 0, y: 0, lastX: t0.clientX, lastY: t0.clientY };
+        touch.panV.x = (t0.clientX - touch.panV.lastX) / dt;
+        touch.panV.y = (t0.clientY - touch.panV.lastY) / dt;
+        touch.panV.lastX = t0.clientX;
+        touch.panV.lastY = t0.clientY;
+        touch.lastX = t0.clientX;
+        touch.lastT = now;
         if (
-          Math.abs(e.touches[0].clientX - touch.startX) > 10 ||
-          Math.abs(e.touches[0].clientY - touch.startY) > 10
+          Math.abs(t0.clientX - touch.startX) > 10 ||
+          Math.abs(t0.clientY - touch.startY) > 10
         )
           touch.moved = true;
 
@@ -690,20 +926,28 @@
           return;
         }
 
-        if (state.zoomed) {
-          // 放大后单指拖动 = 平移查看不同区域(不触发左右切换)
-          movePan(e.touches[0].clientX, e.touches[0].clientY);
-          return;
-        }
-
-        // 未放大:左右滑动预览(阻尼跟随)
-        if (!touch.moved || Math.abs(e.touches[0].clientX - touch.startX) > 10) {
-          const dxTotal = e.touches[0].clientX - touch.startX;
-          if (Math.abs(dxTotal) > 6 && !slideBusy) {
-            stage.style.transition = "none";
-            stage.style.transform = `translateX(${dxTotal * 0.4}px)`;
+        // ★ 触摸同样 rAF 合帧:部分安卓触控采样率高于刷新率,
+        //   逐事件写 style 会掉帧,每帧统一应用一次
+        latestTouch = { x: t0.clientX, y: t0.clientY };
+        if (touchRaf) return;
+        touchRaf = requestAnimationFrame(() => {
+          touchRaf = 0;
+          const tt = latestTouch;
+          if (!tt) return;
+          if (state.zoomed) {
+            movePan(tt.x, tt.y);
+            return;
           }
-        }
+          // 未放大:左右滑动跟手(1:1 + 尽头橡皮筋,与电脑端一致)
+          let dxTotal = tt.x - touch.startX;
+          if (Math.abs(dxTotal) > 6 && !slideBusy) {
+            const canPrev = state.index > 0;
+            const canNext = state.index < state.images.length - 1;
+            if (dxTotal > 0 && !canPrev) dxTotal *= 0.32;
+            if (dxTotal < 0 && !canNext) dxTotal *= 0.32;
+            stage.style.transform = `translateX(${dxTotal}px)`;
+          }
+        });
       },
       { passive: false },
     );
@@ -748,7 +992,19 @@
           }
           return;
         }
-        stopPan();
+        cancelAnimationFrame(touchRaf);
+        touchRaf = 0;
+        stage.style.willChange = "";
+
+        // ★ 放大状态松手:先结算平移惯性(速度来自最后一帧触摸),再清基准
+        if (state.zoomed && pan) {
+          const pv = touch.panV || { x: 0, y: 0 };
+          releasePan(pv.x, pv.y);
+          touch.panV = null;
+          stopPan();
+        } else {
+          stopPan();
+        }
 
         // 双指结束后不处理单击逻辑
         if (e.touches.length > 0) return;
@@ -765,11 +1021,19 @@
         // 放大状态下:松手不做切换/复原,仅由平移结束收尾
         if (state.zoomed) return;
 
-        if (touch.moved && Math.abs(dxTotal) > 60) {
+        // ★ 甩动速度参与判定:快速轻扫也能切换(与电脑端一致的手感)
+        const flickV = touch.panV ? touch.panV.x : 0;
+        const flicked = Math.abs(flickV) > 0.55 && Math.abs(dxTotal) > 24;
+        if (
+          touch.moved &&
+          (Math.abs(dxTotal) > 60 || flicked) &&
+          Math.abs(dxTotal) > Math.abs(dyTotal)
+        ) {
           // 滑动切换
           if (dxTotal < 0 && state.index < state.images.length - 1)
-            switchTo(state.index + 1);
-          else if (dxTotal > 0 && state.index > 0) switchTo(state.index - 1);
+            switchTo(state.index + 1, true, dxTotal);
+          else if (dxTotal > 0 && state.index > 0)
+            switchTo(state.index - 1, true, dxTotal);
           else {
             stage.style.transition =
               "transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1)";

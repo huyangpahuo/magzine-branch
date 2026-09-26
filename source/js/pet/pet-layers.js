@@ -147,6 +147,7 @@ export class PetLayers {
 
   // ==================== 汗水 ====================
   _updateSweat(dt, state, right, sc) {
+    if (PetLayers.particlesMuted) return;
     if (state !== State.DRAGGING) {
       this.sweatT = 0;
       return;
@@ -184,13 +185,35 @@ export class PetLayers {
     });
   }
 
+  /** 全屏查看器打开:停止生成并把现存烟雾粒子立刻淡出 */
+  static muteParticles() {
+    PetLayers.particlesMuted = true;
+    document
+      .querySelectorAll("#pet-smoke-container > div, #pet-sweat-container > div")
+      .forEach((el) => {
+        el.style.transition = "opacity 0.3s ease";
+        el.style.opacity = "0";
+        setTimeout(() => el.remove(), 350);
+      });
+  }
+
+  static unmuteParticles() {
+    PetLayers.particlesMuted = false;
+  }
+
   // ==================== 烟雾粒子（沿轨迹排列）====================
   /**
    * ★ 粒子不再随机散开，而是直接落在角色脚底的"过去位置"上，
    *    形成沿移动轨迹排列的效果。
    *    每个粒子 2~16px 随机大小，越老越透明。
    */
+  // ★ 全屏查看器(图片/表格/mermaid)打开时暂停粒子生成:
+  //   粒子挂 body 且 z-index 2001,直链查看器(9999)能盖住它,
+  //   但模态 iframe 内的查看器压不过父页面 —— 干脆看不见就别生成
+  static particlesMuted = false;
+
   _updateSmoke(dt, state, sc, posX, posY) {
+    if (PetLayers.particlesMuted) return;
     if (state !== State.RUNNING) {
       this.smokeT = 0;
       this.lastSmokePos = null;

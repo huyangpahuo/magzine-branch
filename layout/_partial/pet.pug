@@ -15,6 +15,16 @@ style.
     width: 0; height: 0;
     pointer-events: none;
     will-change: transform;
+    transition: opacity 0.25s ease;
+  }
+
+  /* ★ 模态 iframe 内打开了全屏查看器(图片/表格/mermaid)时,
+     父页面把桌宠临时沉到模态之下:iframe 内查看器的 z-index
+     困在 iframe 里,压不过父页面的桌宠,必须由父页面自己沉底 */
+  #pet-root.behind-viewers {
+    z-index: 900;
+    opacity: 0.35;
+    pointer-events: none;
   }
 
   /* ===== 调试检测区域 ===== */
@@ -124,9 +134,22 @@ div#pet-root
 //- ========== 初始化脚本 ==========
 script(type="module").
   import { PetSprite, State }   from '#{url_for("/js/pet/pet-sprite.js")}';
+
+  // ★ 模态 iframe 内全屏查看器开/关通知:桌宠临时沉底/恢复
+  window.addEventListener('message', (e) => {
+    if (!e.data || e.data.type !== 'magzine-viewer') return;
+    const root = document.getElementById('pet-root');
+    if (root) root.classList.toggle('behind-viewers', !!e.data.open);
+    // 粒子(烟雾/汗水)挂 body,iframe 内查看器压不住,直接停止生成并淡出
+    if (window.PetLayers) {
+      if (e.data.open) window.PetLayers.muteParticles();
+      else window.PetLayers.unmuteParticles();
+    }
+  });
   import { PetStateMachine }    from '#{url_for("/js/pet/pet-state.js")}';
   import { PetHair }            from '#{url_for("/js/pet/pet-hair.js")}';
   import { PetLayers }          from '#{url_for("/js/pet/pet-layers.js")}';
+  window.PetLayers = PetLayers; // 供全屏查看器直链模式下静音粒子
   import { PetSound }           from '#{url_for("/js/pet/pet-sound.js")}';
   import { PetOutline }         from '#{url_for("/js/pet/pet-outline.js")}';
   import { PetChat }            from '#{url_for("/js/pet/pet-chat.js")}';

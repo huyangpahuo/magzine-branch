@@ -178,6 +178,19 @@
     // read its state and resetTransform can clear the active class.
     var mobileResetBtn = null;
 
+    // 模态 iframe 内打开/关闭时通知父页面沉底桌宠(同 image-zoom.js)
+    function notifyParentViewer(open) {
+      if (window.PetLayers) {
+        if (open) window.PetLayers.muteParticles();
+        else window.PetLayers.unmuteParticles();
+      }
+      if (window.parent !== window) {
+        try {
+          window.parent.postMessage({ type: "magzine-viewer", open: open }, "*");
+        } catch (err) {}
+      }
+    }
+
     function open(svgEl, source, onToolbar) {
       stage.innerHTML = "";
       resetTransform(false);
@@ -347,12 +360,14 @@
         stage.style.transition = "none";
         stage.style.opacity = "0.5";
         overlay.classList.add("active");
+        notifyParentViewer(true);
         document.body.style.overflow = "hidden";
         void stage.offsetWidth; // force reflow
         stage.style.transition = "opacity 0.15s ease";
         stage.style.opacity = "1";
       } else {
         overlay.classList.add("active");
+        notifyParentViewer(true);
         document.body.style.overflow = "hidden";
       }
     }
@@ -360,6 +375,7 @@
     function close() {
       overlay.classList.remove("active");
       document.body.style.overflow = "";
+      notifyParentViewer(false);
       isLocked = false;
       if (mobileResetBtn) mobileResetBtn.classList.remove("active");
     }
@@ -395,27 +411,78 @@
       { passive: false },
     );
 
+    // ★ 拖动惯性(与图片查看器同款手感):追踪瞬时速度,松手后滑行衰减
+    var dragVel = { x: 0, y: 0, lastX: 0, lastY: 0, lastT: 0 };
+    var momentumRaf = 0;
+    function glide() {
+      cancelAnimationFrame(momentumRaf);
+      var vX = Math.max(-60, Math.min(60, dragVel.x * 16));
+      var vY = Math.max(-60, Math.min(60, dragVel.y * 16));
+      var step = function () {
+        vX *= 0.92;
+        vY *= 0.92;
+        if (Math.abs(vX) < 0.15 && Math.abs(vY) < 0.15) return;
+        tx += vX;
+        ty += vY;
+        updateTransform(false);
+        momentumRaf = requestAnimationFrame(step);
+      };
+      momentumRaf = requestAnimationFrame(step);
+    }
+
+    var lastTouchSingle = false;
+    var touchRaf2 = 0; // 触摸平移 rAF 合帧
+    // 触摸松手:单指平移结束时触发惯性滑行
+    overlay.addEventListener("touchend", function () {
+      cancelAnimationFrame(touchRaf2);
+      touchRaf2 = 0;
+      if (lastTouchSingle) glide();
+      lastTouchSingle = false;
+    });
+
     stage.addEventListener("mousedown", function (e) {
       if (e.button !== 0) return;
       isDragging = true;
+      cancelAnimationFrame(momentumRaf);
       startX = e.clientX - tx;
       startY = e.clientY - ty;
+      dragVel = { x: 0, y: 0, lastX: e.clientX, lastY: e.clientY, lastT: Date.now() };
+      latestPtr = { x: e.clientX, y: e.clientY };
+      stage.style.willChange = "transform";
       stage.style.cursor = "grabbing";
       e.preventDefault();
     });
 
+    // ★ rAF 合帧:事件只记录坐标,每帧最多写一次 style(高回报率鼠标防卡顿)
+    var panRaf = 0;
+    var latestPtr = { x: 0, y: 0 };
     document.addEventListener("mousemove", function (e) {
       if (!isDragging) return;
       e.preventDefault();
-      tx = e.clientX - startX;
-      ty = e.clientY - startY;
-      updateTransform(false);
+      var now = Date.now();
+      var dt = Math.max(1, now - dragVel.lastT);
+      dragVel.x = (e.clientX - dragVel.lastX) / dt;
+      dragVel.y = (e.clientY - dragVel.lastY) / dt;
+      dragVel.lastX = e.clientX;
+      dragVel.lastY = e.clientY;
+      dragVel.lastT = now;
+      latestPtr.x = e.clientX;
+      latestPtr.y = e.clientY;
+      if (panRaf) return;
+      panRaf = requestAnimationFrame(function () {
+        panRaf = 0;
+        tx = latestPtr.x - startX;
+        ty = latestPtr.y - startY;
+        updateTransform(false);
+      });
     });
 
     document.addEventListener("mouseup", function () {
       if (isDragging) {
         isDragging = false;
+        stage.style.willChange = "";
         stage.style.cursor = "grab";
+        glide();
       }
     });
 
@@ -430,6 +497,7 @@
           lastTouchX = e.touches[0].clientX;
           lastTouchY = e.touches[0].clientY;
         } else if (e.touches.length === 2) {
+          lastTouchSingle = false;
           startDist = Math.hypot(
             e.touches[1].clientX - e.touches[0].clientX,
             e.touches[1].clientY - e.touches[0].clientY,
@@ -447,11 +515,26 @@
           return;
         e.preventDefault();
         if (e.touches.length === 1) {
-          tx += e.touches[0].clientX - lastTouchX;
-          ty += e.touches[0].clientY - lastTouchY;
+          lastTouchSingle = true;
+          var nowT = Date.now();
+          var dtT = Math.max(1, nowT - (dragVel.lastT || nowT));
+          dragVel.x = (e.touches[0].clientX - (dragVel.lastX || e.touches[0].clientX)) / dtT;
+          dragVel.y = (e.touches[0].clientY - (dragVel.lastY || e.touches[0].clientY)) / dtT;
+          dragVel.lastX = e.touches[0].clientX;
+          dragVel.lastY = e.touches[0].clientY;
+          dragVel.lastT = nowT;
+          // rAF 合帧:采样率高于刷新率的触屏逐事件写 style 会掉帧
+          var dxT = e.touches[0].clientX - lastTouchX;
+          var dyT = e.touches[0].clientY - lastTouchY;
           lastTouchX = e.touches[0].clientX;
           lastTouchY = e.touches[0].clientY;
-          updateTransform(false);
+          if (touchRaf2) return;
+          touchRaf2 = requestAnimationFrame(function () {
+            touchRaf2 = 0;
+            tx += dxT;
+            ty += dyT;
+            updateTransform(false);
+          });
         } else if (e.touches.length === 2) {
           var newDist = Math.hypot(
             e.touches[1].clientX - e.touches[0].clientX,
