@@ -1791,7 +1791,10 @@ p {
 }
 
 /* ===== Focus Styles ===== */
-:focus {
+/* :focus-visible 而非 :focus:鼠标点击(如展开代码按钮)不再画
+   全宽青色轮廓线(点击其他地方才消失的"贯穿横线"即此物),
+   键盘 Tab 导航仍保留焦点环 */
+:focus-visible {
   outline: 2px solid var(--accent-color);
   outline-offset: 2px;
 }

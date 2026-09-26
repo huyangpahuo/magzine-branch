@@ -3,21 +3,30 @@
    ===================================================================== */
 
 /* ── Wrapper: horizontal scroll container ──────────────────────────── */
+/* 结构: .table-box(不滚动,承载折叠渐变) > .table-wrapper(滚动容器) > table
+   ★ 渐变不能放在 .table-wrapper 上:absolute 子元素跟随滚动内容走,
+     left:0;right:0 只覆盖初始可视宽度 → 右滚时右侧渐变"中断",
+     展开再折叠时 scrollLeft 保留、渐变整体偏出视野"消失" */
+.table-box {
+  position: relative;
+  margin: 0 0 1.25rem;
+}
+
 .table-wrapper {
   position: relative;
   overflow-x: auto;
   overflow-y: visible;
-  margin: 0 0 1.25rem;
+  margin: 0;
   border-radius: 0 0 var(--radius-md, 8px) var(--radius-md, 8px);
   scroll-behavior: smooth;
 }
 
-.table-wrapper.table-collapsed {
+.table-box.table-collapsed .table-wrapper {
   max-height: 240px;
   overflow: hidden;
 }
 
-.table-wrapper.table-collapsed::after {
+.table-box.table-collapsed::after {
   content: '';
   position: absolute;
   bottom: 0;
@@ -30,14 +39,13 @@
   transition: background 0.3s;
 }
 
-.dark-mode .table-wrapper.table-collapsed::after,
-body.dark-mode .table-wrapper.table-collapsed::after {
+.dark-mode .table-box.table-collapsed::after,
+body.dark-mode .table-box.table-collapsed::after {
   background: linear-gradient(transparent, #191919);
 }
 
-.table-wrapper.table-expanded {
+.table-box.table-expanded .table-wrapper {
   max-height: none;
-  overflow-x: auto;
 }
 
 .table-wrapper table {

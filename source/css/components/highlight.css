@@ -266,6 +266,14 @@ body:not(.dark-mode) {
   display: flex;
   overflow-x: auto;
   overscroll-behavior-x: contain;
+  /* ★ 隐藏横向滚动条:主题滚动条是强调色(青色),折叠/展开时出现
+     会像一条贯穿代码块的亮线;滚轮/触摸/拖动仍然可以滚动 */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.post-content .codecard .codecard-body::-webkit-scrollbar {
+  display: none;
 }
 
 .post-content .codecard .codecard-gutter {
@@ -301,6 +309,14 @@ body:not(.dark-mode) {
   font-size: 0.85rem;
   line-height: 1.7;
   tab-size: 4;
+  /* ★ 重置 main.css 中 .post-content pre 泄漏的样式:
+     width/max-width 会让 pre 盒子钉死在可视宽度,长代码行"可见溢出"
+     到盒子外;box-shadow 则在盒子右边缘画出一条灰色竖线,
+     横向滚动越过边界时就能看到 */
+  width: auto;
+  max-width: none;
+  box-shadow: none;
+  position: static;
 }
 
 .post-content .codecard pre.codecard-pre code {

@@ -591,7 +591,10 @@
 
         var wrapper = document.createElement("div");
         wrapper.className = "table-wrapper";
-        table.parentNode.insertBefore(wrapper, table);
+        var box = document.createElement("div");
+        box.className = "table-box";
+        table.parentNode.insertBefore(box, table);
+        box.appendChild(wrapper);
         wrapper.appendChild(table);
         attachHScroll(wrapper);
 
@@ -629,22 +632,24 @@
         toolbar.appendChild(copyNotice);
         toolbar.appendChild(cpBtn);
         toolbar.appendChild(fsBtn);
-        wrapper.parentNode.insertBefore(toolbar, wrapper);
+        box.parentNode.insertBefore(toolbar, box);
 
         if (needsCollapse) {
-          wrapper.classList.add("table-collapsed");
+          box.classList.add("table-collapsed");
 
           var toggleBtn = document.createElement("button");
           toggleBtn.className = "table-toggle";
           toggleBtn.textContent = "展开表格";
           toggleBtn.addEventListener("click", function () {
-            var isCollapsed = wrapper.classList.contains("table-collapsed");
-            wrapper.classList.toggle("table-collapsed", !isCollapsed);
-            wrapper.classList.toggle("table-expanded", isCollapsed);
+            var isCollapsed = box.classList.contains("table-collapsed");
+            box.classList.toggle("table-collapsed", !isCollapsed);
+            box.classList.toggle("table-expanded", isCollapsed);
             toggleBtn.textContent = isCollapsed ? "折叠表格" : "展开表格";
+            // 折叠回去时复位横向滚动,否则停在半途看着像内容缺了一截
+            if (isCollapsed) wrapper.scrollLeft = 0;
           });
 
-          wrapper.parentNode.insertBefore(toggleBtn, wrapper.nextSibling);
+          box.parentNode.insertBefore(toggleBtn, box.nextSibling);
         }
       });
   }
