@@ -50,6 +50,7 @@
       step: 0.1,
     },
     { key: "hover", label: "悬停触发", type: "checkbox" },
+    { key: "hold_on_hover", label: "悬停不消散", type: "checkbox" },
     { key: "bloom", label: "辉光", type: "checkbox" },
     { key: "__splats", label: "随机喷发", type: "button" },
   ];
@@ -62,6 +63,7 @@
     density_dissipation: 1,
     velocity_dissipation: 0.2,
     hover: true,
+    hold_on_hover: true,
     idle_splat: false,
     bloom: false,
   };
@@ -363,11 +365,41 @@
       for (var i = 0; i < e.changedTouches.length; i++) {
         delete touchPointers[e.changedTouches[i].identifier];
       }
+      // 触摸端没有"离开"事件:手抬起后延迟一小会儿再恢复消散,
+      // 否则刚划出的流体立刻就开始褪色
+      if (holdOnHover && !Object.keys(touchPointers).length) {
+        clearTimeout(touchLeaveTimer);
+        touchLeaveTimer = setTimeout(function () {
+          hoverInside = false;
+        }, TOUCH_HOLD_MS);
+      }
+    };
+
+    /* ═══════════════ 指针在 hero 上时不消散 ═══════════════
+       hold_on_hover(默认开):鼠标停在 hero 区域内时把染料消散降到 0,
+       划出的流体留在画面上不再褪色;只有指针离开 hero 后才恢复消散,
+       残留染料随之淡出。消散率按指数逼近目标值(约 FADE_TAU 秒),
+       因此"开始保持"和"离开淡出"都是平滑过渡而非瞬间跳变。 */
+    var holdOnHover = params.hold_on_hover !== false;
+    var hoverInside = false;
+    var touchLeaveTimer = null;
+    var fadeScale = 1; // 1=按配置正常消散, 0=完全不消散
+    var lastFadeTime = 0; // 过渡用真实时间戳(见 frame)
+    var TOUCH_HOLD_MS = 1500; // 触摸抬起后保持多久再开始淡出
+    var FADE_TAU = 0.45; // 消散率过渡的时间常数(秒)
+
+    var heroMouseEnter = function () {
+      hoverInside = true;
+    };
+    var heroMouseLeave = function () {
+      hoverInside = false;
     };
 
     heroEl.addEventListener("mousedown", heroMouseDown);
     window.addEventListener("mouseup", windowMouseUp);
     heroEl.addEventListener("mousemove", heroMouseMove);
+    heroEl.addEventListener("mouseenter", heroMouseEnter);
+    heroEl.addEventListener("mouseleave", heroMouseLeave);
     heroEl.addEventListener("touchstart", heroTouchStart, { passive: true });
     heroEl.addEventListener("touchmove", heroTouchMove, { passive: true });
     heroEl.addEventListener("touchend", heroTouchEnd);
@@ -385,6 +417,16 @@
       }
       var dt = calcDeltaTime();
       if (resizeCanvas()) initFramebuffers();
+      // 指针在 hero 上 → 消散目标 0(流体保持);离开 → 目标 1(恢复消散淡出)。
+      // 用真实时间(而非被钳到 1/60 的 dt)推进过渡,低帧率下淡入淡出耗时也一致。
+      var now = performance.now();
+      var realDt = lastFadeTime ? Math.min((now - lastFadeTime) / 1000, 0.25) : 0;
+      lastFadeTime = now;
+      var fadeTarget = holdOnHover && hoverInside ? 0 : 1;
+      if (fadeScale !== fadeTarget) {
+        fadeScale += (fadeTarget - fadeScale) * Math.min(1, realDt / FADE_TAU);
+        if (Math.abs(fadeTarget - fadeScale) < 0.01) fadeScale = fadeTarget;
+      }
       updateColors(dt);
       applyInputs();
       if (!config.PAUSED) step(dt);
@@ -551,7 +593,8 @@
       gl.uniform1i(advectionProgram.uniforms.uSource, dye.read.attach(1));
       gl.uniform1f(
         advectionProgram.uniforms.dissipation,
-        config.DENSITY_DISSIPATION,
+        // 乘以指针保持系数:fadeScale=0 时染料完全不消散(见 frame 里的过渡)
+        config.DENSITY_DISSIPATION * fadeScale,
       );
       blit(dye.write);
       dye.swap();
@@ -1380,6 +1423,10 @@
           case "hover":
             opts.hover = !!value;
             break;
+          case "hold_on_hover":
+            holdOnHover = !!value;
+            if (!holdOnHover) hoverInside = false; // 关掉后立刻恢复消散
+            break;
           case "curl":
             config.CURL = value;
             break;
@@ -1407,10 +1454,13 @@
       },
       destroy: function () {
         running = false;
+        clearTimeout(touchLeaveTimer);
         window.removeEventListener("resize", windowResizeHandler);
         heroEl.removeEventListener("mousedown", heroMouseDown);
         window.removeEventListener("mouseup", windowMouseUp);
         heroEl.removeEventListener("mousemove", heroMouseMove);
+        heroEl.removeEventListener("mouseenter", heroMouseEnter);
+        heroEl.removeEventListener("mouseleave", heroMouseLeave);
         heroEl.removeEventListener("touchstart", heroTouchStart);
         heroEl.removeEventListener("touchmove", heroTouchMove);
         heroEl.removeEventListener("touchend", heroTouchEnd);

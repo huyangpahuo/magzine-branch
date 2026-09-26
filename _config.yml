@@ -17,6 +17,7 @@ hero:
   effects:
     enable: true # 特效总开关(关闭后不加载任何特效与面板)
     panel_enable: true # 是否显示右下角控制面板
+    mobile_enable: false # 是否在手机移动端启用首页特效 (WebGL 渲染较重,出于性能考虑默认关闭;开启后移动端同样可调面板)
     # WebGL 流体模拟(https://github.com/PavelDoGreat/WebGL-Fluid-Simulation, MIT)
     fluid:
       enable: true
@@ -27,6 +28,7 @@ hero:
       density_dissipation: 1 # 消散速度 0-4,越小拖尾越长
       velocity_dissipation: 0.2 # 速度衰减
       hover: true # 鼠标悬停即产生流体(无需按下)
+      hold_on_hover: true # 指针停在 hero 上时流体不消散(离开 hero 后才平滑淡出)
       idle_splat: false # 禁止空闲时自动喷发,仅悬停或手动点击“随机喷发”时触发
       bloom: false # 辉光(较耗性能)
     watercolor:

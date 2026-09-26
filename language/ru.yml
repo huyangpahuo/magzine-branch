@@ -49,6 +49,7 @@ hero_panel:
   brush_size: Размер кисти
   dissipation: Скорость затухания
   hover_trigger: Запуск при наведении
+  hold_on_hover: Не исчезает при наведении
   bloom: Свечение
   random_splat: Случайные всплески
 recent:

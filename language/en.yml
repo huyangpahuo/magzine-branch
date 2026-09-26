@@ -58,6 +58,7 @@ hero_panel:
   brush_size: Brush Size
   dissipation: Dissipation
   hover_trigger: Hover Trigger
+  hold_on_hover: No fade on hover
   bloom: Bloom
   random_splat: Random Splat
 

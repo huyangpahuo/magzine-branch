@@ -181,10 +181,23 @@
   }
 
   /* ── 挂载/卸载 ──────────────────────────────────────────────── */
+  /* ── 移动端判定(与桌宠 pet.pug 同一套:屏幕宽度 + UA 双重检测) ──
+     移动端 WebGL 渲染开销大,默认不启用(见 _config.yml 的
+     hero.effects.mobile_enable);判定在启动时做一次,与读者设置同层。 */
+  function isMobileDevice() {
+    return (
+      window.innerWidth <= 768 ||
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent,
+      )
+    );
+  }
+
   function boot() {
     var cfg = (window.theme && window.theme.hero && window.theme.hero.effects) || {};
     var layer = document.querySelector(".hero-fx-layer");
-    if (!cfg.enable || !layer ||
+    var disabledOnMobile = isMobileDevice() && !cfg.mobile_enable;
+    if (!cfg.enable || !layer || disabledOnMobile ||
         (window.__readerSettings && window.__readerSettings.hero_effects === "off")) {
       pendingBoot = false;
       unmount();

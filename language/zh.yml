@@ -58,6 +58,7 @@ hero_panel:
   brush_size: 笔刷大小
   dissipation: 消散速度
   hover_trigger: 悬停触发
+  hold_on_hover: 悬停不消散
   bloom: 辉光
   random_splat: 随机喷发
 

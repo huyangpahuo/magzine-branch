@@ -57,6 +57,7 @@ hero_panel:
   brush_size: ブラシサイズ
   dissipation: 消散速度
   hover_trigger: ホバートリガー
+  hold_on_hover: ホバー中は消えない
   bloom: ブルーム
   random_splat: ランダム噴出
 
