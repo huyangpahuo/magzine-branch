@@ -36,11 +36,64 @@ body:not(.dark-mode) .hero-fx-canvas {
   filter: saturate(1.25) brightness(1.05);
 }
 
+/* 主题明暗适配:面板跟随站点主题,不使用固定深色外观 */
+body:not(.dark-mode) .hero-fx-body {
+  color: #263238;
+  background: rgba(255, 255, 255, 0.86);
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.2);
+}
+
+body:not(.dark-mode) .hero-fx-head {
+  background: rgba(255, 255, 255, 0.94);
+  border-bottom-color: rgba(0, 0, 0, 0.1);
+}
+
+body:not(.dark-mode) .hero-fx-title,
+body:not(.dark-mode) .hero-fx-item-name {
+  color: #263238;
+}
+
+body:not(.dark-mode) .hero-fx-item + .hero-fx-item {
+  border-top-color: rgba(0, 0, 0, 0.08);
+}
+
+body:not(.dark-mode) .hero-fx-ctl {
+  color: rgba(38, 50, 56, 0.86);
+}
+
+body:not(.dark-mode) .hero-fx-val {
+  color: rgba(38, 50, 56, 0.62);
+}
+
+body:not(.dark-mode) .hero-fx-ctl select {
+  color: #263238;
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.16);
+}
+
+body:not(.dark-mode) .hero-fx-ctl select option {
+  background: #fff;
+  color: #263238;
+}
+
+body:not(.dark-mode) .hero-fx-btn {
+  color: #263238;
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.16);
+}
+
+body:not(.dark-mode) .hero-fx-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
 /* ── 控制面板 ──────────────────────────────────────────────────── */
 .hero-fx-panel {
   position: absolute;
   right: 18px;
   bottom: 18px;
+  box-sizing: border-box;
+  max-width: calc(100% - 24px);
   z-index: 10; /* 面板由 hero-panel.js 挂到 .hero-section,浮在文字之上 */
   pointer-events: auto;
   font-size: 0.82rem;
@@ -74,7 +127,8 @@ body:not(.dark-mode) .hero-fx-canvas {
 
 /* 面板主体 */
 .hero-fx-body {
-  width: 246px;
+  box-sizing: border-box;
+  width: min(246px, calc(100vw - 24px));
   max-height: min(58vh, 480px);
   overflow-y: auto;
   border-radius: 12px;
@@ -181,11 +235,13 @@ body:not(.dark-mode) .hero-fx-canvas {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
   color: rgba(240, 242, 245, 0.85);
 }
 
 .hero-fx-ctl-label {
-  flex: 0 0 62px;
+  flex: 0 1 62px;
+  min-width: 0;
   font-size: 0.76rem;
   white-space: nowrap;
 }
@@ -299,12 +355,29 @@ body:not(.dark-mode) .hero-fx-canvas {
 /* 移动端:面板更小巧,位置避开滚动提示 */
 @media (max-width: 768px) {
   .hero-fx-panel {
-    right: 12px;
-    bottom: 88px;
+    right: 8px;
+    bottom: 28px;
+    max-width: calc(100% - 16px);
   }
 
   .hero-fx-body {
-    width: 224px;
-    max-height: 46vh;
+    width: min(224px, calc(100vw - 24px));
+    max-height: min(46vh, calc(100% - 52px));
+  }
+
+  .hero-fx-item-body {
+    padding-left: 12px;
+    padding-right: 10px;
+  }
+
+  .hero-fx-ctl-label {
+    flex-basis: clamp(50px, 20vw, 62px);
+    white-space: normal;
+    line-height: 1.2;
+  }
+
+  .hero-fx-ctl select,
+  .hero-fx-ctl input[type="range"] {
+    width: 0;
   }
 }

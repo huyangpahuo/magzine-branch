@@ -1860,8 +1860,7 @@ p {
 
 /* ===== Author Card Styles ===== */
 .author-card-section {
-  /* Hero 下方保留少量呼吸空间,避免作者卡片离 Hero 过远 */
-  padding: var(--spacing-lg) 0 var(--spacing-sm) 0;
+  padding: calc(var(--spacing-2xl) * 2) 0 var(--spacing-sm) 0;
   background-color: var(--background-color);
 }
 
@@ -3341,12 +3340,37 @@ mjx-container:not([display="true"]) {
   transition: none !important;
 }
 
-/* 名片收起时收紧区块上方留白,拉绳不再"悬空" */
+/* 名片收起时收紧区块上方留白,拉绳自然接到上方区块底部 */
 .author-card-section {
   transition: padding 0.6s cubic-bezier(0.65, 0, 0.25, 1);
 }
 
+/* 没有 Hero 时作者区块仍保持独立布局,拉绳不依赖 Hero 才显示 */
+.author-card-section--without-hero {
+  margin-top: 0;
+}
+
+.author-card-section--without-hero .author-card-pull-cord {
+  display: flex;
+}
+
 .author-card-section:has(.author-card-foldable.folded) {
+  padding-top: var(--spacing-sm);
+}
+
+/* Hero 卡片自身保留了底部间距;收起作者卡片后抵消这段间距,
+   让拉绳的起点准确贴住 Hero 底部。Hero 关闭时不应用,避免影响普通首页布局。 */
+body:has(.hero-section) .author-card-section:has(.author-card-foldable.folded) {
+  margin-top: calc(-1 * var(--spacing-lg));
+  padding-top: 0;
+}
+
+/* 右键读者设置可以临时隐藏 Hero,但作者卡片和拉绳必须保留。 */
+html.reader-hero-off .author-card-section--with-hero {
+  margin-top: 0;
+}
+
+html.reader-hero-off .author-card-section--with-hero:has(.author-card-foldable.folded) {
   padding-top: 0;
 }
 
@@ -3394,14 +3418,9 @@ mjx-container:not([display="true"]) {
   transition: transform 0.2s ease;
 }
 
-/* 名片收起后,拉绳"被拉长"垂下来 */
+/* 名片收起后,拉绳自然垂下来 */
 .author-card-section:has(.author-card-foldable.folded) .pull-cord-line {
   height: 64px;
-}
-
-/* 收起后把拉绳上端接到 Hero 底部,不让它悬在中间空白处 */
-.author-card-section:has(.author-card-foldable.folded) .author-card-pull-cord {
-  margin-top: calc(-1 * var(--spacing-lg));
 }
 
 .author-card-pull-cord:hover .pull-cord-line {

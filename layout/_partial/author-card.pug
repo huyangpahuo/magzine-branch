@@ -1,6 +1,6 @@
 //- Author Card Section
 if theme.author_card && theme.author_card.enable
-  section.author-card-section
+  section.author-card-section(class=theme.hero && theme.hero.enable ? "author-card-section--with-hero" : "author-card-section--without-hero")
     .author-card-container
       //- 拉绳折叠容器:点击下方拉绳,名片收起/弹出(像拉绳台灯)
       .author-card-foldable

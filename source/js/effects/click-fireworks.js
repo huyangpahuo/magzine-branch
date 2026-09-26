@@ -103,6 +103,8 @@
 
   // 5. 绑定点击事件
   document.addEventListener("mousedown", function (e) {
+    // Hero 与封面区域不触发全局点击动画,避免干扰首屏交互。
+    if (e.target.closest && e.target.closest("#blog-cover, .hero-section")) return;
     // ★ 文章模态窗口打开时不生成粒子(性能保护,详见 click-heart.js 同款注释)
     if (document.querySelector(".article-modal.active")) return;
 

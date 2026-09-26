@@ -62,8 +62,12 @@
     if (rs.cover === "off") css += "#blog-cover{display:none!important}";
     if (rs.color_picker === "off")
       css += ".theme-color-picker-container{display:none!important}";
-    // 首页图片(hero)与碎碎念顶部横幅:由读者设置关闭时直接隐藏渲染出的节点
-    if (rs.hero === "off") css += ".hero-section{display:none!important}";
+    // 首页图片(hero)与碎碎念顶部横幅:由读者设置关闭时直接隐藏渲染出的节点。
+    // 同步给根节点加标记,让依赖 Hero 间距的作者拉绳切换到无 Hero 布局。
+    if (rs.hero === "off") {
+      document.documentElement.classList.add("reader-hero-off");
+      css += ".hero-section{display:none!important}";
+    }
     if (rs.murmur_banner === "off")
       css += ".murmur-banner{display:none!important}";
     if (rs.toc === "hide")

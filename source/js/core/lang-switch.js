@@ -11,6 +11,28 @@ document.addEventListener("DOMContentLoaded", function () {
       "© 2025 Huyangpahuo. All rights reserved.",
     "向下滚动探索更多": "Scroll Down to Explore More",
 
+    // 首页 Hero 特效面板
+    特效: "Effects",
+    "✦ 特效": "✦ Effects",
+    首页特效: "Hero Effects",
+    首页特效面板: "Hero Effects Panel",
+    收起面板: "Collapse Panel",
+    流体模拟: "Fluid Simulation",
+    取色: "Color Source",
+    背景图主色: "Image Palette",
+    背景图配色: "Image Palette",
+    随机彩色: "Random Colors",
+    质量: "Quality",
+    高: "High",
+    中: "Medium",
+    低: "Low",
+    涡旋强度: "Curl Strength",
+    笔刷大小: "Brush Size",
+    消散速度: "Dissipation",
+    悬停触发: "Hover Trigger",
+    辉光: "Bloom",
+    随机喷发: "Random Splat",
+
     // 刚读过(原"置顶已阅读文章")与代码块
     "刚读过": "Recently Read",
     "刚读过置顶": "Pin Recently Read",

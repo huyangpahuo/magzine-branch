@@ -207,6 +207,8 @@
     });
     if (mounted.observer) mounted.observer.disconnect();
     if (mounted.onDocHidden) document.removeEventListener("visibilitychange", mounted.onDocHidden);
+    if (mounted.onDocPointerDown)
+      document.removeEventListener("pointerdown", mounted.onDocPointerDown);
     if (mounted.panel && mounted.panel.parentNode)
       mounted.panel.parentNode.removeChild(mounted.panel);
     mounted = null;
@@ -308,6 +310,7 @@
     var toggle = el("button", "hero-fx-toggle", "✦ 特效");
     toggle.type = "button";
     toggle.setAttribute("aria-label", "首页特效面板");
+    toggle.setAttribute("aria-expanded", "false");
 
     var body = el("div", "hero-fx-body");
     var head = el("div", "hero-fx-head");
@@ -376,6 +379,7 @@
     panel.appendChild(toggle);
     panel.appendChild(body);
     if (state.collapsed) panel.classList.add("collapsed");
+    toggle.setAttribute("aria-expanded", String(!state.collapsed));
     mounted.panel = panel;
     // 面板放到 hero 容器本身,避免被特效层的 stacking context 压在标题文字下面。
     // 画布仍留在 .hero-fx-layer 中,只让控制面板浮到文字之上。
@@ -384,14 +388,21 @@
     function setCollapsed(c) {
       state.collapsed = c;
       panel.classList.toggle("collapsed", c);
+      toggle.setAttribute("aria-expanded", String(!c));
       saveState();
     }
     toggle.addEventListener("click", function () {
-      setCollapsed(false);
+      setCollapsed(!panel.classList.contains("collapsed"));
     });
     closeBtn.addEventListener("click", function () {
       setCollapsed(true);
     });
+
+    // 点击面板外部区域自动收起;面板和“特效”按钮内部点击不受影响。
+    mounted.onDocPointerDown = function (event) {
+      if (!panel.contains(event.target)) setCollapsed(true);
+    };
+    document.addEventListener("pointerdown", mounted.onDocPointerDown);
   }
 
   function buildControl(def, ctl, cfg) {

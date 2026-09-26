@@ -197,6 +197,8 @@
 
   // 5. 点击监听
   document.addEventListener("mousedown", function (e) {
+    // Hero 与封面区域不触发全局点击动画,避免干扰首屏交互。
+    if (e.target.closest && e.target.closest("#blog-cover, .hero-section")) return;
     // ★ 文章模态窗口打开时不生成粒子:模态+iframe+桌宠本就吃性能,
     //   点击特效在父页面继续开会明显卡顿
     if (document.querySelector(".article-modal.active")) return;
