@@ -343,8 +343,10 @@ inject:
   head:
     # Custom CSS
     # - <link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'">
-    # ★ 性能修改:Font Awesome 已在 layout.pug 本地化引入(lib/font-awesome),此处删除重复的 cdnjs 外链
-    - <link rel="stylesheet" href="https://cdn1.tianli0.top/gh/qxchuckle/Post-Summary-AI/chuckle-post-ai.css"> #AI
+    # ★ Font Awesome 已在 layout.pug 本地化引入(lib/font-awesome),此处删除重复的 cdnjs 外链
+    # ★ AI 样式改为非阻塞加载:media="print" + onload 切回 all,
+    #   原先它是渲染阻塞外链,外站超时会让整页白屏等待 30 秒
+    - <link rel="stylesheet" href="https://cdn1.tianli0.top/gh/qxchuckle/Post-Summary-AI/chuckle-post-ai.css" media="print" onload="this.media='all'"> #AI
   bottom:
     # Custom JavaScript
     # - <script src="/js/xxx"></script>

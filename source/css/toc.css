@@ -189,3 +189,93 @@
     display: none !important;
   }
 }
+/* =====================================================
+   目录 v2:嵌套可折叠树 (toc-tree)
+   结构: ul.toc-tree > li(.has-children) > .toc-row > [button.toc-caret] + a
+                            └ ul(子层, 父级 .collapsed 时隐藏)
+   ===================================================== */
+
+.toc-content ul.toc-tree,
+.toc-content ul.toc-tree ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.toc-content ul.toc-tree ul {
+  padding-left: 0.9em;
+  border-left: 1px solid var(--border-color, #e5e5e5);
+  margin-left: 0.55em;
+}
+
+.toc-content li.has-children > .toc-row {
+  display: flex;
+  align-items: center;
+}
+
+.toc-content .toc-row a {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis; /* ★ 长标题省略号截断,悬停 title 可看全文 */
+}
+
+.toc-content .toc-caret {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  margin-right: 2px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--secondary-color, #999);
+  cursor: pointer;
+  font-size: 0.7rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: transform 0.25s ease, color 0.2s ease;
+}
+
+.toc-content .toc-caret::before {
+  content: "▾";
+}
+
+.toc-content .toc-caret:hover {
+  color: var(--accent-color, #ff6b6b);
+  background: rgba(128, 128, 128, 0.12);
+}
+
+.toc-content li.has-children.collapsed > .toc-caret,
+.toc-content li.collapsed > .toc-row .toc-caret {
+  transform: rotate(-90deg);
+}
+
+.toc-content li.has-children > ul {
+  display: block;
+}
+
+.toc-content li.has-children.collapsed > ul {
+  display: none;
+}
+
+/* 旧扁平缩进样式对树结构不再需要,重置 */
+.toc-content .toc-h1,
+.toc-content .toc-h2,
+.toc-content .toc-h3,
+.toc-content .toc-h4,
+.toc-content .toc-h5,
+.toc-content .toc-h6 {
+  padding-left: 0;
+}
+
+/* 移动端面板:同样的省略号与折叠行为,行高更松 */
+.mobile-toc-panel .toc-content .toc-row a {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

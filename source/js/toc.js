@@ -71,50 +71,26 @@ document.addEventListener("DOMContentLoaded", function () {
     return;
   }
 
-  // 创建目录列表
-  const tocList = document.createElement("ul");
-
-  // 为每个标题生成目录项
-  headings.forEach((heading, index) => {
-    // 如果标题没有ID，则为其生成一个ID
-    if (!heading.id) {
-      heading.id = `heading-${index}`;
-    }
-
-    // 创建目录项
-    const tocItem = document.createElement("li");
-    tocItem.className = `toc-${heading.tagName.toLowerCase()}`;
-
-    // 创建目录链接
-    const tocLink = document.createElement("a");
-    tocLink.href = `#${heading.id}`;
-    tocLink.textContent = heading.textContent;
-
-    // 添加点击事件，平滑滚动到对应标题
-    tocLink.addEventListener("click", function (e) {
-      e.preventDefault();
-
-      // [修复] 使用 getElementById 替代 querySelector 以支持数字开头的 ID
-      const targetElement = document.getElementById(heading.id);
-      if (targetElement) {
-        targetElement.scrollIntoView({
-          behavior: "smooth",
-        });
-      }
-
-      // 更新活动目录项
-      updateActiveTocItem(heading.id);
-    });
-
-    // 将链接添加到目录项
-    tocItem.appendChild(tocLink);
-
-    // 将目录项添加到目录列表
-    tocList.appendChild(tocItem);
-  });
+  // ★ 2026-09:目录改为"嵌套可折叠树"(参考 Astro 博客):
+  //   - 按标题层级嵌套 <ul>,有子级的项带折叠按钮(手风琴);
+  //   - 标题过长用省略号截断(title 属性悬停可看全文);
+  //   - 滚动高亮时自动展开当前标题所在的层级路径;
+  //   - 移动端面板克隆同一棵树,折叠按钮用事件委托,克隆后依然可用。
+  // 构建嵌套树
+  const tocList = buildTocTree(headings);
 
   // 将目录列表添加到目录容器
   tocContainer.appendChild(tocList);
+
+  // 折叠按钮:事件委托(桌面 + 移动端克隆都生效)
+  document.addEventListener("click", function (e) {
+    const caret = e.target.closest ? e.target.closest(".toc-caret") : null;
+    if (!caret) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const li = caret.closest("li");
+    if (li) li.classList.toggle("collapsed");
+  });
 
   // 初始化活动目录项
   updateActiveTocItem();
@@ -185,6 +161,20 @@ document.addEventListener("DOMContentLoaded", function () {
         );
         if (activeLink) {
           activeLink.classList.add("active");
+          // 自动展开当前标题所在的层级路径(两侧目录同步处理)
+          document
+            .querySelectorAll(
+              '.toc-content a[href="#' + currentHeading + '"]',
+            )
+            .forEach(function (lnk) {
+              let li = lnk.closest("li");
+              while (li) {
+                li.classList.remove("collapsed");
+                li = li.parentElement
+                  ? li.parentElement.closest("li")
+                  : null;
+              }
+            });
         }
       } catch (e) {
         // 如果选择器报错（极少见情况），忽略
@@ -195,6 +185,89 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // 创建移动端目录按钮和面板
   createMobileToc();
+
+  /**
+   * 按标题层级构建嵌套目录树
+   * h1~h6 → 嵌套 <ul>;深层级(>=3)默认折叠
+   */
+  function buildTocTree(headingEls) {
+    headingEls.forEach((heading, index) => {
+      if (!heading.id) heading.id = `heading-${index}`;
+    });
+
+    const root = document.createElement("ul");
+    root.className = "toc-tree";
+    // stack[i] = 当前第 i 层的 <ul>(1-based:h1 为第 1 层)
+    const stack = [root];
+    // stackLevels[i] = 该层对应的标题级别
+    const stackLevels = [0];
+
+    headingEls.forEach((heading) => {
+      const level = parseInt(heading.tagName.charAt(1), 10);
+      const li = document.createElement("li");
+      li.className = "toc-" + heading.tagName.toLowerCase();
+
+      const row = document.createElement("div");
+      row.className = "toc-row";
+
+      const link = document.createElement("a");
+      link.href = "#" + heading.id;
+      link.textContent = heading.textContent;
+      link.title = heading.textContent; // 省略号截断后悬停可看全文
+
+      link.addEventListener("click", function (e) {
+        e.preventDefault();
+        const target = document.getElementById(heading.id);
+        if (target) target.scrollIntoView({ behavior: "smooth" });
+        updateActiveTocItem(heading.id);
+      });
+
+      row.appendChild(link);
+      li.appendChild(row);
+
+      // 回退到正确的父层
+      while (
+        stackLevels.length > 1 &&
+        stackLevels[stackLevels.length - 1] >= level
+      ) {
+        stack.pop();
+        stackLevels.pop();
+      }
+      stack[stack.length - 1].appendChild(li);
+      // 为父级 li 标记"有子级"
+      if (stack.length > 1) {
+        const parentLi = stack[stack.length - 1].parentElement;
+        if (parentLi && !parentLi.classList.contains("has-children")) {
+          parentLi.classList.add("has-children");
+          // 在父级行首插入折叠按钮(插在链接前)
+          const parentRow = parentLi.querySelector(":scope > .toc-row");
+          if (parentRow && !parentRow.querySelector(".toc-caret")) {
+            const caret = document.createElement("button");
+            caret.type = "button";
+            caret.className = "toc-caret";
+            caret.setAttribute("aria-label", "折叠/展开");
+            parentRow.insertBefore(caret, parentRow.firstChild);
+          }
+        }
+        // 深层级默认折叠
+        if (stack.length >= 3) {
+          parentLi.classList.add("collapsed");
+        }
+      }
+
+      // 开辟子层
+      const sub = document.createElement("ul");
+      li.appendChild(sub);
+      stack.push(sub);
+      stackLevels.push(level);
+    });
+
+    // 清掉末尾空的占位 <ul>
+    root.querySelectorAll("ul").forEach((ul) => {
+      if (ul.children.length === 0) ul.remove();
+    });
+    return root;
+  }
 
   /**
    * 创建移动端目录按钮和面板

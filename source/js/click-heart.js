@@ -1,4 +1,7 @@
 (function () {
+  // ★ 模态窗口(iframe)中不启动:父页面已有点击特效,避免双份 canvas
+  if (window.self !== window.top) return;
+
   // ★ 读者设置:鼠标点击效果二选一(heart/fireworks),由 reader-settings 决定
   if (window.__readerSettings && window.__readerSettings.click_effect !== "heart") return;
   // 1. 初始化 Canvas
@@ -194,6 +197,10 @@
 
   // 5. 点击监听
   document.addEventListener("mousedown", function (e) {
+    // ★ 文章模态窗口打开时不生成粒子:模态+iframe+桌宠本就吃性能,
+    //   点击特效在父页面继续开会明显卡顿
+    if (document.querySelector(".article-modal.active")) return;
+
     // 每次点击时,获取一次最新的主题色
     currentAccentColor =
       getComputedStyle(document.documentElement)

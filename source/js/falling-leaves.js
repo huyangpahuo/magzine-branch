@@ -1,4 +1,7 @@
 (function () {
+  // ★ 模态窗口(iframe)中不启动:父页面已有落叶,避免双份 canvas 双份开销
+  if (window.self !== window.top) return;
+
   // --- 0. 移动端禁用检测 ---
   // ★ 读者设置:关闭落叶效果时不运行(在 config.yml 基础上可被读者面板覆盖)
   if (window.__readerSettings && window.__readerSettings.leaves === "off") return;
@@ -19,7 +22,9 @@
   // --- 1. 初始化全屏 Canvas ---
   let canvas = document.createElement("canvas");
   canvas.style.cssText =
-    "position:fixed;top:0;left:0;pointer-events:none;z-index:999999;width:100%;height:100%";
+    // ★ z-index 999:浮在正文之上,但低于文章模态(1000)与图片/图表/表格
+    //   全屏查看器(9999+),模态或全屏打开时落叶在它们背后继续飘落
+    "position:fixed;top:0;left:0;pointer-events:none;z-index:999;width:100%;height:100%";
   document.body.appendChild(canvas);
   let ctx = canvas.getContext("2d");
 

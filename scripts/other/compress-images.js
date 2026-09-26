@@ -98,7 +98,47 @@ hexo.extend.filter.register("after_generate", function () {
     }
     const renamedFrom = new Set(renamePairs.map((p) => p.from));
 
-    /* ---------- 阶段二:包装图片路由(写盘/预览时即时转换) ---------- */
+    /* ---------- 阶段二:包装图片路由(写盘/预览时即时转换) ----------
+       ★ 转换结果缓存:hexo server 的每次请求都会重新拉路由流,
+         不缓存的话每刷新一次就把全部图片重新压缩一遍——server 进程
+         CPU 打满、内存暴涨、页面加载超时(模态 iframe 空白的根因)。
+         hexo generate 每个路由只写一次,缓存同样无害。 */
+    const transformCache = new Map(); // path -> Buffer
+    const TRANSFORM_CACHE_MAX_BYTES = 400 * 1024 * 1024;
+    let transformCacheBytes = 0;
+
+    function cachedTransform(routePath, ext, original, toWebp) {
+      return () => {
+        const hit = transformCache.get(routePath);
+        if (hit) return Promise.resolve(hit);
+        return getOriginalContent(original)
+          .then((buf) => processImage(buf, ext, cfg, toWebp))
+          .then((out) => {
+            if (out && out.length <= TRANSFORM_CACHE_MAX_BYTES) {
+              transformCache.set(routePath, out);
+              transformCacheBytes += out.length;
+              // 超出上限时按插入顺序淘汰(近似 FIFO)
+              while (
+                transformCacheBytes > TRANSFORM_CACHE_MAX_BYTES &&
+                transformCache.size > 1
+              ) {
+                const firstKey = transformCache.keys().next().value;
+                const firstVal = transformCache.get(firstKey);
+                transformCache.delete(firstKey);
+                transformCacheBytes -= firstVal.length;
+              }
+            }
+            return out;
+          })
+          .catch((err) => {
+            log.warn(
+              `[Image Compressor] ${routePath} 处理失败,回退原图: ${err.message}`,
+            );
+            return getOriginalContent(original);
+          });
+      };
+    }
+
     let imageWrapped = 0;
     for (const routePath of allRoutes) {
       const ext = path.extname(routePath).toLowerCase();
@@ -119,15 +159,7 @@ hexo.extend.filter.register("after_generate", function () {
         route.remove(routePath);
       } else {
         setRoute(route, routePath, {
-          data: () =>
-            getOriginalContent(original)
-              .then((buf) => processImage(buf, ext, cfg, false))
-              .catch((err) => {
-                log.warn(
-                  `[Image Compressor] ${routePath} 处理失败,回退原图: ${err.message}`,
-                );
-                return getOriginalContent(original);
-              }),
+          data: cachedTransform(routePath, ext, original, false),
           modified: original.modified,
         });
         wrappedPaths.add(routePath);
@@ -141,15 +173,7 @@ hexo.extend.filter.register("after_generate", function () {
       if (!original) continue;
       const ext = path.extname(pair.from).toLowerCase();
       setRoute(route, pair.to, {
-        data: () =>
-          getOriginalContent(original)
-            .then((buf) => processImage(buf, ext, cfg, true))
-            .catch((err) => {
-              log.warn(
-                `[Image Compressor] ${pair.from} -> webp 失败,输出原图: ${err.message}`,
-              );
-              return getOriginalContent(original);
-            }),
+        data: cachedTransform(pair.from, ext, original, true),
         modified: original.modified,
       });
       wrappedPaths.add(pair.to);

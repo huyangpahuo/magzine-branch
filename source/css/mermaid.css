@@ -228,7 +228,10 @@ body.dark-mode {
     -webkit-user-select: none;
     user-select: none;
     box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
-}
+
+  /* ★ 性能:拖拽/缩放提升为独立合成层,transform 变化不再整层重绘 */
+  will-change: transform;
+  backface-visibility: hidden;}
 
 .mermaid-viewer-stage:active {
     cursor: grabbing;

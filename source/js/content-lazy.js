@@ -20,14 +20,16 @@
   if (window.__magzineContentLazy) return;
   window.__magzineContentLazy = true;
 
-  /* ---------- 1. 大块内容按视口渲染(一次性注入全局样式) ---------- */
+  /* ---------- 1. 大块内容按视口渲染(一次性注入全局样式) ----------
+     ★ 只作用于"没有绝对定位装饰物"的容器:
+       - 表格用 table.js 运行时生成的 .table-wrapper(普通 div),
+         直接给 table/figure.highlight 加 content-visibility 会破坏
+         代码块的 table 列宽布局与 mermaid 全屏按钮(paint containment 裁剪);
+       - 代码块/mermaid 不在此列:代码块有自身折叠(max-height)兜底,
+         mermaid 已是按视口懒渲染。
+  */
   var style = document.createElement("style");
   style.textContent = [
-    ".post-content figure.highlight,",
-    ".post-content pre,",
-    ".post-content table,",
-    ".post-content figure,",
-    ".post-content .mermaid-wrapper,",
     ".post-content mjx-container,",
     ".post-content .hexo-video-embed,",
     ".post-content iframe,",
@@ -53,7 +55,99 @@
         frame.setAttribute("loading", "lazy");
       });
 
-    /* ---------- 3. 视频滚出视口 / 页面后台 → 暂停 ---------- */
+    setupReadingReveal();
+    setupVideoPause();
+  }
+
+  /* ---------- 4. 阅读显现(reading-reveal,参考 Astro 博客) ----------
+     正文元素进入视口时淡入 + 轻微上移,一次性。
+     ★ 只作用于"绝不会被脚本移动/替换"的元素白名单:
+       table.js 会把 table 包进 .table-wrapper、mermaid.js 会用
+       .mermaid-wrapper 替换 pre、代码块/折叠/标签组件也是 div——
+       div 和 table 一律不参与,否则替换后的新元素没被观察,
+       会永远停留在 opacity:0(表格/图表"消失"事故的根因)。
+     ★ class 由 JS 添加:JS 失效时内容正常显示(渐进增强);
+     ★ 尊重系统"减少动态效果"设置。 */
+  var REVEAL_SELECTOR = [
+    ".post-content > p",
+    ".post-content > h1", ".post-content > h2", ".post-content > h3",
+    ".post-content > h4", ".post-content > h5", ".post-content > h6",
+    ".post-content > ul", ".post-content > ol",
+    ".post-content > blockquote", ".post-content > hr",
+  ].join(", ");
+
+  function setupReadingReveal() {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!("IntersectionObserver" in window)) return;
+
+    var content = document.querySelector(".post-content");
+    if (!content || content.classList.contains("reading-reveal")) return;
+
+    var items = [];
+    content.querySelectorAll(":scope > *").forEach(function (el) {
+      if (!el.matches("p, h1, h2, h3, h4, h5, h6, ul, ol, blockquote, hr"))
+        return;
+      var r = el.getBoundingClientRect();
+      if (r.top < window.innerHeight) {
+        // ★ 首屏内元素:立即标记为已显现。
+        //   (CSS 会隐藏所有匹配元素,如果不标记,首屏文字会被永久藏起
+        //    ——这正是"正文闪现后消失/标题下方大段空白"的根因)
+        el.classList.add("revealed");
+        return;
+      }
+      items.push(el);
+    });
+    if (items.length === 0) return; // 没有待显现项时不挂隐藏样式,零风险
+
+    content.classList.add("reading-reveal");
+
+    if (!document.getElementById("reading-reveal-style")) {
+      var st = document.createElement("style");
+      st.id = "reading-reveal-style";
+      st.textContent = [
+        ".post-content.reading-reveal > p,",
+        ".post-content.reading-reveal > h1, .post-content.reading-reveal > h2,",
+        ".post-content.reading-reveal > h3, .post-content.reading-reveal > h4,",
+        ".post-content.reading-reveal > h5, .post-content.reading-reveal > h6,",
+        ".post-content.reading-reveal > ul, .post-content.reading-reveal > ol,",
+        ".post-content.reading-reveal > blockquote, .post-content.reading-reveal > hr {",
+        "  opacity: 0;",
+        "  transform: translateY(14px);",
+        "  transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),",
+        "              transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);",
+        "}",
+        ".post-content.reading-reveal > .revealed {",
+        "  opacity: 1;",
+        "  transform: none;",
+        "}",
+      ].join("\n");
+      document.head.appendChild(st);
+    }
+
+    var io = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (en) {
+          if (!en.isIntersecting) return;
+          io.unobserve(en.target);
+          // 交错显现:同批进入的元素按 DOM 顺序错开 40ms
+          var el = en.target;
+          var delay = Math.min(el.dataset.revealIdx * 40, 240);
+          el.dataset.revealIdx = "0";
+          setTimeout(function () {
+            el.classList.add("revealed");
+          }, delay);
+        });
+      },
+      { rootMargin: "0px 0px -8% 0px" },
+    );
+    items.forEach(function (el, i) {
+      el.dataset.revealIdx = String(Math.min(i % 6, 5));
+      io.observe(el);
+    });
+  }
+
+  /* ---------- 3. 视频滚出视口 / 页面后台 → 暂停 ---------- */
+  function setupVideoPause() {
     var videos = document.querySelectorAll(
       ".post-content video:not([data-clazy])",
     );
