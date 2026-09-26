@@ -687,7 +687,7 @@ function initCodeBlockFolding() {
   codeBlocks.forEach((block) => {
     // ★★★ Skip mermaid blocks — mermaid.js handles their collapsing ★★★
     if (block.classList.contains("mermaid")) return;
-    // ★ 代码块 v2(.codecard)由 js/highlight.js 负责折叠,
+    // ★ 代码块 v2(.codecard)由 js/content/highlight.js 负责折叠,
     //   这里只处理旧结构/裸 pre,避免双重包裹
     if (block.classList.contains("codecard-pre") || block.closest(".codecard"))
       return;

@@ -351,18 +351,18 @@ inject:
     # Custom JavaScript
     # - <script src="/js/xxx"></script>
     # ★ 性能修改:注入脚本统一加 defer,不再阻塞页面解析
-    - <script defer src="/js/ai.js"></script> #ai
-    - <script defer src="/js/postai.js"></script> #ai
+    - <script defer src="/js/features/ai.js"></script> #ai
+    - <script defer src="/js/features/postai.js"></script> #ai
     #以下是数学公式支持
-    - <script defer src="/js/math-support.js"></script> # 数学公式
+    - <script defer src="/js/content/math-support.js"></script> # 数学公式
     #以下是鼠标点击效果
-    - <script defer src="/js/click-heart.js"></script> # 鼠标点击爱心文字特效
-    - <script defer src="/js/click-fireworks.js"></script> # 鼠标点击三角烟花特效(与爱心特效二选一,由读者设置决定)
+    - <script defer src="/js/effects/click-heart.js"></script> # 鼠标点击爱心文字特效
+    - <script defer src="/js/effects/click-fireworks.js"></script> # 鼠标点击三角烟花特效(与爱心特效二选一,由读者设置决定)
 
     #以下是背景动画特效
-    - <script defer src="/js/falling-leaves.js"></script> # 梧桐落叶特效
+    - <script defer src="/js/effects/falling-leaves.js"></script> # 梧桐落叶特效
     #以下是语言切换支持
-    - <script defer src="/js/lang-switch.js"></script> # 语言切换脚本
+    - <script defer src="/js/core/lang-switch.js"></script> # 语言切换脚本
 
 # 语言切换功能
 #本主题翻译功能不是很成熟,不满足i18n需求,只满足中英转换,请前往themes\magzine\source\js\lang-switch.js自定义翻译文本

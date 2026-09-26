@@ -1,5 +1,5 @@
 /**
- * 友链页面脚本 (js/link.js)
+ * 友链页面脚本 (js/pages/link.js)
  *
  * 从 link.pug 的交互逻辑抽离,layout.pug 全局加载(pjax 常驻)。
  *

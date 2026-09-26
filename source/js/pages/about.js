@@ -1,5 +1,5 @@
 /**
- * 关于页面脚本 (js/about.js)
+ * 关于页面脚本 (js/pages/about.js)
  *
  * 从 about.pug 抽离:背景几何图形漫游 + 卡片 3D 悬停。
  * layout.pug 全局加载(pjax 只换 main.main 不换 <head>,

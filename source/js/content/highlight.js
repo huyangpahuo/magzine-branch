@@ -1,5 +1,5 @@
 /**
- * 代码块 v2 — 前端交互 (js/highlight.js)
+ * 代码块 v2 — 前端交互 (js/content/highlight.js)
  *
  * 适配构建期生成的新结构(.codecard,见 scripts/filters/highlight.js):
  *   1. 复制按钮:读取 .codecard-pre 的纯文本写入剪贴板;
@@ -66,6 +66,38 @@ document.addEventListener("DOMContentLoaded", function () {
       document.execCommand("copy");
     } catch (err) {}
     ta.remove();
+  }
+
+  /* ---------- 1.5 滚轮横向滚动(与表格 attachHScroll 同款手感) ----------
+     代码超出宽度时,竖向滚轮直接转为横向滚动;
+     滚到左右尽头后自动放行,恢复页面竖向滚动。
+     触摸屏无需处理:.codecard-body 本身是 overflow-x:auto 容器,
+     原生手势横滑即生效。 */
+  if (!window.__codecardWheel) {
+    window.__codecardWheel = true;
+    document.addEventListener(
+      "wheel",
+      function (e) {
+        var body =
+          e.target && e.target.closest
+            ? e.target.closest(".codecard-body")
+            : null;
+        if (!body) return;
+        if (body.scrollWidth <= body.clientWidth) return;
+        var delta = e.deltaY || e.deltaX;
+        if (!delta) return;
+        var atLeft = body.scrollLeft <= 0;
+        var atRight =
+          body.scrollLeft + body.clientWidth >= body.scrollWidth - 1;
+        var goLeft = delta < 0 && !atLeft;
+        var goRight = delta > 0 && !atRight;
+        if (goLeft || goRight) {
+          e.preventDefault();
+          body.scrollLeft += delta;
+        }
+      },
+      { passive: false },
+    );
   }
 
   /* ---------- 2. 折叠 ---------- */

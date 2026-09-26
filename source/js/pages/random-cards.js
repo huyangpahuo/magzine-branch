@@ -1,5 +1,5 @@
 /**
- * 万花筒/追番页面随机卡片接线 (js/random-cards.js)
+ * 万花筒/追番页面随机卡片接线 (js/pages/random-cards.js)
  *
  * 复用 shake-shuffle.js 的通用能力:
  *   - 万花筒(.murmur-waterfall > .murmur-card):最多展示 9 个,"摇一摇~"随机换一批;

@@ -16,7 +16,7 @@
  *   1. 重放新内容里的 <script>(about 页的几何背景动画等);
  *   2. 更新导航栏 active 状态;
  *   3. 在 document 上重新派发 DOMContentLoaded,唤醒所有页面脚本
- *      (main.js/search.js 等已加幂等守卫,不会重复绑定)。
+ *      (main.js/features/search.js 等已加幂等守卫,不会重复绑定)。
  */
 (function () {
   "use strict";
