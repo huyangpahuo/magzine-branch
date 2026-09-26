@@ -518,63 +518,110 @@
   }
 
   /* ------------------------------------------------------------------
-     Render all mermaid blocks
+     按视口懒渲染:只有滚到附近(±1.5 屏)的图表才渲染。
+     ★ 性能修改:原先打开页面就渲染全部图表,图多时首屏被
+     mermaid.render 批量抢占主线程;现在看不见的图不渲染,
+     mermaid 库本身也推迟到第一张图接近视口时才下载。
      ------------------------------------------------------------------ */
-  function renderAll() {
+  var libPromise = null;
+
+  function ensureLib() {
+    if (libPromise) return libPromise;
+    libPromise = loadScript(MERMAID_CDN).then(function () {
+      window.mermaid.initialize(getMermaidConfig());
+    });
+    return libPromise;
+  }
+
+  function renderBlock(pre) {
+    var source = (pre.dataset.mermaidPending ||
+      pre.textContent).trim();
+    if (!source) return;
+
+    var uid =
+      "mermaid-svg-" +
+      Date.now().toString(36) +
+      Math.random().toString(36).slice(2, 7);
+
+    var wrapper = document.createElement("div");
+    wrapper.className = "mermaid-wrapper";
+    wrapper.dataset.mermaidSource = source;
+
+    var block = document.createElement("div");
+    block.className = "mermaid-block";
+    block.id = uid.replace("svg", "block");
+
+    var fsBtn = document.createElement("button");
+    fsBtn.className = "mermaid-fullscreen-btn";
+    fsBtn.setAttribute("aria-label", "全屏查看");
+    fsBtn.innerHTML = ICON_FULLSCREEN;
+    fsBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      openInViewer(source, block.querySelector("svg"));
+    });
+
+    wrapper.appendChild(block);
+    wrapper.appendChild(fsBtn);
+
+    pre.parentNode.insertBefore(wrapper, pre);
+    pre.remove();
+
+    ensureLib()
+      .then(function () {
+        return window.mermaid.render(uid, source);
+      })
+      .then(function (result) {
+        var tmp = document.createElement("div");
+        tmp.innerHTML = result.svg;
+        var svgEl = tmp.querySelector("svg");
+        if (svgEl) {
+          block.appendChild(svgEl);
+        } else {
+          block.insertAdjacentHTML("beforeend", result.svg);
+        }
+        applyCollapsible(wrapper, block);
+      })
+      .catch(function (err) {
+        console.error("[mermaid.js] render error:", err);
+        var msg = document.createElement("pre");
+        msg.style.cssText =
+          "color:var(--accent-color,#ff6b6b);font-size:12px;white-space:pre-wrap;padding:12px;";
+        msg.textContent = "[Mermaid Error]\n" + (err.message || String(err));
+        block.appendChild(msg);
+      });
+  }
+
+  function setupLazyRender() {
     var pres = findMermaidPres();
     if (pres.length === 0) return;
 
-    pres.forEach(function (pre, index) {
-      var source = pre.textContent.trim();
-      if (!source) return;
-
-      var wrapper = document.createElement("div");
-      wrapper.className = "mermaid-wrapper";
-      wrapper.dataset.mermaidSource = source;
-
-      var block = document.createElement("div");
-      block.className = "mermaid-block";
-      block.id = "mermaid-block-" + index;
-
-      var fsBtn = document.createElement("button");
-      fsBtn.className = "mermaid-fullscreen-btn";
-      fsBtn.setAttribute("aria-label", "全屏查看");
-      fsBtn.innerHTML = ICON_FULLSCREEN;
-      fsBtn.addEventListener("click", function (e) {
-        e.stopPropagation();
-        openInViewer(source, block.querySelector("svg"));
+    // 无 IntersectionObserver 的老浏览器:退回一次性渲染
+    if (!("IntersectionObserver" in window)) {
+      ensureLib().then(function () {
+        pres.forEach(renderBlock);
+        watchDarkMode();
       });
+      return;
+    }
 
-      wrapper.appendChild(block);
-      wrapper.appendChild(fsBtn);
-
-      pre.parentNode.insertBefore(wrapper, pre);
-      pre.remove();
-
-      window.mermaid
-        .render("mermaid-svg-" + index, source)
-        .then(function (result) {
-          var tmp = document.createElement("div");
-          tmp.innerHTML = result.svg;
-          var svgEl = tmp.querySelector("svg");
-          if (svgEl) {
-            block.appendChild(svgEl);
-          } else {
-            block.insertAdjacentHTML("beforeend", result.svg);
-          }
-          applyCollapsible(wrapper, block);
-        })
-        .catch(function (err) {
-          console.error(
-            "[mermaid.js] render error for block " + index + ":",
-            err,
-          );
-          var msg = document.createElement("pre");
-          msg.style.cssText =
-            "color:var(--accent-color,#ff6b6b);font-size:12px;white-space:pre-wrap;padding:12px;";
-          msg.textContent = "[Mermaid Error]\n" + (err.message || String(err));
-          block.appendChild(msg);
+    var io = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (en) {
+          if (!en.isIntersecting) return;
+          io.unobserve(en.target);
+          var pre = en.target;
+          // 预存源码:content-visibility/隐藏场景下 textContent 仍可用
+          pre.dataset.mermaidPending = pre.textContent;
+          ensureLib().then(function () {
+            renderBlock(pre);
+            watchDarkMode();
+          });
         });
+      },
+      { rootMargin: "150% 0px" },
+    );
+    pres.forEach(function (pre) {
+      io.observe(pre);
     });
   }
 
@@ -620,6 +667,9 @@
      Dark-mode re-render
      ------------------------------------------------------------------ */
   function watchDarkMode() {
+    if (watchDarkMode._installed) return;
+    watchDarkMode._installed = true;
+
     var observer = new MutationObserver(function () {
       window.mermaid.initialize(getMermaidConfig());
 
@@ -661,14 +711,7 @@
     var pres = findMermaidPres();
     if (pres.length === 0) return;
 
-    loadScript(MERMAID_CDN)
-      .then(function () {
-        window.mermaid.initialize(getMermaidConfig());
-        renderAll();
-        watchDarkMode();
-      })
-      .catch(function (err) {
-        console.error("[mermaid.js] Failed to load mermaid library:", err);
-      });
+    // ★ 库的下载推迟到第一张图接近视口(setupLazyRender 内触发)
+    setupLazyRender();
   });
 })();

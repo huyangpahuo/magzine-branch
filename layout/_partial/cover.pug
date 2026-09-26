@@ -122,11 +122,13 @@ if theme.cover && theme.cover.enable
 
   script(type="module").
     // 只有当封面没有被前置脚本 display: none 掉时，才加载沉重的 WebGL 引擎
-    const cover = document.getElementById('blog-cover');
-    if (cover && cover.style.display !== 'none') {
-      const startBtn = document.getElementById('start-journey');
-      
-      import('https://cdn.jsdelivr.net/npm/threejs-components@0.0.30/build/backgrounds/liquid1.min.js').then((module) => {
+      const cover = document.getElementById('blog-cover');
+      if (cover && cover.style.display !== 'none') {
+        const startBtn = document.getElementById('start-journey');
+
+        // ★ 性能修改:THREE 液体背景模块本地化(原从 cdn.jsdelivr.net 动态 import,
+        //   境内访问不稳定时封面会长时间黑屏等待)。
+        import('#{url_for("js/vendor/liquid1.min.js")}').then((module) => {
         const LiquidBackground = module.default;
 
         // ★★★ 动态读取配置文件中的轮播图数组，如果没配提供默认图 ★★★
@@ -145,23 +147,36 @@ if theme.cover && theme.cover.enable
         }
 
         const app1 = setupApp(canvas1);
-        const app2 = setupApp(canvas2);
+
+        // ★ 性能修改:第二个 WebGL 实例延迟创建。
+        //   原先开屏同时渲染两套液体模拟(为轮播交叉淡化做准备),
+        //   但多数访客几秒内就会点"开始旅行"离开,第二套纯属浪费;
+        //   改为首次轮播切换前 1.5 秒才创建并加载图。
+        let app2 = null;
+        function getApp2() {
+          if (!app2) app2 = setupApp(canvas2);
+          return app2;
+        }
 
         let currentSlide = 0;
         let activeApp = 1;
-        
+
         if (coverImages.length > 0) {
           app1.loadImage(coverImages[0]);
         }
         if (coverImages.length > 1) {
-          app2.loadImage(coverImages[1]);
+          setTimeout(() => {
+            // 封面已被关闭就不再创建第二个 WebGL 实例
+            if (cover.classList.contains('slide-up') || cover.style.display === 'none') return;
+            getApp2().loadImage(coverImages[1]);
+          }, 3500);
         }
 
         let slideTimer = null;
         if (coverImages.length > 1) {
           slideTimer = setInterval(() => {
             const nextSlide = (currentSlide + 1) % coverImages.length;
-            
+
             if (activeApp === 1) {
               canvas1.classList.remove('active');
               canvas2.classList.add('active');
@@ -171,10 +186,10 @@ if theme.cover && theme.cover.enable
               canvas2.classList.remove('active');
               canvas1.classList.add('active');
               activeApp = 1;
-              setTimeout(() => app2.loadImage(coverImages[(nextSlide + 1) % coverImages.length]), 1500);
+              setTimeout(() => getApp2().loadImage(coverImages[(nextSlide + 1) % coverImages.length]), 1500);
             }
             currentSlide = nextSlide;
-          }, 5000); 
+          }, 5000);
         }
 
         // 绑定关闭封面的事件 (兼容电脑点击和手机触摸)
@@ -183,12 +198,12 @@ if theme.cover && theme.cover.enable
           cover.classList.add('slide-up');
           sessionStorage.setItem('hasSeenCover', 'true');
           document.body.style.overflow = '';
-          
+
           setTimeout(() => {
             cover.style.display = 'none';
             if (slideTimer) clearInterval(slideTimer);
             if (app1.dispose) app1.dispose();
-            if (app2.dispose) app2.dispose();
+            if (app2 && app2.dispose) app2.dispose();
           }, 800);
         };
 

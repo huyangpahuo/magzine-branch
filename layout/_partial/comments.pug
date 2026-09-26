@@ -53,15 +53,42 @@ if theme.comments && theme.comments.enable
     when 'twikoo'
       #twikoo-comments
       div(id="twikoo")
-      script(src="https://unpkg.com/twikoo@1.6.39/dist/twikoo.all.min.js")
+      //- ★ 性能修改:twikoo 改为本地文件(不再从 unpkg 拉取,境内不稳),
+      //-   并且只在评论区滚入视口附近(IntersectionObserver)时才加载执行,
+      //-   文章首屏不再为评论脚本付出请求+解析成本。
       script.
-        twikoo.init({
-          envId: '#{theme.comments.twikoo.envId}',
-          el: '#twikoo',
-          region: '#{theme.comments.twikoo.region}',
-          path: '#{theme.comments.twikoo.path}',
-          visitor: #{theme.comments.twikoo.visitor},
-          onCommentLoaded: function () {
-            console.log('Twikoo评论加载成功');
+        (function () {
+          function initTwikoo() {
+            if (typeof twikoo === 'undefined') { setTimeout(initTwikoo, 200); return; }
+            twikoo.init({
+              envId: '#{theme.comments.twikoo.envId}',
+              el: '#twikoo',
+              region: '#{theme.comments.twikoo.region}',
+              path: '#{theme.comments.twikoo.path}',
+              visitor: #{theme.comments.twikoo.visitor},
+              onCommentLoaded: function () {
+                console.log('Twikoo评论加载成功');
+              }
+            });
           }
-        });
+          function loadTwikoo() {
+            if (document.getElementById('twikoo-script')) { initTwikoo(); return; }
+            var s = document.createElement('script');
+            s.id = 'twikoo-script';
+            s.src = '#{url_for("js/vendor/twikoo.all.min.js")}';
+            s.onload = initTwikoo;
+            s.onerror = function () { console.warn('Twikoo 本地脚本加载失败'); };
+            document.body.appendChild(s);
+          }
+          var target = document.getElementById('twikoo');
+          if ('IntersectionObserver' in window && target) {
+            var io = new IntersectionObserver(function (entries) {
+              entries.forEach(function (en) {
+                if (en.isIntersecting) { io.disconnect(); loadTwikoo(); }
+              });
+            }, { rootMargin: '600px 0px' });
+            io.observe(target);
+          } else {
+            loadTwikoo();
+          }
+        })();

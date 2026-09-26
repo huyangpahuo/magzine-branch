@@ -268,7 +268,7 @@ function ChucklePostAI(AI_option) {
       controller = new AbortController();
       signal = controller.signal;
 
-      const apiUrl = "https://deepseek.3930088367.workers.dev/";
+      const apiUrl = "把这里替换为你的cloudfare worker page地址链接";
 
       try {
         const response = await fetch(apiUrl, {

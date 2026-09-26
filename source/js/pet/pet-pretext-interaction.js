@@ -4,10 +4,16 @@
  *
  * 桌宠在文章上走过时,把附近文字逐字符推开;走远后复原。
  *
- * ★ 处理范围由"允许选择器"(allowSelector)决定——只有匹配的元素才会
- *   参与文字避让,其余元素(表格、引用块等)一律忽略,避免大量逐字
- *   span 造成卡顿。默认允许: p, h1~h6, li, pre。
- *   可在 config.yml 的 pet.pretext_interaction.allow_selector 中修改。
+ * ★ 性能架构(2026-09 重构,行为与旧版一致):
+ *   1. 视口懒包裹:不再打开文章就给全篇每个字包 span,而是用
+ *      IntersectionObserver(在 iframe 文档里创建)只包裹"视口上下
+ *      各一屏"内的段落;滚出两屏以外的段落自动还原成纯文本,
+ *      DOM 里同时存在的字符 span 始终约等于一屏的量。
+ *   2. 读写分离:每次更新先集中读完所有 span 的位置,再集中写
+ *      transform,消除"读一个→写一个"造成的逐元素强制重排
+ *      (layout thrashing),这是旧版长文卡死的主因。
+ *   3. 其余保护沿用旧版:allowSelector 白名单、单块 800 字上限、
+ *      分批包裹每帧限时 8ms、50ms 节流。
  * ============================================
  */
 
@@ -23,8 +29,14 @@ export class PetPretextInteraction {
     this.lastRun = 0;
 
     this.iframe = null;
-    this.activeBlocks = [];
-    this.isPreparing = false; // 是否正在分批处理 DOM(防止重复执行)
+    this.activeBlocks = []; // 已包裹且当前仍存在的块 {el, spans}
+    this.isPreparing = false; // 是否正在分批处理包裹队列
+    this.pendingWrap = []; // 等待包裹的块队列
+    this.savedHTML = new Map(); // 块 -> 包裹前的 innerHTML(还原用)
+    this.io = null; // iframe 文档内的 IntersectionObserver
+    this.doc = null; // 当前正在处理的 iframe 文档
+    this.prepared = false; // 当前 iframe 文档是否已初始化
+    this.preparedDoc = null; // 已初始化的文档对象(检测换文章)
   }
 
   /* ============ 核心:把块内文本逐字符包进 span(不破坏 HTML 结构) ============ */
@@ -108,13 +120,67 @@ export class PetPretextInteraction {
     return spans;
   }
 
-  /* ============ 在模态 iframe 的文章内容里准备所有允许的块 ============ */
+  /* ============ 包裹单个块 ============ */
+  wrapBlock(block) {
+    if (block.hasAttribute("data-pretext-ready")) return;
+    // 嵌套在已处理块里的(如 li 里的 p)跳过,避免重复包裹
+    if (block.closest("[data-pretext-ready]")) {
+      block.setAttribute("data-pretext-ready", "skipped");
+      return;
+    }
+    // 超长块(整段贴代码等)直接忽略
+    if (block.textContent && block.textContent.length > this.maxBlockChars) {
+      block.setAttribute("data-pretext-ready", "ignored");
+      return;
+    }
+    // 保存原始 HTML,滚远后还原成纯文本,防止长文 DOM 无限膨胀
+    this.savedHTML.set(block, block.innerHTML);
+    const spans = this.wrapTextNodes(block, this.doc);
+    block.setAttribute("data-pretext-ready", "true");
+    if (spans.length > 0) {
+      this.activeBlocks.push({ el: block, spans: spans });
+    }
+  }
+
+  /* ============ 还原单个块(滚出较远视口后调用) ============ */
+  unwrapBlock(block) {
+    const saved = this.savedHTML.get(block);
+    if (saved !== undefined) {
+      block.innerHTML = saved;
+      this.savedHTML.delete(block);
+    }
+    block.removeAttribute("data-pretext-ready");
+    this.activeBlocks = this.activeBlocks.filter((b) => b.el !== block);
+  }
+
+  /* ============ 分批消费包裹队列(每帧限时,避免滚动时掉帧) ============ */
+  processPendingWrap() {
+    if (this.pendingWrap.length === 0) {
+      this.isPreparing = false;
+      return;
+    }
+    const startTime = performance.now();
+    while (
+      this.pendingWrap.length > 0 &&
+      performance.now() - startTime < this.chunkTimeMs
+    ) {
+      this.wrapBlock(this.pendingWrap.shift());
+    }
+    if (this.pendingWrap.length > 0) {
+      requestAnimationFrame(this.processPendingWrap.bind(this));
+    } else {
+      this.isPreparing = false;
+    }
+  }
+
+  /* ============ 收集文章内容块并挂 IntersectionObserver(视口懒包裹) ============ */
   prepareIframeText() {
     if (!this.iframe || !this.iframe.contentDocument) {
       this.isPreparing = false;
       return;
     }
     const doc = this.iframe.contentDocument;
+    this.doc = doc;
 
     const articleBody = doc.querySelector(
       ".post-content, .article-content, .markdown-body, #article-container",
@@ -125,7 +191,6 @@ export class PetPretextInteraction {
     }
 
     // ★ 白名单:只有匹配 allowSelector 的元素会参与文字避让
-    //   (表格、引用块等不在名单内,天然被忽略)
     const blocks = articleBody.querySelectorAll(this.allowSelector);
     if (blocks.length === 0) {
       this.isPreparing = false;
@@ -133,43 +198,58 @@ export class PetPretextInteraction {
     }
 
     this.activeBlocks = [];
-    let i = 0;
+    this.pendingWrap = [];
+    this.savedHTML = new Map();
 
-    // 分批处理:每帧最多耗时 chunkTimeMs,避免长文一次性处理造成卡顿
-    const processChunk = () => {
-      const startTime = performance.now();
+    // 优先用 iframe 文档自己的 IntersectionObserver 做视口懒包裹;
+    // 拿不到(老浏览器)时退回旧版行为:一次性分批包裹全部块
+    const IOWrapper = doc.defaultView && doc.defaultView.IntersectionObserver;
+    if (IOWrapper) {
+      if (this.io) this.io.disconnect();
+      this.io = new IOWrapper(
+        (entries) => {
+          if (!this.doc || this.doc !== this.iframe.contentDocument) return;
+          for (const entry of entries) {
+            const el = entry.target;
+            if (entry.isIntersecting) {
+              // 进入"视口上下各一屏"范围:排队包裹
+              if (
+                !el.hasAttribute("data-pretext-ready") &&
+                this.pendingWrap.indexOf(el) === -1
+              ) {
+                this.pendingWrap.push(el);
+                if (!this.isPreparing) {
+                  this.isPreparing = true;
+                  requestAnimationFrame(this.processPendingWrap.bind(this));
+                }
+              }
+            } else {
+              // 离开范围:离得足够远才还原,防止边界上来回抖动
+              const rect = el.getBoundingClientRect();
+              const vh = doc.defaultView.innerHeight;
+              if (rect.top > vh * 2.5 || rect.bottom < -vh * 2.5) {
+                if (el.hasAttribute("data-pretext-ready")) {
+                  this.unwrapBlock(el);
+                }
+              }
+            }
+          }
+        },
+        { root: null, rootMargin: "100% 0px 100% 0px", threshold: 0 },
+      );
+      blocks.forEach((b) => this.io.observe(b));
+    } else {
+      // 降级:一次性分批包裹全部块(旧版行为)
+      this.pendingWrap = Array.prototype.slice.call(blocks);
+    }
 
-      while (
-        i < blocks.length &&
-        performance.now() - startTime < this.chunkTimeMs
-      ) {
-        const block = blocks[i];
-        i++;
-
-        // 已处理过的(或嵌套在已处理块里的)跳过
-        if (block.closest("[data-pretext-ready]")) continue;
-
-        // 超长块(整段贴代码等)直接忽略
-        if (block.textContent && block.textContent.length > this.maxBlockChars) {
-          block.setAttribute("data-pretext-ready", "ignored");
-          continue;
-        }
-
-        const spans = this.wrapTextNodes(block, doc);
-        if (spans.length > 0) {
-          block.setAttribute("data-pretext-ready", "true");
-          this.activeBlocks.push({ el: block, spans: spans });
-        }
-      }
-
-      if (i < blocks.length) {
-        requestAnimationFrame(processChunk);
-      } else {
-        this.isPreparing = false;
-      }
-    };
-
-    requestAnimationFrame(processChunk);
+    if (this.pendingWrap.length > 0 && !this.isPreparing) {
+      this.isPreparing = true;
+      requestAnimationFrame(this.processPendingWrap.bind(this));
+    }
+    this.doc = doc;
+    this.prepared = true;
+    this.preparedDoc = doc;
   }
 
   /* ============ 每帧更新:根据桌宠位置推开附近文字 ============ */
@@ -188,31 +268,28 @@ export class PetPretextInteraction {
     const doc = this.iframe.contentDocument;
     if (!doc) return;
 
-    // 判断切文章:旧块已不在当前文档里则重置
-    if (
-      this.activeBlocks.length > 0 &&
-      !doc.contains(this.activeBlocks[0].el)
-    ) {
-      this.activeBlocks = [];
-      this.isPreparing = false;
+    // 判断切文章:iframe 文档对象变了则彻底重置
+    if (this.preparedDoc !== doc) {
+      this.resetAll();
     }
 
     // 首次/换页:等 iframe 完全加载后开始准备(稍延迟避免页面仍在抖动)
-    if (this.activeBlocks.length === 0 && !this.isPreparing) {
+    if (!this.prepared) {
       if (doc.readyState !== "complete") return;
 
-      this.isPreparing = true;
+      this.prepared = true;
       setTimeout(() => {
-        if (this.iframe && this.iframe.contentDocument) {
+        if (this.iframe && this.iframe.contentDocument === doc) {
           this.prepareIframeText();
-        } else {
-          this.isPreparing = false;
         }
       }, 800);
       return;
     }
 
-    if (this.isPreparing) return;
+    // 清理已经不在文档里的块(还原操作可能已被外界打断)
+    if (this.activeBlocks.length > 0) {
+      this.activeBlocks = this.activeBlocks.filter((b) => doc.contains(b.el));
+    }
 
     const iframeRect = this.iframe.getBoundingClientRect();
 
@@ -231,11 +308,33 @@ export class PetPretextInteraction {
     const petIframeY =
       petScreenY - iframeRect.top + doc.documentElement.scrollTop;
 
-    this.activeBlocks.forEach((blockObj) => {
+    // ★ 读写分离第一步:集中读取。
+    //   先按块 rect 粗筛(只保留"视口内且桌宠附近"的块),
+    //   再把入围块的所有 span 位置一次性读完。
+    const scrollTop = doc.documentElement.scrollTop;
+    const viewH = doc.defaultView.innerHeight;
+    const margin = this.repelRadius + 100;
+
+    const candidates = [];
+    for (const blockObj of this.activeBlocks) {
       const pRect = blockObj.el.getBoundingClientRect();
-      const pTopAbsolute = pRect.top + doc.documentElement.scrollTop;
-      const pBottomAbsolute = pRect.bottom + doc.documentElement.scrollTop;
-      const margin = this.repelRadius + 100;
+      const pTopAbsolute = pRect.top + scrollTop;
+      const pBottomAbsolute = pRect.bottom + scrollTop;
+
+      // 块完全不在视口内:跳过(不读它的 span)
+      if (pBottomAbsolute < scrollTop - 50 || pTopAbsolute > scrollTop + viewH + 50) {
+        // 滚出视口但可能残留位移,便宜地整体复位
+        blockObj.spans.forEach((span) => {
+          if (
+            span.style.transform !== "translate(0px, 0px)" &&
+            span.style.transform !== ""
+          ) {
+            span.style.transform = "translate(0px, 0px)";
+            span.style.zIndex = "1";
+          }
+        });
+        continue;
+      }
 
       // 块整体远离桌宠:复位该块的所有字符
       if (
@@ -251,15 +350,26 @@ export class PetPretextInteraction {
             span.style.zIndex = "1";
           }
         });
-        return;
+        continue;
       }
 
-      // 块在桌宠附近:逐字符计算斥力位移
-      blockObj.spans.forEach((span) => {
+      // 块在桌宠附近:集中读出所有 span 的中心点
+      const spanPos = [];
+      for (const span of blockObj.spans) {
         const rect = span.getBoundingClientRect();
-        const spanX = rect.left + rect.width / 2;
-        const spanY =
-          rect.top + doc.documentElement.scrollTop + rect.height / 2;
+        spanPos.push([
+          rect.left + rect.width / 2,
+          rect.top + scrollTop + rect.height / 2,
+        ]);
+      }
+      candidates.push({ blockObj, spanPos });
+    }
+
+    // ★ 读写分离第二步:集中写入,期间不再触发任何布局读取
+    for (const { blockObj, spanPos } of candidates) {
+      blockObj.spans.forEach((span, idx) => {
+        const spanX = spanPos[idx][0];
+        const spanY = spanPos[idx][1];
 
         const dx = spanX - petIframeX;
         const dy = spanY - petIframeY;
@@ -280,7 +390,7 @@ export class PetPretextInteraction {
           span.style.zIndex = "1";
         }
       });
-    });
+    }
   }
 
   /* ============ 复原全部文字 ============ */
@@ -296,5 +406,20 @@ export class PetPretextInteraction {
         }
       });
     });
+  }
+
+  /* ============ 切换文章/关闭模态时彻底清理 ============ */
+  resetAll() {
+    this.activeBlocks = [];
+    this.pendingWrap = [];
+    this.isPreparing = false;
+    if (this.io) {
+      this.io.disconnect();
+      this.io = null;
+    }
+    this.savedHTML = new Map();
+    this.doc = null;
+    this.prepared = false;
+    this.preparedDoc = null;
   }
 }

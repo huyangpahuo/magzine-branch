@@ -71,6 +71,24 @@ document.addEventListener("DOMContentLoaded", function () {
   // ================= 2. 微信分享功能 (自动生成当前页二维码) =================
   const wechatButtons = document.querySelectorAll(".share-btn.wechat");
 
+  // ★ 性能修改:QRCode 库按需加载。
+  //   原先 <head> 里同步引入 cdnjs 的 qrcode.min.js,阻塞每个页面的解析,
+  //   但只有点"微信分享"那一下才用到;改为点击时动态注入,加载失败走 API 兜底。
+  let qrcodeLoading = null;
+  function ensureQRCode() {
+    if (typeof QRCode !== "undefined") return Promise.resolve();
+    if (qrcodeLoading) return qrcodeLoading;
+    qrcodeLoading = new Promise((resolve) => {
+      const s = document.createElement("script");
+      s.src =
+        "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";
+      s.onload = () => resolve();
+      s.onerror = () => resolve(); // 加载失败也放行,走 API 兜底
+      document.head.appendChild(s);
+    });
+    return qrcodeLoading;
+  }
+
   // 定义关闭函数
   function closeWechatModal() {
     const existingModal = document.querySelector(".wechat-share-modal");
@@ -133,11 +151,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
       document.body.appendChild(modal);
 
-      // 生成二维码逻辑
+      // 生成二维码逻辑(先确保 QRCode 库已按需加载)
       setTimeout(() => {
         const qrContainer = modal.querySelector("#wechat-qrcode");
-        if (qrContainer) {
-          // 清空容器，防止重复
+        if (!qrContainer) return;
+        qrContainer.innerHTML = "";
+
+        ensureQRCode().then(() => {
+          // 清空容器，防止重复(库加载期间可能已生成过)
           qrContainer.innerHTML = "";
 
           // 优先使用 QRCode 库 (如果是本地库)
@@ -162,7 +183,7 @@ document.addEventListener("DOMContentLoaded", function () {
             // 如果没有库，使用 API 兜底
             useApiFallback(qrContainer, url);
           }
-        }
+        });
       }, 50);
 
       // 绑定关闭事件

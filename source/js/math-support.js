@@ -1,70 +1,99 @@
 // MathJax 配置与加载脚本
+// ★ 性能修改(2026-09):
+//   1. 只有页面正文确实包含公式标记($...$、\(...\)、\[...\])时才下载
+//     MathJax——绝大多数页面零公式,不再为它付出 ~1MB 脚本的请求与解析;
+//   2. 下载推迟到浏览器空闲(requestIdleCallback),不与首屏渲染抢主线程。
 (function () {
-  // 1. 配置 MathJax
-  window.MathJax = {
-    tex: {
-      inlineMath: [
-        ["$", "$"],
-        ["\\(", "\\)"],
-      ],
-      displayMath: [
-        ["$$", "$$"],
-        ["\\[", "\\]"],
-      ],
-      processEscapes: true,
-    },
-    chtml: {
-      scale: 0.9, 
-      matchFontHeight: true, 
-    },
-    options: {
-      skipHtmlTags: ["script", "noscript", "style", "textarea", "pre", "code"],
-    },
-    startup: {
-      pageReady: () => {
-        return MathJax.startup.defaultPageReady().then(() => {
-          console.log("MathJax initialised");
+  function pageHasMath() {
+    var scope = document.querySelector(".post-content") || document.body;
+    var text = scope ? scope.textContent : "";
+    // $...$ / $$...$$ / \( ... \) / \[ ... \]
+    return (
+      /\$[^$\n]{1,200}\$/.test(text) ||
+      text.indexOf("\\(") !== -1 ||
+      text.indexOf("\\[") !== -1
+    );
+  }
 
-          // --- 新增：长数学公式横向滚动交互逻辑 ---
-          
-          // 获取所有块级公式的容器 (MathJax 3 默认使用 mjx-container 标签)
-          const displayMathContainers = document.querySelectorAll('mjx-container[display="true"]');
+  // MathJax 本体加载前必须先挂好配置,这里保持原配置不变
+  function boot() {
+    if (document.getElementById("MathJax-script")) return;
 
-          displayMathContainers.forEach(container => {
-            // 1. 赋予基础 CSS 滚动属性
-            container.style.overflowX = 'auto';
-            container.style.overflowY = 'hidden';
-            container.style.maxWidth = '100%';
-            
-            // 可选：为了更平滑的视觉体验，可以加上平滑滚动
-            // container.style.scrollBehavior = 'smooth';
-
-            // 2. 监听滚轮事件
-            container.addEventListener('wheel', (e) => {
-              // 判断：只有当容器内容实际溢出时（可滚动），才接管事件
-              if (container.scrollWidth > container.clientWidth) {
-                
-                // 仅当用户使用的是普通鼠标滚轮（只有垂直滚动量 deltaY，没有横向滚动量 deltaX）时
-                if (Math.abs(e.deltaY) > 0 && e.deltaX === 0) {
-                  // 阻止页面整体向下滚动
-                  e.preventDefault();
-                  // 将滚轮的垂直滚动量映射到容器的横向滚动条上
-                  container.scrollLeft += e.deltaY;
-                }
-              }
-            }, { passive: false }); // 必须设置为 passive: false 才能使 e.preventDefault() 生效
-          });
-          
-          // ----------------------------------------
-        });
+    // 1. 配置 MathJax
+    window.MathJax = {
+      tex: {
+        inlineMath: [
+          ["$", "$"],
+          ["\\(", "\\)"],
+        ],
+        displayMath: [
+          ["$$", "$$"],
+          ["\\[", "\\]"],
+        ],
+        processEscapes: true,
       },
-    },
-  };
+      chtml: {
+        scale: 0.9,
+        matchFontHeight: true,
+      },
+      options: {
+        skipHtmlTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+      },
+      startup: {
+        pageReady: () => {
+          return MathJax.startup.defaultPageReady().then(() => {
+            // --- 长数学公式横向滚动交互逻辑 ---
+            const displayMathContainers = document.querySelectorAll(
+              'mjx-container[display="true"]',
+            );
 
-  // 2. 动态加载 MathJax 脚本
-  let script = document.createElement("script");
-  script.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js";
-  script.async = true;
-  script.id = "MathJax-script";
-  document.head.appendChild(script);
+            displayMathContainers.forEach((container) => {
+              container.style.overflowX = "auto";
+              container.style.overflowY = "hidden";
+              container.style.maxWidth = "100%";
+
+              container.addEventListener(
+                "wheel",
+                (e) => {
+                  if (container.scrollWidth > container.clientWidth) {
+                    if (Math.abs(e.deltaY) > 0 && e.deltaX === 0) {
+                      e.preventDefault();
+                      container.scrollLeft += e.deltaY;
+                    }
+                  }
+                },
+                { passive: false },
+              );
+            });
+          });
+        },
+      },
+    };
+
+    // 2. 动态加载 MathJax 脚本
+    let script = document.createElement("script");
+    script.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js";
+    script.async = true;
+    script.id = "MathJax-script";
+    document.head.appendChild(script);
+  }
+
+  function start() {
+    if (!pageHasMath()) return; // 无公式页面:完全不加载 MathJax
+    if ("requestIdleCallback" in window) {
+      requestIdleCallback(boot, { timeout: 3000 });
+    } else {
+      setTimeout(boot, 200);
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", start);
+  } else {
+    start();
+    // pjax 换页后正文可能变化,重新检测
+    document.addEventListener("DOMContentLoaded", function () {
+      if (!document.getElementById("MathJax-script")) start();
+    });
+  }
 })();

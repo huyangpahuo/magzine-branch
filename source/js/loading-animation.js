@@ -18,7 +18,10 @@ document.addEventListener('DOMContentLoaded', function() {
     document.body.appendChild(loadingOverlay);
 
     // 页面完全加载后隐藏加载动画
-    window.addEventListener('load', function() {
+    // ★ 性能修改:改为 DOMContentLoaded 后短暂延迟即隐藏。
+    //   原先监听 window 'load',要等所有图片(包括境外慢速/被墙资源)下载完,
+    //   加载遮罩会盖住早已渲染好的页面十几秒。
+    function hideOverlay() {
       setTimeout(function() {
         loadingOverlay.style.opacity = '0';
         loadingOverlay.style.visibility = 'hidden';
@@ -29,7 +32,15 @@ document.addEventListener('DOMContentLoaded', function() {
             document.body.removeChild(loadingOverlay);
           }
         }, 500); // 等待淡出动画完成
-      }, 300); // 短暂延迟以确保内容已渲染
-    });
+      }, 400); // 短暂延迟以确保内容已渲染
+    }
+    hideOverlay();
+    // 兜底:万一 4 秒后还没隐藏(异常情况),强制隐藏
+    setTimeout(function() {
+      if (document.body.contains(loadingOverlay)) {
+        loadingOverlay.style.opacity = '0';
+        loadingOverlay.style.visibility = 'hidden';
+      }
+    }, 4000);
   }
 });

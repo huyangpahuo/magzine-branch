@@ -254,7 +254,7 @@ comments:
   shortname:
   # Twikoo configuration
   twikoo:
-    envId: "https://twikoo-five-ruby.vercel.app" # Your environment ID
+    envId: "" # Your environment ID
     region: # Your service region, e.g. ap-guangzhou
     path: window.location.pathname # Default is window.location.pathname
     visitor: true # Enable visitor count
@@ -315,41 +315,52 @@ theme_config:
     cache: true
 
 # 图片压缩功能 (需安装 sharp 依赖: npm install sharp)
-# 注意:触发压缩的方法为先hexo clean清理public文件夹,然后连续执行两次hexo generate命令,第一次是生成图片,第二次才会触发压缩,最后hexo deploy发布
-# 或者执行hexo clean + hexo generate + hexo server命令,在本地预览时触发压缩,然后直接hexo deploy发布
+# ★ 2026-09 升级为"路由流"实现:一次 hexo generate 即自动完成,
+#   不再需要连续执行两次;hexo server 本地预览看到的也是压缩后的图片。
+# ★ mode: "webp" = png/jpg/jpeg 转为 webp,所有页面/样式/脚本里的引用
+#   会在构建时自动改写为 .webp,文章和配置无需任何改动;
+#   mode: "keep" = 保留原格式,仅压缩体积。
+# ★ 建议 webp 模式搭配 hexo clean 使用,避免 public 残留旧 .png 文件。
 compress_images:
-  enable: false # 是否开启图片压缩 (默认关闭，改为 true 开启)
-  min_size: 10240 # 最小压缩大小，小于此大小(10KB)的图片不压缩
-  ignore: [] # 忽略的图片格式，例如: ['.gif', '.svg']
+  enable: true # 是否开启图片压缩 (默认开启)
+  mode: "webp" # "webp"(推荐) 或 "keep"
+  convert: [".png", ".jpg", ".jpeg"] # webp 模式下参与转换的扩展名(gif 转换耗时长,默认不含)
+  max_width: 1920 # 宽度超过此值等比缩小;0 = 不限制
+  min_size: 10240 # 小于此大小(10KB)的图片不处理
+  ignore: [] # 忽略的图片格式,例如 ['.gif', '.svg']
+  # protect 下的路径前缀不转换也不压缩:供 JS 运行时动态拼接路径的资源使用
+  # (桌宠精灵图、阿尼亚光标帧都是代码里拼文件名的,改了扩展名会找不到)
+  protect: ["/images/pet/", "/cursors/"]
   quality: # 各种格式的压缩质量 (0-100)
-    jpeg: 60
-    png: 60
-    webp: 70
+    jpeg: 80
+    png: 80
+    webp: 75
     avif: 60
-    gif: 60
+    gif: 80
 
 # Custom code injection
 inject:
   head:
     # Custom CSS
     # - <link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'">
+    # ★ 性能修改:Font Awesome 已在 layout.pug 本地化引入(lib/font-awesome),此处删除重复的 cdnjs 外链
     - <link rel="stylesheet" href="https://cdn1.tianli0.top/gh/qxchuckle/Post-Summary-AI/chuckle-post-ai.css"> #AI
-    - <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   bottom:
     # Custom JavaScript
     # - <script src="/js/xxx"></script>
-    - <script src="/js/ai.js"></script> #ai
-    - <script src="/js/postai.js"></script> #ai
+    # ★ 性能修改:注入脚本统一加 defer,不再阻塞页面解析
+    - <script defer src="/js/ai.js"></script> #ai
+    - <script defer src="/js/postai.js"></script> #ai
     #以下是数学公式支持
-    - <script src="/js/math-support.js"></script> # 数学公式
+    - <script defer src="/js/math-support.js"></script> # 数学公式
     #以下是鼠标点击效果
-    - <script src="/js/click-heart.js"></script> # 鼠标点击爱心文字特效
-    - <script src="/js/click-fireworks.js"></script> # 鼠标点击三角烟花特效(与爱心特效二选一,由读者设置决定)
+    - <script defer src="/js/click-heart.js"></script> # 鼠标点击爱心文字特效
+    - <script defer src="/js/click-fireworks.js"></script> # 鼠标点击三角烟花特效(与爱心特效二选一,由读者设置决定)
 
     #以下是背景动画特效
-    - <script src="/js/falling-leaves.js"></script> # 梧桐落叶特效
+    - <script defer src="/js/falling-leaves.js"></script> # 梧桐落叶特效
     #以下是语言切换支持
-    - <script src="/js/lang-switch.js"></script> # 语言切换脚本
+    - <script defer src="/js/lang-switch.js"></script> # 语言切换脚本
 
 # 语言切换功能
 #本主题翻译功能不是很成熟,不满足i18n需求,只满足中英转换,请前往themes\magzine\source\js\lang-switch.js自定义翻译文本

@@ -99,6 +99,12 @@
     img.src = record.cover || "";
     img.alt = record.title || "";
     img.loading = "lazy";
+    // ★ 兜底:localStorage 里记录的封面路径可能已失效(如图片转为 webp 后
+    //   旧 .png 路径不存在),加载失败时移除图片避免显示破图;
+    //   记录会在读者下次打开文章时自动刷新为新路径。
+    img.addEventListener("error", function () {
+      if (img.parentElement) img.remove();
+    });
     imgLink.appendChild(img);
     var overlay = document.createElement("div");
     overlay.className = "read-overlay";

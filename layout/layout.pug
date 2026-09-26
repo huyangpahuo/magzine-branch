@@ -32,16 +32,12 @@ html(lang=config.language)
         document.documentElement.classList.add('is-iframe');
       }
 
-    //- Fonts
-    link(rel="preconnect", href="https://fonts.googleapis.com")
-    link(rel="preconnect", href="https://fonts.gstatic.com", crossorigin)
-    link(href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap", rel="stylesheet")
+    //- 字体:移除 Google Fonts(境内不可达且阻塞渲染),回退到字体栈里的系统字体。
+    //- 需要 Inter/Playfair Display 时可自行下载子集放入 lib/ 后本地引入。
 
-    //- Font Awesome Icons
-    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
-
-    //- QR Code library for WeChat sharing
-    script(src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js")
+    //- Font Awesome Icons (本地化,不再依赖 cdnjs)
+    link(rel="preload", href=url_for('lib/font-awesome/webfonts/fa-solid-900.woff2'), as="font", type="font/woff2", crossorigin)
+    link(rel="stylesheet", href=url_for('lib/font-awesome/all.min.css'))
 
     //- RSS
     if config.feed && config.feed.path
@@ -65,7 +61,7 @@ html(lang=config.language)
     != css('css/search')
     != css('css/scrollbar')
     != css('css/timeline')
-    != css('css/animations')
+    //- ★ animations.css 在主题中不存在(历史遗留引用,每页产生一个 404),已移除
     != css('css/ai-theme')
     != css('css/loading-animation')
     != css('css/article-modal')
@@ -152,65 +148,66 @@ html(lang=config.language)
     if theme.features && theme.features.dark_mode
       script.
         (function() {
-          // 【修改点 2】底部脚本：同样逻辑，默认为 true
           var savedDarkMode = localStorage.getItem('darkMode');
           var shouldBeDark = savedDarkMode === null ? true : savedDarkMode === 'true';
 
           if (shouldBeDark) {
             document.body.classList.add('dark-mode');
           }
-
-          // 防止页面闪烁，在DOM加载完成前设置一个初始类
-          document.documentElement.style.visibility = 'hidden';
-          document.addEventListener('DOMContentLoaded', function() {
-            document.documentElement.style.visibility = 'visible';
-          });
+          // ★ 性能修改:删除了原先 "visibility:hidden 直到 DOMContentLoaded" 的白屏锁。
+          //   它会把所有阻塞资源的耗时叠加成整页白屏;暗色防闪已由 <head> 里的
+          //   documentElement.classList 提前完成,不再需要整页隐藏。
         })();
 
     //- Scripts
-    != js('js/main')
-    != js('js/tags')
-    != js('js/categories-accordion')
-    != js('js/categories-explorer')
-    != js('js/highlight')
-    != js('js/load-more')
-    != js('js/header-scroll')
-    != js('js/toc')
-    != js('js/image-zoom')
-    != js('js/mermaid')
-    != js('js/share')
-    != js('js/search')
-    != js('js/hide-inline-interaction')
-    != js('js/hide-toggle-interaction')
-    != js('js/dark-mode-sync')
-    != js('js/animations')
-    != js('js/ai-theme')
-    != js('js/loading-animation')
-    != js('js/article-modal')
-    != js('js/music-player')  
-    != js('js/wall')
-    != js('js/anime')
-    != js('js/about')
-    != js('js/link')
-    != js('js/shake-shuffle')
-    != js('js/random-cards')
-    != js('js/table')
-    != js('js/video-embed')
-    != js('js/mobile-scale')
-    != js('js/carousel')
+    //- ★ 性能修改:全部加 defer——不阻塞 HTML 解析,首屏文字可以先渲染;
+    //-   defer 保持文档顺序执行,且仍在 DOMContentLoaded 之前跑完,
+    //-   各脚本里监听 DOMContentLoaded 的初始化逻辑不受影响(pjax 换页也会重新派发该事件)。
+    script(defer, src=url_for('js/main.js'))
+    //- ★ 内容按视口加载:代码块/表格/图表/公式/视频离屏不渲染(模态与直链通用)
+    script(defer, src=url_for('js/content-lazy.js'))
+    script(defer, src=url_for('js/tags.js'))
+    script(defer, src=url_for('js/categories-accordion.js'))
+    script(defer, src=url_for('js/categories-explorer.js'))
+    script(defer, src=url_for('js/highlight.js'))
+    script(defer, src=url_for('js/load-more.js'))
+    script(defer, src=url_for('js/header-scroll.js'))
+    script(defer, src=url_for('js/toc.js'))
+    script(defer, src=url_for('js/image-zoom.js'))
+    script(defer, src=url_for('js/mermaid.js'))
+    script(defer, src=url_for('js/share.js'))
+    script(defer, src=url_for('js/search.js'))
+    script(defer, src=url_for('js/hide-inline-interaction.js'))
+    script(defer, src=url_for('js/hide-toggle-interaction.js'))
+    script(defer, src=url_for('js/dark-mode-sync.js'))
+    //- js/animations.js 在主题中不存在(历史遗留引用,每页产生一个 404),已移除
+    script(defer, src=url_for('js/ai-theme.js'))
+    script(defer, src=url_for('js/loading-animation.js'))
+    script(defer, src=url_for('js/article-modal.js'))
+    script(defer, src=url_for('js/music-player.js'))
+    script(defer, src=url_for('js/wall.js'))
+    script(defer, src=url_for('js/anime.js'))
+    script(defer, src=url_for('js/about.js'))
+    script(defer, src=url_for('js/link.js'))
+    script(defer, src=url_for('js/shake-shuffle.js'))
+    script(defer, src=url_for('js/random-cards.js'))
+    script(defer, src=url_for('js/table.js'))
+    script(defer, src=url_for('js/video-embed.js'))
+    script(defer, src=url_for('js/mobile-scale.js'))
+    script(defer, src=url_for('js/carousel.js'))
 
     //- 阿尼亚自定义鼠标指针(帧数据由转换脚本生成;可在 config.yml 关闭)
     if theme.cursor && theme.cursor.enable
-      != js('cursors/anya/data')
-      != js('js/anya-cursor')
+      script(defer, src=url_for('cursors/anya/data.js'))
+      script(defer, src=url_for('js/anya-cursor.js'))
 
     //- PJAX 无感刷新(自研实现,放最后加载;可在 config.yml 关闭)
     if theme.pjax && theme.pjax.enable !== false
-      != js('js/pjax-init')
+      script(defer, src=url_for('js/pjax-init.js'))
 
     //- 最后阅读的文章置顶(可在 config.yml 关闭)
     if theme.last_read_pin && theme.last_read_pin.enable !== false
-      != js('js/last-read-pin')
+      script(defer, src=url_for('js/last-read-pin.js'))
 
     // 传递图片配置给 JS
     script.

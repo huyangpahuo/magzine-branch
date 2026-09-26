@@ -41,6 +41,10 @@
   }
 
   // 4. 动画循环
+  // ★ 性能修改:粒子全部消散后停止 rAF 循环,点击时再唤醒。
+  //   原先循环永不停止,即使画布上什么都没有也在每帧 clearRect 空转。
+  let running = false;
+
   function loop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -80,11 +84,19 @@
       ctx.restore();
     }
 
-    requestAnimationFrame(loop);
+    if (particles.length > 0) {
+      requestAnimationFrame(loop);
+    } else {
+      running = false;
+    }
   }
 
-  // 启动动画
-  loop();
+  function wake() {
+    if (!running) {
+      running = true;
+      requestAnimationFrame(loop);
+    }
+  }
 
   // 5. 绑定点击事件
   document.addEventListener("mousedown", function (e) {
@@ -98,5 +110,8 @@
     for (let i = 0; i < 15; i++) {
       particles.push(createParticle(e.clientX, e.clientY, currentAccentColor));
     }
+
+    // 有粒子了,唤醒动画循环
+    wake();
   });
 })();

@@ -71,16 +71,16 @@ if theme.sakana && theme.sakana.enable
       transform-origin: 50% 400px; background: no-repeat 50% 50%; background-size: cover;
     }
     .sakana-box .sakana-character[data-character="chisato"] {
-      background-image: url('https://raw.githubusercontent.com/itorr/sakana/main/html/chisato.png');
+      background-image: url('#{url_for("images/sakana/chisato.png")}');
     }
     .sakana-box .sakana-character[data-character="takina"] {
-      background-image: url('https://raw.githubusercontent.com/itorr/sakana/main/html/takina.png');
+      background-image: url('#{url_for("images/sakana/takina.png")}');
     }
-    .sakana-box .sakana-bed {
+    .sakana-bed {
       width: 160px; height: 20px; position: absolute; left: 0; right: 0;
       margin: 0 auto; bottom: 0; background: rgba(255,255,255,.5) no-repeat 50% 50%;
       border-radius: 2px; cursor: pointer; pointer-events: auto;
-      background-image: url('https://raw.githubusercontent.com/itorr/sakana/main/html/blue00f4.png');
+      background-image: url('#{url_for("images/sakana/blue00f4.png")}');
       background-size: 20px 20px; box-shadow: 0 0 0 2px rgba(0,0,0,.05);
     }
 

@@ -78,9 +78,24 @@
     return animated.indexOf("normal") !== -1 ? "normal" : animated[0];
   }
 
+  // ★ 性能修改:鼠标闲置 2 秒后暂停帧动画。
+  //   每 16ms 改一次 <html> 的 CSS 变量会让全文档样式失效重算,
+  //   而指针静止时没人盯着光标动画看;一动就恢复,视觉上无感。
+  var lastActive = Date.now();
+  ["mousemove", "pointerdown", "keydown", "wheel"].forEach(function (evt) {
+    document.addEventListener(
+      evt,
+      function () {
+        lastActive = Date.now();
+      },
+      { passive: true },
+    );
+  });
+
   function start() {
     if (timer) return;
     timer = setInterval(function () {
+      if (Date.now() - lastActive > 2000) return; // 闲置:跳过本轮,不写 CSS 变量
       tick++;
       apply();
     }, ms);

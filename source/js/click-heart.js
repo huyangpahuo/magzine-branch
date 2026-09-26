@@ -161,8 +161,11 @@
   };
 
   // 4. 动画循环
+  // ★ 性能修改:粒子全部消散后停止 rAF 循环,点击时再唤醒,
+  //   不再在没有粒子时每帧空转 clearRect。
+  let running = false;
+
   function loop() {
-    requestAnimationFrame(loop);
     ctx.clearRect(0, 0, width, height);
 
     for (let i = 0; i < particles.length; i++) {
@@ -174,12 +177,24 @@
         i--;
       }
     }
+
+    if (particles.length > 0) {
+      requestAnimationFrame(loop);
+    } else {
+      running = false;
+    }
   }
-  loop();
+
+  function wake() {
+    if (!running) {
+      running = true;
+      requestAnimationFrame(loop);
+    }
+  }
 
   // 5. 点击监听
   document.addEventListener("mousedown", function (e) {
-    // 每次点击时，获取一次最新的主题色
+    // 每次点击时,获取一次最新的主题色
     currentAccentColor =
       getComputedStyle(document.documentElement)
         .getPropertyValue("--accent-color")
@@ -189,5 +204,8 @@
     for (let i = 0; i < count; i++) {
       particles.push(new Particle(e.clientX, e.clientY, currentAccentColor));
     }
+
+    // 有粒子了,唤醒动画循环
+    wake();
   });
 })();

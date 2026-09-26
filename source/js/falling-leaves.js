@@ -127,12 +127,24 @@
     }
   };
 
+  // ★ 性能修改:主题色缓存,每 2 秒失效重取一次。
+  //   原先每片叶子每帧都 getComputedStyle(document.documentElement),
+  //   是常驻的强制样式计算开销。
+  let cachedAccentColor = null;
+  setInterval(function () {
+    cachedAccentColor = null;
+  }, 2000);
+
   Leaf.prototype.draw = function () {
     // 获取全局主题色（如果没有获取到，降级为黑色）
-    let accentColor =
-      getComputedStyle(document.documentElement)
-        .getPropertyValue("--accent-color")
-        .trim() || "#ff6b6b";
+    let accentColor = cachedAccentColor;
+    if (accentColor === null) {
+      accentColor =
+        getComputedStyle(document.documentElement)
+          .getPropertyValue("--accent-color")
+          .trim() || "#ff6b6b";
+      cachedAccentColor = accentColor;
+    }
 
     ctx.save();
     ctx.translate(this.x, this.y);
