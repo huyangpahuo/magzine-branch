@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
     首页: "Home",
     "© 2025 胡杨怕火. 保留所有权利.":
       "© 2025 Huyangpahuo. All rights reserved.",
-    "向下滚动探索更多": "Scroll Down to Explore More",
+    向下滚动探索更多: "Scroll Down to Explore More",
 
     // 首页 Hero 特效面板
     特效: "Effects",
@@ -38,11 +38,11 @@ document.addEventListener("DOMContentLoaded", function () {
     随机喷发: "Random Splat",
 
     // 刚读过(原"置顶已阅读文章")与代码块
-    "刚读过": "Recently Read",
-    "刚读过置顶": "Pin Recently Read",
-    "展开代码": "Expand Code",
-    "折叠代码": "Collapse Code",
-    "复制代码": "Copy Code",
+    刚读过: "Recently Read",
+    刚读过置顶: "Pin Recently Read",
+    展开代码: "Expand Code",
+    折叠代码: "Collapse Code",
+    复制代码: "Copy Code",
 
     // 关于
     暂无数据: "No Data",
@@ -433,6 +433,7 @@ document.addEventListener("DOMContentLoaded", function () {
     三角烟花: "Triangle Fireworks",
     封面: "Cover",
     启用封面: "Enable Cover",
+    启用首页特效: "Enable Hero Effects",
     文章浏览: "Article Reading",
     浏览方式: "View Mode",
     模态窗口: "Modal Window",
@@ -693,7 +694,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function setupLanguageButton() {
     const buttons = document.querySelectorAll(
-      'a[href*="#lang-switch"], .lang-toggle-mobile'
+      'a[href*="#lang-switch"], .lang-toggle-mobile',
     );
     buttons.forEach((btn) => {
       btn.removeAttribute("href");
