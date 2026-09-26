@@ -232,7 +232,7 @@ export class PetLayers {
       left:${posX - sz / 2}px; top:${posY - sz / 2}px;
       opacity:${alpha};
       transition: opacity ${life}s ease-out;
-      z-index:99994;
+      z-index:2001;
     `;
 
     // 直接挂到 body 上，这样粒子留在原地不跟随角色移动

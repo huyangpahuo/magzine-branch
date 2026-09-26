@@ -11,6 +11,13 @@ document.addEventListener("DOMContentLoaded", function () {
       "© 2025 Huyangpahuo. All rights reserved.",
     "向下滚动探索更多": "Scroll Down to Explore More",
 
+    // 刚读过(原"置顶已阅读文章")与代码块
+    "刚读过": "Recently Read",
+    "刚读过置顶": "Pin Recently Read",
+    "展开代码": "Expand Code",
+    "折叠代码": "Collapse Code",
+    "复制代码": "Copy Code",
+
     // 关于
     暂无数据: "No Data",
     关于: "About",

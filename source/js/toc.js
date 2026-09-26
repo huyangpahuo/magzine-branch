@@ -95,6 +95,10 @@ document.addEventListener("DOMContentLoaded", function () {
   // 初始化活动目录项
   updateActiveTocItem();
 
+  // ★ 记住上一次的活动标题:自动展开只在"活动标题变化"时执行一次。
+  //   否则每次滚动都会把用户手动折叠的层级重新展开,导致"无法折叠"。
+  let lastActiveHeading = null;
+
   // 监听滚动事件，更新活动目录项
   let ticking = false;
   window.addEventListener("scroll", function () {
@@ -161,20 +165,23 @@ document.addEventListener("DOMContentLoaded", function () {
         );
         if (activeLink) {
           activeLink.classList.add("active");
-          // 自动展开当前标题所在的层级路径(两侧目录同步处理)
-          document
-            .querySelectorAll(
-              '.toc-content a[href="#' + currentHeading + '"]',
-            )
-            .forEach(function (lnk) {
-              let li = lnk.closest("li");
-              while (li) {
-                li.classList.remove("collapsed");
-                li = li.parentElement
-                  ? li.parentElement.closest("li")
-                  : null;
-              }
-            });
+          // 只在活动标题变化时自动展开其路径(不覆盖用户手动折叠)
+          if (currentHeading !== lastActiveHeading) {
+            lastActiveHeading = currentHeading;
+            document
+              .querySelectorAll('.toc-content a[href="#' + currentHeading + '"]')
+              .forEach(function (lnk) {
+                let li = lnk.closest("li");
+                while (li) {
+                  li.classList.remove("collapsed");
+                  li = li.parentElement
+                    ? li.parentElement.closest("li")
+                    : null;
+                }
+              });
+          }
+        } else if (currentHeading !== lastActiveHeading) {
+          lastActiveHeading = currentHeading;
         }
       } catch (e) {
         // 如果选择器报错（极少见情况），忽略

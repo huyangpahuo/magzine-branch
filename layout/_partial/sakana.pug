@@ -8,7 +8,8 @@ if theme.sakana && theme.sakana.enable
       position: fixed;
       bottom: 40px; 
       left: 30px; 
-      z-index: 9998;
+      /* ★ 层级:文章模态(1000)之后、正文之上,与落叶同层 */
+      z-index: 998;
       pointer-events: none;
       transform: scale(0.3);
       transform-origin: left bottom;

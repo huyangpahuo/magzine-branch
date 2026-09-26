@@ -74,6 +74,39 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("valine-comments") ||
     document.getElementById("gitalk-container");
 
+  // ==========================================
+  // 3. 兜底:评论后端(如部署在境外 vercel)不可达时,
+  //    照片墙会一直空白——超时后直接用配置的图片生成展示卡,
+  //    保证照片墙永远有内容(评论恢复后以真实评论为准)
+  // ==========================================
+  let fallbackFired = false;
+  setTimeout(function () {
+    if (fallbackFired) return;
+    if (document.querySelectorAll(".photo-card").length > 0) return;
+    const hasComments =
+      document.querySelectorAll(".tk-comment, .vcard, .gt-comment").length > 0;
+    if (hasComments) return;
+
+    const images = window.photoWallImages || [];
+    if (images.length === 0) return;
+    if (emptyTip) emptyTip.style.display = "none";
+
+    const fallbackMsgs = [
+      "Ciallo~ (∠・ω< )⌒☆",
+      "评论后端打了个盹…",
+      "等评论醒了我再换上留言~",
+      "先看照片,留言稍后再来",
+    ];
+    images.forEach(function (img, i) {
+      createPhotoCard(
+        i === 0 ? "胡杨怕火" : "神秘旅人",
+        fallbackMsgs[i % fallbackMsgs.length],
+        img,
+        i,
+      );
+    });
+  }, 6000);
+
   if (commentContainer) {
     const observer = new MutationObserver((mutations) => {
       let shouldRender = false;
@@ -87,13 +120,38 @@ document.addEventListener("DOMContentLoaded", function () {
       });
       if (shouldRender) {
         renderPhotos();
+        // 评论真实到达后标记,不再触发兜底
+        if (
+          document.querySelectorAll(".tk-comment, .vcard, .gt-comment")
+            .length > 0
+        ) {
+          fallbackFired = true;
+        }
       }
     });
     // 开始监听评论区 DOM 的变化
     observer.observe(commentContainer, { childList: true, subtree: true });
 
+
     // 初始尝试渲染一次 (应对网页秒开、缓存加载的情况)
     setTimeout(renderPhotos, 500);
+
+    // ★ 竞速修复:twikoo 本地化后评论渲染可能快于本脚本的观察器注册
+    //   (defer 脚本要等 DOMContentLoaded,评论可能已经画完了),
+    //   MutationObserver 接不住"注册前发生的变化",补一个轮询。
+    let pollCount = 0;
+    const poll = setInterval(function () {
+      const has =
+        document.querySelectorAll(".tk-comment, .vcard, .gt-comment")
+          .length > 0;
+      if (has || ++pollCount > 25) {
+        clearInterval(poll);
+      }
+      if (has) {
+        renderPhotos();
+        fallbackFired = true; // 有真实评论,不再走展示兜底
+      }
+    }, 800);
   }
 
   // ==========================================
