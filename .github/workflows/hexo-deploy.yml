@@ -1,60 +1,60 @@
-# # Hexo 构建并发布到 GitHub Pages
-# # ★ 图片压缩/WebP 转换在 hexo generate 内自动完成(主题自带,无需额外步骤)。
-# # ★ 使用方法:
-# #   1. 仓库 Settings -> Pages -> Source 选择 "GitHub Actions"
-# #   2. 把下面的 branches 改成你的默认分支(main 或 master)
-# name: Deploy Hexo to GitHub Pages
+# Hexo 构建并发布到 GitHub Pages
+# ★ 图片压缩/WebP 转换在 hexo generate 内自动完成(主题自带,无需额外步骤)。
+# ★ 使用方法:
+#   1. 仓库 Settings -> Pages -> Source 选择 "GitHub Actions"
+#   2. 把下面的 branches 改成你的默认分支(main 或 master)
+name: Deploy Hexo to GitHub Pages
 
-# on:
-#   push:
-#     branches: [main]
-#   workflow_dispatch:
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
 
-# permissions:
-#   contents: read
-#   pages: write
-#   id-token: write
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
-# concurrency:
-#   group: pages
-#   cancel-in-progress: true
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
-# jobs:
-#   build:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Checkout
-#         uses: actions/checkout@v4
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-#       - name: Setup Node.js
-#         uses: actions/setup-node@v4
-#         with:
-#           node-version: 20
-#           cache: npm
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
 
-#       - name: Install dependencies
-#         run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-#       - name: Build (含图片压缩/WebP 转换)
-#         run: |
-#           npx hexo clean
-#           npx hexo generate
+      - name: Build (含图片压缩/WebP 转换)
+        run: |
+          npx hexo clean
+          npx hexo generate
 
-#       - name: Setup Pages
-#         uses: actions/configure-pages@v5
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
 
-#       - name: Upload artifact
-#         uses: actions/upload-pages-artifact@v3
-#         with:
-#           path: public
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
 
-#   deploy:
-#     needs: build
-#     runs-on: ubuntu-latest
-#     environment:
-#       name: github-pages
-#       url: ${{ steps.deployment.outputs.page_url }}
-#     steps:
-#       - name: Deploy to GitHub Pages
-#         id: deployment
-#         uses: actions/deploy-pages@v4
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
