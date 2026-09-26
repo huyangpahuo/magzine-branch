@@ -240,6 +240,8 @@
       "\n    precision mediump float;\n    precision mediump sampler2D;\n    varying highp vec2 vUv;\n    varying highp vec2 vL;\n    varying highp vec2 vR;\n    varying highp vec2 vT;\n    varying highp vec2 vB;\n    uniform sampler2D uPressure;\n    uniform sampler2D uVelocity;\n    void main () {\n        float L = texture2D(uPressure, vL).x;\n        float R = texture2D(uPressure, vR).x;\n        float T = texture2D(uPressure, vT).x;\n        float B = texture2D(uPressure, vB).x;\n        vec2 velocity = texture2D(uVelocity, vUv).xy;\n        velocity.xy -= vec2(R - L, T - B);\n        gl_FragColor = vec4(velocity, 0.0, 1.0);\n    }\n",
     );
 
+    // 适配说明:画布 CSS 使用 mix-blend-mode: screen(叠光),染料只向
+    // 背景图"加光",不会产生暗色蒙版;特效自身不透明度保持原版 100%。
     var displayShader = compileShader(
       gl.FRAGMENT_SHADER,
       "\n    precision highp float;\n    precision highp sampler2D;\n    varying vec2 vUv;\n    varying vec2 vL;\n    varying vec2 vR;\n    varying vec2 vT;\n    varying vec2 vB;\n    uniform sampler2D uTexture;\n    uniform sampler2D uBloom;\n    uniform sampler2D uSunrays;\n    uniform sampler2D uDithering;\n    uniform vec2 ditherScale;\n    uniform vec2 texelSize;\n    vec3 linearToGamma (vec3 color) {\n        color = max(color, vec3(0));\n        return max(1.055 * pow(color, vec3(0.416666667)) - 0.055, vec3(0));\n    }\n    void main () {\n        vec3 c = texture2D (uTexture, vUv).rgb;\n    #ifdef SHADING\n        vec3 lc = texture2D (uTexture, vL).rgb;\n        vec3 rc = texture2D (uTexture, vR).rgb;\n        vec3 tc = texture2D (uTexture, vT).rgb;\n        vec3 bc = texture2D (uTexture, vB).rgb;\n        float dx = length(rc) - length(lc);\n        float dy = length(tc) - length(bc);\n        vec3 n = normalize(vec3(dx, dy, length(texelSize)));\n        vec3 l = vec3(0.0, 0.0, 1.0);\n        float diffuse = clamp(dot(n, l) + 0.7, 0.7, 1.0);\n        c *= diffuse;\n    #endif\n    #ifdef BLOOM\n        vec3 bloom = texture2D (uBloom, vUv).rgb;\n    #endif\n    #ifdef SUNRAYS\n        float sunrays = texture2D (uSunrays, vUv).r;\n        c *= sunrays;\n    #endif\n    #ifdef BLOOM\n        float noise = texture2D (uDithering, vUv * ditherScale).r;\n        noise = noise * 2.0 - 1.0;\n        bloom += noise / 255.0;\n        bloom = linearToGamma (bloom);\n        c += bloom;\n    #endif\n        float a = max (c.r, max (c.g, c.b));\n        gl_FragColor = vec4 (c, a);\n    }\n",
@@ -304,7 +306,8 @@
     var lastUpdateTime = Date.now();
     var colorUpdateTimer = 0;
     var idleTimer = 0;
-    var idleNext = 4000 + Math.random() * 3000;
+    // 首次空闲喷发放晚一点,避免刚进页面就来一下(像自动点击,还卡)
+    var idleNext = 8000 + Math.random() * 4000;
 
     var pointers = [new PointerData()];
     var touchPointers = {}; // identifier → PointerData
@@ -776,7 +779,9 @@
         var e = palette[(Math.random() * palette.length) | 0];
         var h = e.h + (Math.random() - 0.5) * 0.06; // 同色系微抖动
         h = h - Math.floor(h);
-        c = HSVtoRGB(h, Math.min(1, e.s), Math.min(1, e.v));
+        // 亮度抬到 0.8 以上:叠在图片上的染料需要"发光感",
+        // 暗色染料在封顶浓度下会像一层灰黑墨渍
+        c = HSVtoRGB(h, Math.min(1, e.s), Math.max(0.8, e.v));
       } else {
         c = HSVtoRGB(Math.random(), 1.0, 1.0);
       }
@@ -1385,8 +1390,6 @@
     // 抖动纹理:程序生成 64×64 灰度噪声(替代原版的 LDR_LLL1_0.png)
     ditheringTexture = createNoiseTexture();
     resizeCanvas();
-    // 开场喷发(reduced motion 时收敛)
-    multipleSplats(ctx.reducedMotion ? 3 : 12);
     requestAnimationFrame(frame);
 
     /* ═══════════════ 对外接口:面板驱动 ═══════════════ */

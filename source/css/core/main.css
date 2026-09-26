@@ -365,6 +365,11 @@ p {
   text-align: center;
   color: white;
   z-index: 1;
+  /* 装饰性文字(打字机/滚动提示)禁止选中:鼠标或手指划过 hero
+     触发流体时不能带出文字选区 */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .hero-typing {
@@ -388,6 +393,9 @@ p {
   color: white;
   cursor: pointer;
   animation: bounce 2s infinite;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 @keyframes bounce {

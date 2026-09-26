@@ -63,7 +63,11 @@ if theme.cover && theme.cover.enable
       background: rgba(0, 0, 0, 0.4); z-index: 2; pointer-events: none;
     }
 
-    .cover-content { text-align: center; z-index: 10; pointer-events: none; }
+    .cover-content {
+      text-align: center; z-index: 10; pointer-events: none;
+      /* 标题/作者为装饰文字,拨动水波纹时禁止被选中 */
+      user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+    }
 
     .cover-title, .cover-author {
       font-family: var(--font-secondary, 'Playfair Display', serif);
@@ -88,6 +92,7 @@ if theme.cover && theme.cover.enable
       align-items: center; color: #fff; cursor: pointer; z-index: 10;
       transition: color 0.3s ease, transform 0.3s ease; pointer-events: auto;
       padding: 10px 20px;
+      user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
     }
     .cover-start-btn:hover { color: var(--accent-color, #ff6b6b); transform: scale(1.05); }
     .cover-start-btn span {
