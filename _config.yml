@@ -11,6 +11,24 @@ hero:
   delete_speed: 50
   pause_duration: 2000
   scroll_hint: 向下滚动探索更多
+  # ── 首页特效(可扩展框架) ─────────────────────────────────────
+  # 新增特效:写 js/effects/hero-xxx.js 调用 HeroFX.register 注册,
+  # layout.pug 挂一行 <script defer>,再在 effects 下加 xxx.enable。
+  effects:
+    enable: true # 特效总开关(关闭后不加载任何特效与面板)
+    panel_enable: true # 是否显示右下角控制面板
+    # WebGL 流体模拟(https://github.com/PavelDoGreat/WebGL-Fluid-Simulation, MIT)
+    fluid:
+      enable: true
+      color_source: image # 取色:image=从背景图提取主色(无图自动随机)/ random=随机彩色
+      quality: high # high / medium / low(移动端自动降档)
+      curl: 30 # 涡旋强度 0-50
+      splat_radius: 0.25 # 笔刷大小 0.05-1
+      density_dissipation: 1 # 消散速度 0-4,越小拖尾越长
+      velocity_dissipation: 0.2 # 速度衰减
+      hover: true # 鼠标悬停即产生流体(无需按下)
+      idle_splat: true # 空闲时随机喷发,保持画面流动感
+      bloom: false # 辉光(较耗性能)
 
 # Article List 首页文章卡片大小
 article_list:

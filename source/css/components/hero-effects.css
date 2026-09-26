@@ -1,0 +1,296 @@
+/* =====================================================================
+   hero-effects.css — 首页 hero 特效层 + 控制面板
+   结构:.hero-fx-layer(叠在背景图之上、文字之下)
+        ├ canvas.hero-fx-canvas(流体等特效画布)
+        └ .hero-fx-panel(可折叠控制面板,由 hero-panel.js 生成)
+   ===================================================================== */
+
+.hero-fx-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0; /* 背景图/遮罩(-2/-1)之上,标题文字(1)之下 */
+  overflow: hidden;
+  pointer-events: none; /* 画布不拦截点击;交互监听在 .hero-section 上 */
+}
+
+.hero-fx-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── 控制面板 ──────────────────────────────────────────────────── */
+.hero-fx-panel {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  z-index: 10;
+  pointer-events: auto;
+  font-size: 0.82rem;
+  color: var(--text-color, #eee);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+/* 折叠胶囊按钮 */
+.hero-fx-toggle {
+  pointer-events: auto;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #fff;
+  border-radius: 999px;
+  padding: 5px 14px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.hero-fx-toggle:hover {
+  background: rgba(0, 0, 0, 0.55);
+  border-color: var(--accent-color, #0ff);
+}
+
+/* 面板主体 */
+.hero-fx-body {
+  width: 246px;
+  max-height: min(58vh, 480px);
+  overflow-y: auto;
+  border-radius: 12px;
+  background: rgba(20, 22, 28, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.35);
+}
+
+.hero-fx-panel.collapsed .hero-fx-body {
+  display: none;
+}
+
+.hero-fx-head {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px 8px;
+  background: rgba(20, 22, 28, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hero-fx-title {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.06em;
+}
+
+.hero-fx-close {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.hero-fx-close:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.hero-fx-list {
+  padding: 6px 4px 10px;
+}
+
+/* 每个特效一个可折叠分组 */
+.hero-fx-item + .hero-fx-item {
+  margin-top: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.hero-fx-item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px 6px;
+}
+
+.hero-fx-item-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: none;
+  border: none;
+  color: #f0f2f5;
+  cursor: pointer;
+  font-size: 0.84rem;
+  padding: 2px 0;
+}
+
+.hero-fx-item-icon {
+  font-size: 0.95rem;
+}
+
+.hero-fx-chevron {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.5);
+  transition: transform 0.25s ease;
+}
+
+.hero-fx-item.collapsed .hero-fx-chevron {
+  transform: rotate(-90deg);
+}
+
+.hero-fx-item-body {
+  padding: 2px 12px 10px 34px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hero-fx-item.collapsed .hero-fx-item-body {
+  display: none;
+}
+
+/* 控件行 */
+.hero-fx-ctl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(240, 242, 245, 0.85);
+}
+
+.hero-fx-ctl-label {
+  flex: 0 0 62px;
+  font-size: 0.76rem;
+  white-space: nowrap;
+}
+
+.hero-fx-ctl input[type="range"] {
+  flex: 1;
+  min-width: 0;
+  accent-color: var(--accent-color, #0ff);
+  height: 3px;
+  cursor: pointer;
+}
+
+.hero-fx-ctl input[type="checkbox"] {
+  accent-color: var(--accent-color, #0ff);
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+.hero-fx-ctl select {
+  flex: 1;
+  min-width: 0;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f0f2f5;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 6px;
+  padding: 3px 6px;
+  font-size: 0.76rem;
+  cursor: pointer;
+}
+
+.hero-fx-ctl select option {
+  background: #1a1d24;
+  color: #eee;
+}
+
+.hero-fx-val {
+  flex: 0 0 34px;
+  text-align: right;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-variant-numeric: tabular-nums;
+}
+
+.hero-fx-btn {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #f0f2f5;
+  border-radius: 8px;
+  padding: 4px 14px;
+  font-size: 0.76rem;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.hero-fx-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: var(--accent-color, #0ff);
+}
+
+/* 开关(switch) */
+.hero-fx-switch {
+  position: relative;
+  display: inline-block;
+  width: 34px;
+  height: 19px;
+  flex: 0 0 auto;
+}
+
+.hero-fx-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.hero-fx-slider {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  transition: background 0.2s ease;
+  cursor: pointer;
+}
+
+.hero-fx-slider::before {
+  content: "";
+  position: absolute;
+  top: 2.5px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s ease;
+}
+
+.hero-fx-switch input:checked + .hero-fx-slider {
+  background: var(--accent-color, #0ff);
+}
+
+.hero-fx-switch input:checked + .hero-fx-slider::before {
+  transform: translateX(14px);
+}
+
+.hero-fx-switch input:disabled + .hero-fx-slider {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* 移动端:面板更小巧,位置避开滚动提示 */
+@media (max-width: 768px) {
+  .hero-fx-panel {
+    right: 12px;
+    bottom: 88px;
+  }
+
+  .hero-fx-body {
+    width: 224px;
+    max-height: 46vh;
+  }
+}

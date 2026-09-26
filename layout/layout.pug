@@ -67,6 +67,8 @@ html(lang=config.language)
     != css('css/components/article-modal')
     != css('css/components/music-player')
     != css('css/components/table')
+    //- 首页 hero 特效层 + 控制面板(仅样式,脚本按需加载)
+    != css('css/components/hero-effects')
     //- 独立页面样式全局加载(均以页面级 class 作作用域,不会互相污染)。
     //- pjax 只替换 main.main,不替换 <head>,这些样式必须常驻,
     //- 否则关于/照片墙/追番页面无感刷新后会丢失样式(关于页背景会错乱)
@@ -200,6 +202,12 @@ html(lang=config.language)
     if theme.cursor && theme.cursor.enable
       script(defer, src=url_for('cursors/anya/data.js'))
       script(defer, src=url_for('js/effects/anya-cursor.js'))
+
+    //- ★ 首页 hero 特效框架(panel 管理器先加载,特效脚本向其注册;新增特效照此追加一行)
+    if theme.hero && theme.hero.effects && theme.hero.effects.enable
+      script(defer, src=url_for('js/effects/hero-panel.js'))
+      if theme.hero.effects.fluid && theme.hero.effects.fluid.enable !== false
+        script(defer, src=url_for('js/effects/hero-fluid.js'))
 
     //- PJAX 无感刷新(自研实现,放最后加载;可在 config.yml 关闭)
     if theme.pjax && theme.pjax.enable !== false

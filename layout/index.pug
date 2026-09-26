@@ -8,6 +8,8 @@ if theme.hero && theme.hero.enable
         //- hero 是首屏 LCP,保持立即加载并高优先级(懒加载过滤器会跳过已有 loading 的图)
         img(src=url_for(theme.hero.background_image), alt="Hero Background", loading="eager", fetchpriority="high")
       .hero-overlay
+    //- 首页特效层(流体模拟等,叠加在背景图之上、文字之下;见 hero.effects 配置)
+    .hero-fx-layer
     .hero-content
       .hero-typing
         #typing-text(data-text=theme.hero.typing_text || 'Welcome to my blog', data-speed=theme.hero.typing_speed || 100, data-delete-speed=theme.hero.delete_speed || 50, data-pause=theme.hero.pause_duration || 2000, data-loop=theme.hero.typing_loop !== false)
