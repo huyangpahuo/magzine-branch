@@ -241,9 +241,8 @@ body:not(.dark-mode) .table-toolbar::before {
   user-select: none;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
 
-  /* ★ 性能:拖拽/缩放提升为独立合成层,transform 变化不再整层重绘 */
-  will-change: transform;
-  backface-visibility: hidden;}
+  /* ★ 不加 will-change:预栅格化纹理在放大时会沿用低分辨率导致文字模糊,
+     去掉后每次缩放重新清晰绘制;拖拽流畅由 rAF 合帧保证 */}
 
 body.dark-mode .table-viewer {
   background: rgba(0, 0, 0, 0.88);

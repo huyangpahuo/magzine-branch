@@ -229,9 +229,11 @@ body.dark-mode {
     user-select: none;
     box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
 
-  /* ★ 性能:拖拽/缩放提升为独立合成层,transform 变化不再整层重绘 */
-  will-change: transform;
-  backface-visibility: hidden;}
+    /* ★ 不加 will-change:它会迫使浏览器把 SVG 预栅格化为 GPU 纹理,
+       放大时沿用低分辨率纹理导致文字模糊;去掉后每次缩放以矢量精度
+       重新绘制,拖拽流畅度由 rAF 合帧保证(table 是 DOM 栅格化,
+       保留其 will-change 无损观感) */
+}
 
 .mermaid-viewer-stage:active {
     cursor: grabbing;

@@ -74,38 +74,6 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("valine-comments") ||
     document.getElementById("gitalk-container");
 
-  // ==========================================
-  // 3. 兜底:评论后端(如部署在境外 vercel)不可达时,
-  //    照片墙会一直空白——超时后直接用配置的图片生成展示卡,
-  //    保证照片墙永远有内容(评论恢复后以真实评论为准)
-  // ==========================================
-  let fallbackFired = false;
-  setTimeout(function () {
-    if (fallbackFired) return;
-    if (document.querySelectorAll(".photo-card").length > 0) return;
-    const hasComments =
-      document.querySelectorAll(".tk-comment, .vcard, .gt-comment").length > 0;
-    if (hasComments) return;
-
-    const images = window.photoWallImages || [];
-    if (images.length === 0) return;
-    if (emptyTip) emptyTip.style.display = "none";
-
-    const fallbackMsgs = [
-      "Ciallo~ (∠・ω< )⌒☆",
-      "评论后端打了个盹…",
-      "等评论醒了我再换上留言~",
-      "先看照片,留言稍后再来",
-    ];
-    images.forEach(function (img, i) {
-      createPhotoCard(
-        i === 0 ? "胡杨怕火" : "神秘旅人",
-        fallbackMsgs[i % fallbackMsgs.length],
-        img,
-        i,
-      );
-    });
-  }, 6000);
 
   if (commentContainer) {
     const observer = new MutationObserver((mutations) => {
@@ -120,13 +88,6 @@ document.addEventListener("DOMContentLoaded", function () {
       });
       if (shouldRender) {
         renderPhotos();
-        // 评论真实到达后标记,不再触发兜底
-        if (
-          document.querySelectorAll(".tk-comment, .vcard, .gt-comment")
-            .length > 0
-        ) {
-          fallbackFired = true;
-        }
       }
     });
     // 开始监听评论区 DOM 的变化
@@ -149,7 +110,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }
       if (has) {
         renderPhotos();
-        fallbackFired = true; // 有真实评论,不再走展示兜底
       }
     }, 800);
   }
