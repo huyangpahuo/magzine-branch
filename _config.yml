@@ -169,8 +169,8 @@ pet:
 pjax:
   enable: true
 
-# 最近阅读的文章在主页第一页置顶
-last_read_pin:
+# 刚读过的文章在主页第一页置顶(显示"刚读过"徽章)
+just_read:
   enable: true
 
 # 读者设置面板(电脑端右键空白处打开,设置保存在浏览器)

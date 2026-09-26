@@ -7,7 +7,10 @@ style.
   /* ===== 根容器 ===== */
   #pet-root {
     position: fixed;
-    z-index: 99999;
+    /* ★ 层级设计:高于文章模态(1000,桌宠要在模态上跑动),
+       低于图片/表格/mermaid 全屏查看器(9999+)——全屏查看时桌宠
+       被遮在后面且鼠标无法与之交互;也低于页面上层的弹窗类组件 */
+    z-index: 2000;
     top: 0; left: 0;
     width: 0; height: 0;
     pointer-events: none;

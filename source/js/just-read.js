@@ -1,10 +1,10 @@
 /**
- * 最后阅读的文章置顶 (独立脚本,无依赖)
+ * 刚读过的文章置顶 (独立脚本,无依赖)
  *
  * 功能:
- *   1. 在文章页(含 pjax 到达、文章模态窗口 iframe 内)自动记录最近阅读的文章;
+ *   1. 在文章页(含 pjax 到达、文章模态窗口 iframe 内)自动记录刚读过的文章;
  *   2. 回到主页时,把这篇文章的卡片移动到文章列表最前面;
- *   3. 并在它的封面图右上角挂一个"图钉 + 置顶"圆角徽章,颜色跟随主题强调色。
+ *   3. 并在它的封面图右上角挂一个"刚读过"圆角徽章,颜色跟随主题强调色。
  *
  * 说明:
  *   - 通过 post.pug 上的 data-post-page 属性识别文章页
@@ -19,9 +19,9 @@
   var STORAGE_KEY = "lastReadPost";
 
   function injectStyle() {
-    if (document.getElementById("last-read-pin-style")) return;
+    if (document.getElementById("just-read-style")) return;
     var style = document.createElement("style");
-    style.id = "last-read-pin-style";
+    style.id = "just-read-style";
     style.textContent = [
       ".article-image .pin-badge {",
       "  position: absolute;",
@@ -64,7 +64,7 @@
       data = { url: location.pathname, time: Date.now() };
     }
     data.title = titleEl ? titleEl.textContent.trim() : "";
-    // ★ 额外收集封面/日期/分类,供主页"复制置顶卡片"完整还原外观
+    // ★ 额外收集封面/日期/分类,供主页"复制刚读过卡片"完整还原外观
     var coverEl = document.querySelector(".post-cover img");
     var catEl = document.querySelector(".post-meta .post-category a");
     var dateEl = document.querySelector(".post-date time");
@@ -194,7 +194,7 @@
     return card;
   }
 
-  // 在主页:把最近阅读的文章"复制"一份到列表最前并加图钉徽章
+  // 在主页:把刚读过的文章"复制"一份到列表最前并加"刚读过"徽章
   // ★ 是复制而非移动——文章本体在各页的位置保持不变
   function pinOnHome() {
     // ★ 只在主页第一页置顶;分页页(/page/N/)保持时间顺序
@@ -208,7 +208,7 @@
     }
     if (!grid || !record || !record.url) return;
 
-    // 已经是对应文章的置顶副本 → 无需处理
+    // 已经是对应文章的刚读过副本 → 无需处理
     var first = grid.querySelector(":scope > .article-card");
     if (first && first.getAttribute("data-pinned-copy") === record.url) return;
 
@@ -222,7 +222,7 @@
       b.remove();
     });
 
-    // 复制置顶卡片到最前(尺寸与排版延续首卡)
+    // 复制"刚读过"卡片到最前(尺寸与排版延续首卡)
     // ★ 日期文本从原卡片复制(已按界面语言本地化);原卡片不在本页时按语言计算
     var dateInfo = null;
     var originalCard = null;
@@ -257,7 +257,7 @@
     if (image) {
       var badge = document.createElement("div");
       badge.className = "pin-badge";
-      badge.innerHTML = '<i class="fas fa-thumbtack"></i><span>置顶</span>';
+      badge.innerHTML = '<i class="fas fa-book-open"></i><span>刚读过</span>';
       image.appendChild(badge);
     }
   }
@@ -265,14 +265,14 @@
   function init() {
     injectStyle();
     hookModalIframe();
-    // 读者设置面板可关闭置顶功能(readerSettings.last_read_pin === "off")
+    // 读者设置面板可关闭"刚读过"置顶功能(readerSettings.just_read === "off")
     var rs = {};
     try {
       rs = JSON.parse(localStorage.getItem("readerSettings") || "{}") || {};
     } catch (e) {
       rs = {};
     }
-    if (rs.last_read_pin === "off") return;
+    if (rs.just_read === "off") return;
     var onPost = recordIfOnPostPage();
     if (!onPost) pinOnHome();
   }

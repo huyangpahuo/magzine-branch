@@ -45,8 +45,8 @@
     };
   }
   // 最近阅读文章置顶开关(默认开):关掉后主页不再置顶已读文章
-  if (rs.last_read_pin) {
-    patch.last_read_pin = { enable: rs.last_read_pin === "on" };
+  if (rs.just_read) {
+    patch.just_read = { enable: rs.just_read === "on" };
   }
   window.__readerThemePatch = patch;
 
@@ -232,7 +232,7 @@
         key: "click_effect", label: "鼠标点击效果", show: true,
         items: [
           { key: "click_effect", label: "效果", type: "select",
-            options: [["heart", "爱心文字"], ["fireworks", "三角烟花"]], def: "heart" },
+            options: [["heart", "爱心文字"], ["fireworks", "三角烟花"], ["off", "关闭"]], def: "heart" },
         ],
       },
       {
@@ -256,9 +256,9 @@
           { key: "card_size", label: "卡片大小", type: "select",
             options: [["normal", "标准"], ["large", "大"]],
             def: (rawTheme.article_list && rawTheme.article_list.card_size) || "normal" },
-          // 置顶开关仅在主题开启 last_read_pin 功能时显示(见上方 rawTheme 说明)
-          ...(rawTheme.last_read_pin && rawTheme.last_read_pin.enable !== false
-            ? [{ key: "last_read_pin", label: "置顶已阅读文章", type: "toggle", def: "on" }]
+          // "刚读过"开关仅在主题开启 just_read 功能时显示(见上方 rawTheme 说明)
+          ...(rawTheme.just_read && rawTheme.just_read.enable !== false
+            ? [{ key: "just_read", label: "刚读过置顶", type: "toggle", def: "on" }]
             : []),
         ],
       },
