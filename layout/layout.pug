@@ -208,6 +208,8 @@ html(lang=config.language)
       script(defer, src=url_for('js/effects/hero-panel.js'))
       if theme.hero.effects.fluid && theme.hero.effects.fluid.enable !== false
         script(defer, src=url_for('js/effects/hero-fluid.js'))
+      if theme.hero.effects.watercolor && theme.hero.effects.watercolor.enable !== false
+        script(defer, src=url_for('js/effects/hero-watercolor.js'))
 
     //- PJAX 无感刷新(自研实现,放最后加载;可在 config.yml 关闭)
     if theme.pjax && theme.pjax.enable !== false

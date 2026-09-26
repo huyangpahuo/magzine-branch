@@ -49,7 +49,7 @@
       registry.push(def);
       // defer 脚本按序执行:管理器 boot 时特效脚本可能尚未注册,
       // 这里补一次挂载(boot 内部有幂等保护)
-      if (pendingBoot) boot();
+      if (pendingBoot || mounted || document.readyState !== "loading") boot();
     },
     _debug: function () {
       return {
@@ -184,7 +184,8 @@
   function boot() {
     var cfg = (window.theme && window.theme.hero && window.theme.hero.effects) || {};
     var layer = document.querySelector(".hero-fx-layer");
-    if (!cfg.enable || !layer) {
+    if (!cfg.enable || !layer ||
+        (window.__readerSettings && window.__readerSettings.hero_effects === "off")) {
       pendingBoot = false;
       unmount();
       return;
@@ -231,11 +232,37 @@
   }
 
   function startEffects(cfg) {
+    var activeId = null;
+    registry.some(function (def) {
+      var t = cfg[def.id] || {};
+      var st = ensureState(def.id);
+      if (t.enable !== false && st.on !== false) {
+        activeId = def.id;
+        return true;
+      }
+      return false;
+    });
+
+    // 多种视觉特效互斥:兼容旧版 localStorage 时只保留注册顺序中第一个开启项。
+    registry.forEach(function (def) {
+      var st = ensureState(def.id);
+      st.on = activeId === def.id;
+    });
+    saveState();
+
+    if (mounted && mounted.switches) {
+      registry.forEach(function (def) {
+        if (mounted.switches[def.id])
+          mounted.switches[def.id].checked = activeId === def.id;
+      });
+    }
+
+    if (!activeId) return;
     registry.forEach(function (def) {
       var t = cfg[def.id] || {};
       if (t.enable === false) return; // 主题配置里显式关闭
       var st = ensureState(def.id);
-      if (st.on === false) return; // 读者在面板里关掉
+      if (def.id !== activeId || st.on === false) return; // 读者在面板里关掉
       createInstance(def, cfg);
     });
   }
@@ -323,6 +350,9 @@
 
     var list = el("div", "hero-fx-list");
 
+    var switches = {};
+    mounted.switches = switches;
+
     registry.forEach(function (def) {
       var t = cfg[def.id] || {};
       var disabledByTheme = t.enable === false;
@@ -345,6 +375,7 @@
       cb.type = "checkbox";
       cb.checked = !disabledByTheme && st.on !== false;
       cb.disabled = disabledByTheme;
+      switches[def.id] = cb;
       sw.appendChild(cb);
       sw.appendChild(el("span", "hero-fx-slider"));
       itemHead.appendChild(sw);
@@ -360,7 +391,17 @@
 
       // 开关:销毁/重建实例
       cb.addEventListener("change", function () {
-        st.on = cb.checked;
+        if (cb.checked) {
+          // 开启一个特效时关闭其他特效,但允许全部关闭。
+          registry.forEach(function (other) {
+            var otherState = ensureState(other.id);
+            otherState.on = other.id === def.id;
+            if (switches[other.id]) switches[other.id].checked = other.id === def.id;
+            if (other.id !== def.id) destroyInstance(other.id);
+          });
+        } else {
+          st.on = false;
+        }
         saveState();
         if (cb.checked) createInstance(def, cfg);
         else destroyInstance(def.id);

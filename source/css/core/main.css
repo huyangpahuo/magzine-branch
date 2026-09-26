@@ -357,7 +357,9 @@ p {
 
 .hero-background img {
   width: 100%;
-  height: 100%;
+  /* 视差图需要上下预留余量,避免滚动时露出 hero 的底色 */
+  height: calc(100% + 96px);
+  margin-top: -48px;
   object-fit: cover;
 }
 
@@ -3420,7 +3422,7 @@ html.reader-hero-off .author-card-section--with-hero:has(.author-card-foldable.f
 
 /* 名片收起后,拉绳自然垂下来 */
 .author-card-section:has(.author-card-foldable.folded) .pull-cord-line {
-  height: 64px;
+  height: 104px;
 }
 
 .author-card-pull-cord:hover .pull-cord-line {

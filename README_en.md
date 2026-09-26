@@ -26,6 +26,8 @@ Check out my [blog](https://funingna-wakawaka.github.io/)
   (viewport-lazy wrapping, smooth on long articles)
 - **Components**: Sakana widget, animated cursor, leaves/click effects,
   color picker, local search, RSS, pjax, bilingual UI, reader settings panel
+- **Hero effects**: fluid simulation and animated Watercolor mode (mutually
+  exclusive), with hover/touch interaction and reader-panel controls
 
 ## Installation
 

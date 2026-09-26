@@ -498,7 +498,8 @@ function initParallax() {
 
   window.addEventListener("scroll", function () {
     const scrolled = window.pageYOffset;
-    const parallax = scrolled * 0.5;
+    // 图片本身有 48px 的上方安全余量,位移封顶后不会在 Hero 顶部露底。
+    const parallax = Math.min(scrolled * 0.5, 48);
     heroBackground.style.transform = `translateY(${parallax}px)`;
   });
 }

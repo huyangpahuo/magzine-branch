@@ -68,6 +68,8 @@
       document.documentElement.classList.add("reader-hero-off");
       css += ".hero-section{display:none!important}";
     }
+    if (rs.hero_effects === "off")
+      css += ".hero-fx-layer,.hero-fx-panel{display:none!important}";
     if (rs.murmur_banner === "off")
       css += ".murmur-banner{display:none!important}";
     if (rs.toc === "hide")
@@ -249,6 +251,11 @@
         // config 里 hero.enable 为 false 时整个模块不渲染,面板同样不显示
         show: !!(rawTheme.hero && rawTheme.hero.enable),
         items: [{ key: "hero", label: "启用首页图片", type: "toggle", def: "on" }],
+      },
+      {
+        key: "hero_effects", label: "首页特效",
+        show: !!(rawTheme.hero && rawTheme.hero.effects && rawTheme.hero.effects.enable),
+        items: [{ key: "hero_effects", label: "启用首页特效", type: "toggle", def: "on" }],
       },
       {
         key: "article_view", label: "文章浏览",

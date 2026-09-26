@@ -29,6 +29,11 @@ hero:
       hover: true # 鼠标悬停即产生流体(无需按下)
       idle_splat: false # 禁止空闲时自动喷发,仅悬停或手动点击“随机喷发”时触发
       bloom: false # 辉光(较耗性能)
+    watercolor:
+      enable: true # 水彩光晕特效
+      speed: 0.45 # 动画速度
+      intensity: 0.55 # 水彩强度
+      hover: true # 鼠标/触摸交互
 
 # Article List 首页文章卡片大小
 article_list:
