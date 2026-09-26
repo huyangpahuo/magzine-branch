@@ -524,6 +524,12 @@
   }
 
   /* ── 启动 ───────────────────────────────────────────────────── */
+  // PJAX 只替换 main.main，首页的 Hero DOM 会被销毁并重新创建。
+  // defer 脚本执行时 document 往往已经不是 loading 状态，因此下面的
+  // readyState 分支可能不会注册 DOMContentLoaded 监听；必须直接监听
+  // PJAX 完成事件，否则返回首页后新的 Hero 层没有机会重新挂载特效。
+  document.addEventListener("pjax:complete", boot);
+
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", boot);
   } else {
