@@ -183,6 +183,10 @@ document.addEventListener("DOMContentLoaded", function () {
       document.addEventListener("mouseup", stopDrag);
       document.addEventListener("touchmove", drag, { passive: false });
       document.addEventListener("touchend", stopDrag);
+      // ★ 移动端浏览器(Edge/Yandex 等)的边缘手势/下拉刷新会以 touchcancel
+      //   结束触摸而不是 touchend,漏接会导致 touchmove+preventDefault 永久
+      //   残留在 document 上,换页后全站都无法滚动
+      document.addEventListener("touchcancel", stopDrag);
     }
 
     function drag(e) {
@@ -212,6 +216,7 @@ document.addEventListener("DOMContentLoaded", function () {
       document.removeEventListener("mouseup", stopDrag);
       document.removeEventListener("touchmove", drag);
       document.removeEventListener("touchend", stopDrag);
+      document.removeEventListener("touchcancel", stopDrag);
     }
   }
 });

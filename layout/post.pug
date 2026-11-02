@@ -61,6 +61,15 @@
             span= min2read(page.content)
             span(style="margin-left: 3px") 分钟
 
+        //- 文章访问统计(浏览次数/访客数,配置见 post_stats)
+        //- data-stats-page 标记"本页是文章页":客户端据此把本次访问埋点到这篇文章
+        if theme.post_stats && theme.post_stats.enable
+          .post-stat(data-stats-page="true", data-stats-path=stats_key(page))
+            i.fas.fa-eye(style="margin-right: 4px")
+            span.post-stat-num(data-stats="article-pv") -
+            i.fas.fa-user(style="margin-right: 4px")
+            span.post-stat-num(data-stats="article-uv") -
+
       h1.post-title(data-i18n-zh=page.title)&attributes(i18n_attrs(page, 'title'))= page.title
 
       //- ★★★ 新增：当本文章页在"文章模态窗口"的 iframe 中被打开/切换（点击上一篇/下一篇）时，

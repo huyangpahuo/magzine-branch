@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // ★ 2026-09:目录改为"嵌套可折叠树"(参考 Astro 博客):
   //   - 按标题层级嵌套 <ul>,有子级的项带折叠按钮(手风琴);
-  //   - 标题过长用省略号截断(title 属性悬停可看全文);
+  //   - 标题过长用省略号截断(悬停不再弹出 title 提示,按需求已取消);
   //   - 滚动高亮时自动展开当前标题所在的层级路径;
   //   - 移动端面板克隆同一棵树,折叠按钮用事件委托,克隆后依然可用。
   // 构建嵌套树
@@ -220,7 +220,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const link = document.createElement("a");
       link.href = "#" + heading.id;
       link.textContent = heading.textContent;
-      link.title = heading.textContent; // 省略号截断后悬停可看全文
 
       link.addEventListener("click", function (e) {
         e.preventDefault();

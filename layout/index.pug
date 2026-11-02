@@ -53,6 +53,13 @@ section.articles-section
                 //- ★★★ 新增：悬停遮罩层 ★★★
                 .read-overlay
                   span.read-text(data-label="点击阅读->") 点击阅读->
+                //- 文章访问统计徽标(封面左上角,配置见 post_stats)
+                if theme.post_stats && theme.post_stats.enable
+                  .card-stats-badge(data-stats-path=stats_key(article))
+                    i.fas.fa-eye(aria-hidden="true")
+                    span(data-stats="article-pv") -
+                    i.fas.fa-user(aria-hidden="true")
+                    span(data-stats="article-uv") -
           .article-content
             .article-meta
               if article.categories.length

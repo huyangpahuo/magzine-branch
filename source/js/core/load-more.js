@@ -338,6 +338,12 @@ function initLoadMore() {
                 10 + idx * 100,
               );
             });
+
+            // 新卡片自带服务端渲染的统计徽标(见 index.pug),
+            // 触发统计客户端重新收集并填充(命中本地缓存,不发额外请求)
+            if (typeof window.__statsRefresh === "function") {
+              window.__statsRefresh();
+            }
           } else if (nextPage < totalPages) {
             console.warn("未添加新文章，可能是重复内容");
           }

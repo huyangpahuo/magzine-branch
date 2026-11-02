@@ -82,6 +82,8 @@ html(lang=config.language)
     != css('css/pages/404')
     != css('css/components/cursor')
     != css('css/components/carousel')
+    //- 文章访问统计(卡片封面徽标 + 文章页 meta 项)
+    != css('css/components/post-stats')
 
 
     //- Theme color variables from config
@@ -196,6 +198,8 @@ html(lang=config.language)
     script(defer, src=url_for('js/content/table.js'))
     script(defer, src=url_for('js/content/video-embed.js'))
     script(defer, src=url_for('js/core/mobile-scale.js'))
+    //- 桌面端菜单条溢出翻页箭头(与 mobile-scale 刻度尺配套;菜单项永不折行)
+    script(defer, src=url_for('js/core/nav-strip.js'))
     script(defer, src=url_for('js/pages/carousel.js'))
 
     //- 阿尼亚自定义鼠标指针(帧数据由转换脚本生成;可在 config.yml 关闭)
@@ -218,6 +222,11 @@ html(lang=config.language)
     //- 刚读过的文章置顶(可在 config.yml 关闭)
     if theme.just_read && theme.just_read.enable !== false
       script(defer, src=url_for('js/features/just-read.js'))
+
+    //- 文章访问统计(可在 config.yml 关闭;放在 just-read 之后,
+    //- 其置顶卡片依赖 window.__statsKey / __statsRefresh)
+    if theme.post_stats && theme.post_stats.enable
+      script(defer, src=url_for('js/features/visitor-stats.js'))
 
     // 传递图片配置给 JS
     script.
@@ -247,6 +256,7 @@ html(lang=config.language)
         categories: !{JSON.stringify(theme.categories)},
         article_list: !{JSON.stringify(theme.article_list)},
         just_read: !{JSON.stringify(theme.just_read || {})},
+        post_stats: !{JSON.stringify(theme.post_stats || {})},
         pet: !{JSON.stringify(theme.pet)},
         anime: !{JSON.stringify(theme.anime)}
         };

@@ -318,7 +318,19 @@ function ChucklePostAI(AI_option) {
       controller = new AbortController();
       signal = controller.signal;
 
-      const apiUrl = "把这里替换为你的cloudfare worker page地址链接";
+      // ★ 后端 Worker 地址可配置:读 config.yml 的 ai_summary.api_url
+      //   (经 layout.pug 挂到 window.theme);留空则不发任何请求
+      const apiUrl =
+        (window.theme &&
+          window.theme.ai_summary &&
+          window.theme.ai_summary.api_url) ||
+        "";
+
+      if (!apiUrl) {
+        completeGenerate = true;
+        console.warn("[PostAI] 未配置 ai_summary.api_url,已跳过 AI 摘要请求");
+        return null;
+      }
 
       try {
         const response = await fetch(apiUrl, {
@@ -327,8 +339,9 @@ function ChucklePostAI(AI_option) {
           headers: {
             "Content-Type": "application/json",
           },
+          // ★ model 不在前端配置:Worker 端会用 CONFIG.TARGET_MODEL 强制覆盖
+          //   请求体里的 model,写在这里只是冗余(改模型去 Worker 里改)
           body: JSON.stringify({
-            model: "deepseek-v4-pro",
             messages: [{ role: "user", content: prompt }],
           }),
         });

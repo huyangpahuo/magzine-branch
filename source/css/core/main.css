@@ -194,7 +194,87 @@ p {
 .nav-menu {
   margin-left: auto;
   display: flex;
+  align-items: center;
+  /* 允许整条被压缩,内部由 .nav-strip 滚动 + 左右箭头接管,
+     菜单项永远不折行变形(俄语长词/长站名场景) */
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* 菜单条:真正的滚动容器(滚动条隐藏,由箭头指示溢出) */
+.nav-strip {
+  display: flex;
+  align-items: center;
   gap: var(--spacing-lg);
+  min-width: 0;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  /* 给 .nav-item.active 的下划线(::after bottom:-5px)留出空间 */
+  padding: 2px 2px 6px;
+}
+
+.nav-strip::-webkit-scrollbar {
+  display: none;
+}
+
+/* 子菜单改 fixed 定位:脱离 .nav-strip 滚动裁剪上下文——
+   否则下拉面板会被 overflow 裁掉,且隐藏的下拉盒子会虚增 scrollWidth
+   (导致没溢出也显示翻页箭头)。left/top 由 nav-strip.js 悬停时计算 */
+.nav-strip .submenu {
+  position: fixed;
+  top: auto;
+  left: auto;
+  margin-top: 0;
+}
+
+/* 导航文字永不折行(长俄语词/CJK 任意字符可断,是导航变形的根源) */
+.nav-strip .nav-item,
+.nav-strip .nav-link,
+.nav-right .nav-item {
+  white-space: nowrap;
+}
+
+/* 左右小三角:仅在菜单溢出时由 nav-strip.js 显示 */
+.nav-strip-arrow {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--secondary-color);
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.nav-strip-arrow:hover {
+  color: var(--accent-color);
+}
+
+.nav-strip-arrow[hidden] {
+  display: none;
+}
+
+.nav-strip-arrow[disabled] {
+  opacity: 0.25;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* 最右固定区:搜索 + 语言切换(不参与菜单挤压) */
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-left: var(--spacing-lg);
+  flex: 0 0 auto;
 }
 
 .nav-logo {

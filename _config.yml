@@ -179,6 +179,17 @@ color_picker:
 wordcount:
   enable: true # 是否在文章元数据区域显示字数和预计阅读时间
 
+# 文章访问统计(浏览次数 PV / 访客数 UV)
+# 数据源:Cloudflare Worker + D1 统计服务(接口同 rightdoor/visitor-stats,
+# 与 citrus 博客共用同一服务;/log 埋点 + /total 一次拉取全量,本地缓存)
+# ★ 注意:博客域名需加入统计服务 D1 config 表的 allowed_domains 白名单,
+#   否则请求会被 403 拒绝(页面统计位置会一直显示「-」)
+post_stats:
+  enable: true # 是否开启卡片封面左上角与文章页的 PV/UV 统计
+  api_base: "" # 统计服务地址
+  cache_ttl: 300000 # 数字缓存时长(毫秒),默认 5 分钟
+  mock: false # 本地调试:显示随机数字,不发任何统计请求
+
 # 桌面宠物配置(建议保持当前配置,数值调高浏览器会非常卡顿,甚至崩溃)
 # 出于性能考虑,若一个段落超过800字桌宠自动忽略
 pet:
@@ -405,7 +416,7 @@ cursor:
 # AI摘要配置
 ai_summary:
   enable: true # 是否启用AI摘要功能，默认关闭
-  api_key: "" # 这里不要填任何东西,详细部署教程请参考：https://2am.top/2025/12/22/Workers%E5%AE%9E%E7%8E%B0Api%E7%99%BD%E5%90%8D%E5%8D%95/
+  api_url: "" # AI 后端 Worker 地址(postai.js 读取,改这里即可换后端;留空则不发请求)
   summary_directly: false # 是否直接生成摘要，默认为false（需要点击按钮生成）
   # 其他可选配置
   ai_name: "阿罗娜" # AI名称

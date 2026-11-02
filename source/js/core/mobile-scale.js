@@ -67,10 +67,12 @@
     }
   }
 
-  /* ---- 收集一级菜单(语言项已挪到顶栏国旗,跳过) ---- */
+  /* ---- 收集一级菜单(语言项已抽出为 .nav-lang 独立按钮,跳过) ---- */
   function collectItems(menu) {
+    // 桌面端菜单项包在 .nav-strip 里(见 header.pug),手机端直接取其子元素
+    var root = menu.querySelector(".nav-strip") || menu;
     var list = [];
-    Array.prototype.forEach.call(menu.children, function (el) {
+    Array.prototype.forEach.call(root.children, function (el) {
       if (el.classList.contains("search-toggle")) return;
       if (el.classList.contains("has-submenu")) {
         var children = [];
@@ -149,13 +151,9 @@
       var influence = Math.max(0, Math.min(1, 1 - dist / 110));
       influence = influence * influence * (3 - 2 * influence);
       el.style.transform = "scale(" + (1 + influence * 0.16) + ")";
+      // ★ 渐隐只用 opacity:Firefox 对 SVG 图层化元素(will-change:filter /
+      //   内联 filter)存在渲染 bug,会导致中间文字丢失 fill 颜色
       el.style.opacity = 0.35 + influence * 0.65;
-      el.style.filter =
-        "saturate(" +
-        (0.25 + influence * 0.75) +
-        ") brightness(" +
-        (0.92 + influence * 0.08) +
-        ")";
     }
   }
 

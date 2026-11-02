@@ -41,6 +41,20 @@
     display: none; /* 搜索按钮已挪到顶栏 */
   }
 
+  /* 桌面端右侧固定区(搜索+语言)手机端由顶栏独立按钮替代 */
+  .nav-right {
+    display: none;
+  }
+
+  /* 菜单项已包进 .nav-strip:手机端不参与布局,由 nav-scale 刻度尺接管 */
+  .nav-menu .nav-strip {
+    display: contents;
+  }
+
+  .nav-menu .nav-strip-arrow {
+    display: none !important; /* 刻度尺自带拖拽,不需要翻页箭头 */
+  }
+
   /* ---- 展开面板:精密刻度尺(扁) ---- */
   .nav-menu {
     position: absolute;
@@ -97,7 +111,9 @@
   .ns-item {
     transform-box: fill-box;
     transform-origin: center;
-    will-change: transform, opacity, filter;
+    /* 不加 will-change: filter——Firefox 对 SVG 图层化 + filter 有渲染 bug,
+       会丢掉 .ns-text 的 fill 颜色(表现为中间文字没有颜色) */
+    will-change: transform, opacity;
   }
 
   .ns-text {
