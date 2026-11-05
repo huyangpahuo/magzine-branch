@@ -17,7 +17,7 @@
   function facadeInnerHtml() {
     return (
       '<span class="video-facade-btn" aria-hidden="true"></span>' +
-      '<span class="video-facade-tip">点击加载 · 不自动播放</span>'
+      '<span class="video-facade-tip" data-i18n-key="video.facade_tip">' + (window.i18n && window.i18n.text ? window.i18n.text("video.facade_tip") : "点击加载 · 不自动播放") + '</span>'
     );
   }
 
@@ -26,7 +26,7 @@
     if (!src) return;
     var frame = document.createElement("iframe");
     frame.src = src;
-    frame.title = "嵌入视频";
+    frame.title = window.i18n && window.i18n.text ? window.i18n.text("video.embed_title") : "嵌入视频";
     frame.setAttribute("frameborder", "0");
     // 虎牙页面自身内容可能比 iframe 高,禁掉它的内部滚动条
     frame.setAttribute("scrolling", "no");

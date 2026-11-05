@@ -1,21 +1,36 @@
 # ============================================================
-# 中文字典(默认语言)
-# 键 = 稳定的词条 ID(与 en.yml 一一对应),值 = 实际展示的中文文案
-# 构建期由 scripts/other/lang-dict.js 与 en.yml 拉链合成运行时字典
-# 新增词条:在 zh.yml / en.yml 里加同名键即可,重新 hexo generate 生效
+# 中文字典(基准 · 页面文案的唯一来源)
+#
+# 翻译契约(详见 docs/06-国际化架构.md):
+#   - 键 = 稳定词条 ID,值 = 页面实际渲染的中文;模板用 zh('键') 渲染、
+#     JS 用 i18n.get('键') 取词,不再各自硬编码中文;
+#   - 其余语言(en/ja/ru.yml)同键,值 = 对应译文;
+#   - 运行期只按词条 ID 换文案,不做 DOM 全页扫描,
+#     正文/标题/标签/分类等"内容"永远不会被误翻。
+#
+# ★ 每一节都标注了使用它的模板/脚本,改文案前可按图索骥;
+#   反过来在模板里看到 zh('xxx') / i18n.get('xxx'),来本文件搜键名即可。
+# 新增词条:四个 yml 加同名键,重新 hexo generate 生效;
+#   配合 npm run check:cjk 检查模板/脚本里还有没有漏网的裸中文。
 # ============================================================
 
-# ---- 站点通用 ----
 _meta:
   flag: "🇨🇳"
   label: 中文
 
+# ────────────────────────────────────────────────────────────
+# 站点通用(经 data-i18n-value / i18n.get(配置中文) 的"值索引"使用:
+# footer.pug、author-card.pug、cover.pug、main.js 打字机)
+# ────────────────────────────────────────────────────────────
 site:
   owner_name: 胡杨怕火
   tagline: "传递笑容魔法的Ciallo～(∠・ω< )⌒☆"
   copyright: "© 2025 胡杨怕火. 保留所有权利."
 
-# ---- 导航 ----
+# ────────────────────────────────────────────────────────────
+# 导航菜单(layout/_partial/header.pug;菜单项来自 _config.yml 的
+# theme.menu,经 data-i18n-value 值索引翻译)
+# ────────────────────────────────────────────────────────────
 nav:
   home: 首页
   about_me: 关于我
@@ -27,19 +42,28 @@ nav:
   tags: 标签
   categories: 分类
   writings: 文章
+  scroll_left: 向左滚动菜单
+  scroll_right: 向右滚动菜单
 
-# ---- 首页 Hero ----
+# ────────────────────────────────────────────────────────────
+# 首页 Hero(index.pug;打字文案/滚动提示来自 _config.yml,值索引)
+# ────────────────────────────────────────────────────────────
 hero:
   scroll_down: 向下滚动探索更多
   welcome: 欢迎来到我的奇妙世界
   start_journey: 开始你的旅行
 
-# ---- 首页 Hero 特效面板 ----
+# ────────────────────────────────────────────────────────────
+# 首页 Hero 特效面板(source/js/effects/hero-panel.js 及各 hero-*.js)
+# ────────────────────────────────────────────────────────────
 hero_panel:
   effects: 特效
   effects_badge: "✦ 特效"
   title: 首页特效
   panel: 首页特效面板
+  fx_fluid: 流体模拟
+  fx_watercolor: 水彩光晕
+  fx_waterwave: 水波折射
   watercolor: 水彩光晕
   animation_speed: 动画速度
   glow_intensity: 光晕强度
@@ -62,11 +86,30 @@ hero_panel:
   bloom: 辉光
   random_splat: 随机喷发
 
-# ---- 刚读过 / 代码块 ----
+# ────────────────────────────────────────────────────────────
+# 跨文件通用词条(多个模板/脚本共用)
+# ────────────────────────────────────────────────────────────
+common:
+  back_home: 返回首页
+  total: 共有
+  posts_unit: 篇文章
+  copy: 复制
+  copied: 已复制
+  copied_check: "已复制 ✓"
+  close: 关闭
+  article_detail: 文章详情
+  loading: "加载中..."
+
+# ────────────────────────────────────────────────────────────
+# 刚读过(source/js/features/just-read.js)
+# ────────────────────────────────────────────────────────────
 recent:
   label: 刚读过
   pin: 刚读过置顶
 
+# ────────────────────────────────────────────────────────────
+# 代码块(source/js/content/highlight.js、core/main.js)
+# ────────────────────────────────────────────────────────────
 code:
   expand: 展开代码
   collapse: 折叠代码
@@ -75,89 +118,56 @@ code:
   copy_failed: 复制失败
   not_found: 未找到代码内容
 
-# ---- 关于页 ----
+# ────────────────────────────────────────────────────────────
+# 关于页(layout/about.pug、source/js/pages/about.js)
+# 注意:个人资料(profile)与技能标签(interest-cloud)是"会增删的词条",
+#       不在本字典里 —— 维护 source/_data/about.yml 的 profile/skills,
+#       每条自带 _en/_ja/_ru 字段,增删条目无需动字典。
+# ────────────────────────────────────────────────────────────
 about:
   no_data: 暂无数据
+  me: 关于我
   skills_title: 我的技能点
   murmur: 碎碎念
   contact: 联系方式
-  intro_1: "大家好! 欢迎来到我的个人Blog空间"
-  intro_2: "我会不定期的分享一些有关各个学科的知识的(当然我也是各个领域的彩笔),同时Unity和Godot游戏开发的一些想法也会写进去"
-  intro_3: "本人没什么实力只会当CV小白捏,完全是啥也不懂的半吊子,离不开GPT,Gemini还有Claude三个大神   @_@"
   contact_email: 邮箱
   contact_bilibili: 哔哩哔哩
-  # 兴趣卡片(已有 about.yml 的 title_en/description_en/details_en 显式字段,此处为字典兜底)
-  card_1_title: 逃离后室
-  card_1_desc: 在不断的切出层级中探寻生的希望
-  card_1_details: 下次窃皮者来的时候不要堵门你尔朵隆吗
-  card_2_title: 小丑牌
-  card_2_desc: 一旦拥有爱不释手
-  card_2_details: 结果就是玩上瘾了
-  card_3_title: 看门狗
-  card_3_desc: 赋予游戏以美国都市的真实感
-  card_3_details: "没错,我是嘉豪"
-  card_4_title: 我的世界
-  card_4_desc: "生存探索无限,创造缔造奇迹"
-  card_4_details: 准备好进服务器偷别人家了吗孩子们
-  card_5_title: 师父
-  card_5_desc: 抬手不是抱歉
-  card_5_details: "这,即是武德.jpg"
-  card_6_title: 米塔
-  card_6_desc: 满足了我对二次元的所有幻想
-  card_6_details: "幻想死了 狗头狗头狗头"
 
-# ---- 关于页 个人信息 ----
-profile:
-  name: 称呼
-  age: 年龄
-  age_value: 19岁
-  university: 大学
-  university_value: 河南师范大学软件工程
-  hobbies: 爱好
-  hobbies_value: 做游戏和绘画
-  skills: 擅长
-  skills_value: 吃饱睡睡饱吃
-  identity: 身份
-  identity_value: 二次元爱好者
-
-# ---- 技能标签 ----
-skill:
-  photography_editing: 摄影和剪辑
-  pixel_anime_art: 像素画和二次元绘画
-  logo_vector: Logo和矢量图设计
-  programming: 各种计算机语言
-  blender: Blender建模
-  computer_graphics: 计算机图形学
-  wechat_miniprogram: 微信小程序
-  game_dev: 游戏制作
-  novel: 写小说
-  minecraft_modding: 我的世界模组制作
-  english: 英语
-  japanese: 日语
-  frontend_db: 前端和数据库
-  android: 安卓应用制作
-
-# ---- 404 页面 ----
+# ────────────────────────────────────────────────────────────
+# 404 页面(layout/404.pug)
+# ────────────────────────────────────────────────────────────
 error404:
   title: "哎呀, 页面迷路了~"
   desc: "你要找的页面不存在, 或者它跑去二次元了 (´･ω･`)"
   back_home: "别担心, 点击下面的按钮就能回家!"
   browse_archives: 去逛归档
 
-# ---- 手机端刻度尺导航 ----
+# ────────────────────────────────────────────────────────────
+# 手机端刻度尺导航(source/js/core/mobile-scale.js)
+# ────────────────────────────────────────────────────────────
 mobile:
   scale_hint: "左右滑动 · 点击选择"
 
-# ---- 分类 ----
+# ────────────────────────────────────────────────────────────
+# 分类(categories.pug / category.pug)
+# 注意:分类名是内容,永远不翻译;下面只有界面词条。
+# ────────────────────────────────────────────────────────────
 category:
   all: 所有分类
+  browse_all: 浏览所有分类
   empty: 暂无分类
   start_adding: 开始为您的文章添加分类
   related: 相关分类
+  discover: 探索与
+  related_posts: 相关的所有文章
   back_to_all: 返回所有分类
   no_posts: 该分类下暂无文章
+  try_other: 尝试浏览其他分类
+  try_other_or_home: 尝试浏览其他分类或返回首页
 
-# ---- 标签 ----
+# ────────────────────────────────────────────────────────────
+# 标签(tag.pug;标签名是内容,不翻译)
+# ────────────────────────────────────────────────────────────
 tag:
   empty: 暂无标签
   start_adding: 开始为您的文章添加标签
@@ -165,15 +175,13 @@ tag:
   discover: 探索与
   related_posts: 相关的所有文章
   back_to_all: 返回所有标签
+  no_posts: 该标签下暂无文章
+  try_other_or_home: 尝试浏览其他标签或返回首页
 
-# ---- 计数 / 通用 ----
-common:
-  back_home: 返回首页
-  total: 共有
-  posts_unit: 篇文章
-  copy: 复制
-
-# ---- 友链页 ----
+# ────────────────────────────────────────────────────────────
+# 友链页(layout/link.pug、source/js/pages/link.js)
+# 友链名/描述是数据,翻译写在 source/_data/link.yml 的 *_en/*_ja 字段
+# ────────────────────────────────────────────────────────────
 link:
   portals: 传送门
   slogan: 有志者事竟成多么美好的世界呀
@@ -189,27 +197,23 @@ link:
   copy_template: 复制模板
   shuffle: "摇一摇~"
 
-# ---- 评论区 ----
+# ────────────────────────────────────────────────────────────
+# 评论区(layout/_partial/comments.pug;评论内容本身不经翻译层)
+# ────────────────────────────────────────────────────────────
 comments:
   title: 评论区
-  nickname: 昵称
-  url: 网址
-  required: 必填
-  optional: 选填
-  preview: 预览
-  submit: 发送
-  empty: 没有评论
-  twikoo_loaded: Twikoo评论加载成功
 
-# ---- 追番页 UI ----
+# ────────────────────────────────────────────────────────────
+# 追番页(layout/anime.pug、source/js/pages/anime.js)
+# ★ 番剧名不再翻译:各语言的官方译名维护成本高,标题一律按数据原文显示;
+#   播放器"换源/选集"功能保留。
+# ────────────────────────────────────────────────────────────
 anime:
   my_list: 我的追番
   empty: "暂无追番数据，请确保已在 source/_data/anime/ 目录下创建了 yml 文件"
   watched: 已观看
   click_to_watch: 点击观看
-  loading: "正在加载..."
   episodes_sources: "选集/换源"
-  loading_short: "加载中..."
   episodes: 选集
   playlist: 播放列表
   characters: 登场角色
@@ -221,38 +225,13 @@ anime:
   no_characters: 暂无角色信息
   load_failed: "加载失败，请检查网络"
   source_not_found: "未能找到《{t}》的播放源，请检查 yml 配置！"
-  # 番剧标题(已有各 yml 的 title_en 显式字段,此处为字典兜底)
-  title_01: 咒术回战乙骨忧太篇
-  title_02: 咒术回战第一季
-  title_03: 咒术回战第二季
-  title_04: 咒术回战第三季
-  title_05: JOJO的奇妙冒险
-  title_06: "JOJO的奇妙冒险 星尘远征军"
-  title_07: "JOJO的奇妙冒险 星尘远征军 埃及篇"
-  title_08: "JOJO的奇妙冒险 黄金之风"
-  title_09: "JOJO的奇妙冒险 不灭钻石"
-  title_10: "JOJO的奇妙冒险 石之海"
-  title_11: "JOJO的奇妙冒险 飙马野郎"
-  title_12: 岸边露伴 一动也不动
-  title_13: 间谍过家家第一季
-  title_14: 间谍过家家第二季
-  title_15: "间谍过家家 代号白"
-  title_16: 工作细胞第一季
-  title_17: 工作细胞第二季
-  title_18: 工作细胞BLACK
-  title_19: 石纪元第一季
-  title_20: 石纪元第二季
-  title_21: 石纪元龙水篇
-  title_22: 石纪元第三季
-  title_23: 石纪元第四季
-  title_24: 进击的巨人第一季
-  title_25: 进击的巨人第二季
-  title_26: 进击的巨人第三季
-  title_27: 进击的巨人第四季
-  title_28: 电锯人
-  title_29: 电锯人蕾塞篇
+  default_source: 默认源
+  no_m3u8: "您的浏览器不支持 m3u8 播放"
+  blob_error: "播放失败！\n\n检测到使用了 blob: 链接，这通常是其他网站的临时缓存，无法跨站播放。\n请换源或使用真实的 .m3u8 直链！"
 
-# ---- 更多菜单 ----
+# ────────────────────────────────────────────────────────────
+# 更多菜单(_config.yml theme.menu 里的"更多"子菜单,值索引)
+# ────────────────────────────────────────────────────────────
 more:
   site_1: 我的另一个网站
   site_2: "我的另二个网站(狗头)"
@@ -260,14 +239,19 @@ more:
   gitee: 我的Gitee
   csdn: 我的CDSN
 
-# ---- 隐藏内容 ----
+# ────────────────────────────────────────────────────────────
+# 隐藏内容(source/js/content/hide-inline-interaction.js、tag/hide-inline.js)
+# ────────────────────────────────────────────────────────────
 hidden:
   reveal: 点击查看隐藏内容
   click_view: 点击查看
   click_view_icon: "👆 点击查看"
   click_restore: " (点击恢复)"
 
-# ---- AI 摘要 ----
+# ────────────────────────────────────────────────────────────
+# AI 摘要(source/js/features/postai.js;配置项来自 _config.yml ai_summary,
+# 按钮等配置中文走值索引;提示词决定 AI 回复语言)
+# ────────────────────────────────────────────────────────────
 ai:
   name: 阿罗娜
   introduce: 介绍自己
@@ -276,8 +260,6 @@ ai:
   greeting: "老师好, 我是阿罗娜, 一个基于OpenAI GPT-4o的强大语言模型, 今天有什么可以帮到您? 😊"
   generating: "生成中. . ."
   please_wait: "请等待. . ."
-  # 以下为 AI 面板的运行期文案与提示词({name}/{title}/{content} 为占位符)
-  # 提示词写在语言文件里,AI 的回复语言因此自动跟随界面语言
   init: "{name}初始化中..."
   error: "{name}请求AI出错了，请稍后再试。"
   rate_limited: "请求过于频繁，请稍后再请求AI。"
@@ -285,33 +267,51 @@ ai:
   prompt_summary: "请根据以下文章内容生成一个简洁的摘要，不要超过200字，不要换行，不要提出建议或评论，只需总结文章主要内容。文章标题和内容如下：{content}"
   content_wrapper: "文章标题：{title}。文章内容：{content}"
 
-# ---- 文章 ----
+# ────────────────────────────────────────────────────────────
+# 文章卡片/文章页(index.pug、post.pug、page.pug、category.pug、tag.pug、
+# core/load-more.js、core/main.js、features/search.js)
+# 注意:文章标题/摘要只在 front matter 写了 title_<lang>/description_<lang>
+#       时才经显式属性通道翻译;正文永不翻译。
+# ────────────────────────────────────────────────────────────
 post:
   click_read: "点击阅读->"
   read_full: 阅读全文
+  read_more_arrow: "Read more →"
   prev: "← 上一篇"
   next: "下一篇 →"
+  prev_page: 上一页
+  next_page: 下一页
+  page_input_hint: "页码,可输入后点击加载更多跳转"
   load_more: 加载更多文章
   loading: " 加载中..."
   no_more: "没有了哦~"
+  invalid_page: "无效页码哦~"
   load_error: 加载文章失败
   minutes: 分钟
   words: 字
   found_results: "找到 {n} 个结果"
   untitled: 无标题
 
-# ---- 目录 ----
+# ────────────────────────────────────────────────────────────
+# 目录(post.pug / page.pug 的侧栏标题、source/js/content/toc.js)
+# 目录条目来自文章标题,是内容,不翻译
+# ────────────────────────────────────────────────────────────
 toc:
   title: 目录
   empty: 无目录
+  toggle: 折叠/展开
 
-# ---- 搜索 ----
+# ────────────────────────────────────────────────────────────
+# 搜索(source/js/features/search.js、_partial/search.pug)
+# ────────────────────────────────────────────────────────────
 search:
   placeholder: "搜索文章..."
   index_missing: 搜索索引未加载
   no_results: 没有找到相关结果
 
-# ---- 图片查看器 ----
+# ────────────────────────────────────────────────────────────
+# 图片查看器(source/js/content/image-zoom.js)
+# ────────────────────────────────────────────────────────────
 viewer:
   prev: 上一张
   next: 下一张
@@ -319,8 +319,18 @@ viewer:
   lock: 正向锁定
   unlock: 解除锁定
   save: 保存图片
+  close: 关闭
 
-# ---- 分享 ----
+# ────────────────────────────────────────────────────────────
+# 第三方视频占位(source/js/content/video-embed.js)
+# ────────────────────────────────────────────────────────────
+video:
+  facade_tip: "点击加载 · 不自动播放"
+  embed_title: 嵌入视频
+
+# ────────────────────────────────────────────────────────────
+# 分享(post.pug、source/js/content/share.js)
+# ────────────────────────────────────────────────────────────
 share:
   title: 分享这篇文章到
   twitter: 推特
@@ -334,24 +344,29 @@ share:
   wechat_scan: 微信扫一扫分享
   wechat_tip: "打开微信，点击底部的\"发现\"，使用\"扫一扫\"即可将网页分享至朋友圈。"
 
-# ---- 主页作者名片拉绳 ----
+# ────────────────────────────────────────────────────────────
+# 作者名片拉绳(index.pug/_partial/author-card.pug、core/main.js)
+# ────────────────────────────────────────────────────────────
 author_card:
   hide: 收起名片
   show: 展开名片
 
-# ---- 置顶徽章 ----
-badge:
-  pinned: 置顶
-
-# ---- 调色盘 ----
+# ────────────────────────────────────────────────────────────
+# 调色盘(_partial/color-picker.pug)
+# ────────────────────────────────────────────────────────────
 palette:
   custom_color: 自定义主题色
 
-# ---- Sakana 小人 ----
+# ────────────────────────────────────────────────────────────
+# Sakana 小人(_partial/sakana.pug)
+# ────────────────────────────────────────────────────────────
 sakana:
   switch_character: 切换角色
 
-# ---- 音乐播放器 ----
+# ────────────────────────────────────────────────────────────
+# 音乐播放器(_partial/music-player.pug、features/music-player.js)
+# 歌名/歌手是数据(source/_data/music.yml),不翻译
+# ────────────────────────────────────────────────────────────
 music:
   expand: 展开播放器
   collapse: 收起播放器
@@ -363,14 +378,20 @@ music:
   not_playing: 未在播放
   no_songs: "请在 _config.yml 中配置歌曲"
 
-# ---- 照片墙 ----
+# ────────────────────────────────────────────────────────────
+# 照片墙(wall.pug、source/js/pages/wall.js)
+# ────────────────────────────────────────────────────────────
 wall:
   leave_mark: 在这里留下你的足迹
   message: 留言
   message_board: 留言板
   title: 照片墙
+  anonymous: 匿名
+  nothing_left: "什么也没留下~"
 
-# ---- 桌宠 ----
+# ────────────────────────────────────────────────────────────
+# 桌宠(source/js/pet/pet-chat.js 等_pet/*.js)
+# ────────────────────────────────────────────────────────────
 pet:
   drag_1: "放开我!!!"
   drag_2: "救命啊!!!"
@@ -390,7 +411,9 @@ pet:
   idle_6: "可以放首歌吗我想听歌!!!"
   no_right_click: 不要右键戳我
 
-# ---- 桌宠设置面板 ----
+# ────────────────────────────────────────────────────────────
+# 桌宠音乐面板(source/js/pet/pet-music.js)
+# ────────────────────────────────────────────────────────────
 pet_settings:
   music_control: 全局音乐控制
   no_music: 未加载音乐
@@ -398,26 +421,31 @@ pet_settings:
   mute: 静音
   unmute: 取消静音
 
-# ---- Mermaid 图表 ----
+# ────────────────────────────────────────────────────────────
+# Mermaid 图表(source/js/content/mermaid.js、table.js)
+# ────────────────────────────────────────────────────────────
 mermaid:
   zoom_in: 放大
   zoom_out: 缩小
   reset: 重置
   restore: 复原
   copy_source: 复制源码
-  copied_check: "已复制 ✓"
-  copied: 已复制
   fullscreen: 全屏查看
   expand: 展开图表
   collapse: 折叠图表
 
-# ---- 表格 ----
+# ────────────────────────────────────────────────────────────
+# 表格(source/js/content/table.js)
+# ────────────────────────────────────────────────────────────
 table:
   copy: 复制表格
   expand: 展开表格
   collapse: 折叠表格
+  reset: 复原
 
-# ---- 读者设置面板 ----
+# ────────────────────────────────────────────────────────────
+# 读者设置面板(source/js/core/reader-settings.js)
+# ────────────────────────────────────────────────────────────
 settings:
   title: 设置
   close: 关闭
@@ -445,8 +473,10 @@ settings:
   click_effect: 鼠标点击效果
   heart_text: 爱心文字
   triangle_fireworks: 三角烟花
+  off: 关闭
   cover: 封面
   cover_enable: 启用封面
+  hero_effects: 首页特效
   hero_fx_enable: 启用首页特效
   reading: 文章浏览
   view_mode: 浏览方式
@@ -465,13 +495,16 @@ settings:
   pjax: 无感刷新
   pjax_enable: 启用无感刷新
   top_banner: 显示顶部横幅
+  murmur_banner: 碎碎念横幅
   author_card: 作者卡片
   width: 宽度
   card_size: 卡片大小
   size_normal: 标准
   size_large: 大
 
-# ---- 分类页文件夹视图(仅电脑端) ----
+# ────────────────────────────────────────────────────────────
+# 分类页文件夹视图(categories.pug、pages/categories-explorer.js)
+# ────────────────────────────────────────────────────────────
 categories_view:
   list: 竖排
   folders: 文件夹
@@ -480,7 +513,9 @@ categories_view:
   sort_date: 按日期
   sort_name: 按字母
 
-# ---- 碎碎念/万花筒 ----
+# ────────────────────────────────────────────────────────────
+# 碎碎念/万花筒(murmur.pug)
+# ────────────────────────────────────────────────────────────
 murmur:
   title: 万花筒
   empty: "暂无碎碎念，去记录点什么吧~"

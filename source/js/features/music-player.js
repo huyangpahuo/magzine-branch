@@ -247,9 +247,18 @@
       }
     }
 
+    // 界面文案走 language/*.yml 词条(中文模式解析 zh.yml,缺译回退英文)
+    const t = (key) =>
+      window.i18n && typeof window.i18n.text === "function"
+        ? window.i18n.text(key)
+        : key;
+
     if (songs.length === 0) {
-      titleEls.forEach((el) => (el.textContent = "未在播放"));
-      artistEls.forEach((el) => (el.textContent = "请在 _config.yml 中配置歌曲"));
+      titleEls.forEach((el) => {
+        el.setAttribute("data-i18n-key", "music.not_playing");
+        el.textContent = t("music.not_playing");
+      });
+      artistEls.forEach((el) => (el.textContent = t("music.no_songs")));
       return;
     }
 
@@ -306,10 +315,10 @@
             ? '<i class="fas fa-retweet"></i>'
             : '<i class="fas fa-repeat"></i><span style="font-size:10px;font-weight:bold;margin-left:-6px;">1</span>';
 
-        btn.setAttribute(
-          "data-title",
-          loopMode === "list" ? "列表循环" : "单曲循环",
-        );
+        // 循环模式提示随状态变化:同步更新词条标记
+        const loopKey = loopMode === "list" ? "music.loop_list" : "music.loop_one";
+        btn.setAttribute("data-i18n-key-title", loopKey);
+        btn.setAttribute("data-title", t(loopKey));
       }),
     );
 
@@ -333,7 +342,13 @@
       const song = songs[index];
       if (!song) return;
       audio.src = song.src;
-      titleEls.forEach((el) => (el.textContent = song.title));
+      // ★ 歌名/歌手是 music.yml 的内容,不属于翻译层:写入动态内容时
+      //   必须摘掉"未在播放"状态的词条标记,否则切换语言时 applyTree
+      //   会按 music.not_playing 词条把歌名改写成状态文案
+      titleEls.forEach((el) => {
+        el.removeAttribute("data-i18n-key");
+        el.textContent = song.title;
+      });
       artistEls.forEach((el) => (el.textContent = song.artist || "-"));
       if (song.cover) {
         coverImgs.forEach((img) => {

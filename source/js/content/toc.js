@@ -64,7 +64,8 @@ document.addEventListener("DOMContentLoaded", function () {
         // 显示"无目录"提示
         const tocTitle = tocSidebar.querySelector(".toc-title");
         if (tocTitle) {
-          tocTitle.textContent = "无目录";
+          tocTitle.setAttribute("data-i18n-key", "toc.empty");
+          tocTitle.textContent = window.i18n && window.i18n.text ? window.i18n.text("toc.empty") : "无目录";
         }
       }
     }
@@ -251,7 +252,8 @@ document.addEventListener("DOMContentLoaded", function () {
             const caret = document.createElement("button");
             caret.type = "button";
             caret.className = "toc-caret";
-            caret.setAttribute("aria-label", "折叠/展开");
+            caret.setAttribute("data-i18n-key-aria-label", "toc.toggle");
+            caret.setAttribute("aria-label", window.i18n && window.i18n.text ? window.i18n.text("toc.toggle") : "折叠/展开");
             parentRow.insertBefore(caret, parentRow.firstChild);
           }
         }
@@ -322,7 +324,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // 创建移动端目录标题
     const mobileTocTitle = document.createElement("div");
     mobileTocTitle.className = "toc-title";
-    mobileTocTitle.textContent = "目录";
+    mobileTocTitle.setAttribute("data-i18n-key", "toc.title");
+    mobileTocTitle.textContent = window.i18n && window.i18n.text ? window.i18n.text("toc.title") : "目录";
 
     // 创建移动端目录内容
     const mobileTocContent = document.createElement("div");

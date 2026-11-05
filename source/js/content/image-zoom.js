@@ -67,6 +67,12 @@
         '<svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>',
     };
 
+    // 查看器是常驻节点:文案走词条并打 key 标记,语言切换随 applyTree 刷新
+    const t = (key) =>
+      window.i18n && typeof window.i18n.text === "function"
+        ? window.i18n.text(key)
+        : key;
+
     /* ============ DOM ============ */
     const imageViewer = document.createElement("div");
     imageViewer.className = "image-viewer";
@@ -76,14 +82,14 @@
       </div>
       <div class="viewer-peek prev"><img src="" alt="" draggable="false"></div>
       <div class="viewer-peek next"><img src="" alt="" draggable="false"></div>
-      <div class="nav-btn prev" data-title="上一张">❮</div>
-      <div class="nav-btn next" data-title="下一张">❯</div>
+      <div class="nav-btn prev" data-i18n-key-title="viewer.prev" data-title="${t("viewer.prev")}">❮</div>
+      <div class="nav-btn next" data-i18n-key-title="viewer.next" data-title="${t("viewer.next")}">❯</div>
       <div class="viewer-toolbar">
-        <button class="toolbar-btn rotate-btn" data-title="旋转90°">${icons.rotate}</button>
-        <button class="toolbar-btn lock-btn" data-title="正向锁定">${icons.lock}</button>
-        <button class="toolbar-btn download-btn" data-title="保存图片">${icons.download}</button>
+        <button class="toolbar-btn rotate-btn" data-i18n-key-title="viewer.rotate" data-title="${t("viewer.rotate")}">${icons.rotate}</button>
+        <button class="toolbar-btn lock-btn" data-i18n-key-title="viewer.lock" data-title="${t("viewer.lock")}">${icons.lock}</button>
+        <button class="toolbar-btn download-btn" data-i18n-key-title="viewer.save" data-title="${t("viewer.save")}">${icons.download}</button>
       </div>
-      <div class="viewer-close" aria-label="关闭">
+      <div class="viewer-close" data-i18n-key-aria-label="viewer.close" aria-label="${t("viewer.close")}">
         <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
       </div>
       <div class="viewer-thumbs"></div>
@@ -428,7 +434,10 @@
       state.locked = !state.locked;
       btnLock.classList.toggle("active", state.locked);
       btnLock.innerHTML = state.locked ? icons.unlock : icons.lock;
-      btnLock.dataset.title = state.locked ? "解除锁定" : "正向锁定";
+      // 提示文案随锁定状态变化:同步更新词条标记
+      const lockKey = state.locked ? "viewer.unlock" : "viewer.lock";
+      btnLock.setAttribute("data-i18n-key-title", lockKey);
+      btnLock.dataset.title = t(lockKey);
     });
 
     btnDownload.addEventListener("click", (e) => {

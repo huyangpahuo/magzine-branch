@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // 我们尝试调用全局的翻译对象，如果不存在则返回原文本
   function t(text) {
     if (window.i18n && typeof window.i18n.get === "function") {
-      return window.i18n.get(text);
+      return window.i18n.text ? window.i18n.text(text) : text;
     }
     return text;
   }
@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const hiddenContent = this.getAttribute("data-hidden-content");
         // 获取默认显示文本，通常是 "点击查看"
         const displayText =
-          this.getAttribute("data-display-text") || "点击查看";
+          this.getAttribute("data-display-text") || "点击查看"; // i18n:allow(值通道/内容,有意保留的中文)
 
         // 保存原始样式
         const originalBgColor = this.style.backgroundColor;

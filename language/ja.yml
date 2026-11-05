@@ -1,10 +1,8 @@
 # ============================================================
-# 日本語辞書
-# 键 = 稳定的词条 ID(与 zh.yml 一一对应),值 = 日本語訳
-# 构建期由 scripts/other/lang-dict.js 与 zh.yml 拉链合成运行时字典
+# 日本語辞書(キーは zh.yml と一致、値 = 日本語訳)
+# 構築時に scripts/other/lang-dict.js が key で拉鏈(ジップ)して辞書を生成
 # ============================================================
 
-# ---- 站点通用 ----
 _meta:
   flag: "🇯🇵"
   label: 日本語
@@ -14,7 +12,6 @@ site:
   tagline: "笑顔の魔法を届けるCiallo～(∠・ω< )⌒☆"
   copyright: "© 2025 胡楊怕火. All rights reserved."
 
-# ---- 导航 ----
 nav:
   home: ホーム
   about_me: 私について
@@ -26,19 +23,22 @@ nav:
   tags: タグ
   categories: カテゴリ
   writings: ブログ
+  scroll_left: メニューを左へスクロール
+  scroll_right: メニューを右へスクロール
 
-# ---- 首页 Hero ----
 hero:
   scroll_down: 下にスクロールして続きを見る
   welcome: 私の素晴らしい世界へようこそ
   start_journey: 旅を始めよう
 
-# ---- 首页 Hero 特效面板 ----
 hero_panel:
   effects: エフェクト
   effects_badge: "✦ エフェクト"
   title: トップエフェクト
   panel: トップエフェクトパネル
+  fx_fluid: 流体シミュレーション
+  fx_watercolor: 水彩グロー
+  fx_waterwave: 水波屈折
   watercolor: 水彩グロー
   animation_speed: アニメ速度
   glow_intensity: 光の強さ
@@ -61,7 +61,17 @@ hero_panel:
   bloom: ブルーム
   random_splat: ランダム噴出
 
-# ---- 刚读过 / 代码块 ----
+common:
+  back_home: ホームに戻る
+  total: 全
+  posts_unit: 記事
+  copy: コピー
+  copied: コピー済み
+  copied_check: "コピー済み ✓"
+  close: 閉じる
+  article_detail: 記事詳細
+  loading: "読み込み中..."
+
 recent:
   label: 最近読んだ
   pin: 最近読んだを固定
@@ -74,89 +84,37 @@ code:
   copy_failed: コピーに失敗しました
   not_found: コードが見つかりません
 
-# ---- 关于页 ----
 about:
   no_data: データなし
+  me: 私について
   skills_title: 私のスキル
   murmur: つぶやき
   contact: 連絡先
-  intro_1: "こんにちは! 私の個人ブログへようこそ"
-  intro_2: "様々な分野の知識を不定期にシェアしていきます(もちろん全部の分野のど素人ですが)。UnityやGodotのゲーム開発に関するアイデアも書いていきます"
-  intro_3: "正直、大した実力はなくコピペばかりの初心者です。GPT、Gemini、Claudeという三大神様なしでは生きていけない半端者です @_@"
   contact_email: メール
   contact_bilibili: ビリビリ
-  # 兴趣卡片(已有 about.yml 的 title_en/description_en/details_en 显式字段,此处为字典兜底)
-  card_1_title: バックルームからの脱出
-  card_1_desc: 幾層もの切り替わりの中で生存の希望を探す
-  card_1_details: 次にスキンスティーラーが来たらドアを塞ぐなよ
-  card_2_title: バラトロ
-  card_2_desc: 一度手にしたら手放せない
-  card_2_details: それで完全にハマってしまった
-  card_3_title: ウォッチドッグス
-  card_3_desc: アメリカの都市のリアルさを再現
-  card_3_details: "その通り、私は嘉豪です"
-  card_4_title: マインクラフト
-  card_4_desc: サバイバルは無限、創造は奇跡を生む
-  card_4_details: サーバーで他人の家を奪う準備はできたかい、子供たち
-  card_5_title: シフ
-  card_5_desc: 手を出すのは謝罪じゃない
-  card_5_details: "これこそ武徳.jpg"
-  card_6_title: ミサイド
-  card_6_desc: 二次元に対するすべての幻想を満たしてくれた
-  card_6_details: 幻想は死んだ www
 
-# ---- 关于页 个人信息 ----
-profile:
-  name: 名前
-  age: 年齢
-  age_value: 19歳
-  university: 大学
-  university_value: 河南師範大学 ソフトウェア工学
-  hobbies: 趣味
-  hobbies_value: ゲーム制作とお絵描き
-  skills: 特技
-  skills_value: 食べて寝て、寝て食べて
-  identity: 身分
-  identity_value: 二次元愛好家
-
-# ---- 技能标签 ----
-skill:
-  photography_editing: 撮影・動画編集
-  pixel_anime_art: ドット絵・二次元イラスト
-  logo_vector: ロゴ・ベクターデザイン
-  programming: 各種プログラミング言語
-  blender: Blenderモデリング
-  computer_graphics: コンピュータグラフィクス
-  wechat_miniprogram: WeChatミニプログラム
-  game_dev: ゲーム制作
-  novel: 小説執筆
-  minecraft_modding: Minecraft Mod制作
-  english: 英語
-  japanese: 日本語
-  frontend_db: フロントエンド・データベース
-  android: Androidアプリ制作
-
-# ---- 404 页面 ----
 error404:
   title: "おっと、ページが迷子になった~"
   desc: "お探しのページは存在しないか、二次元の世界へ行ってしまいました (´･ω･`)"
   back_home: "ご心配なく、下のボタンでホームに戻れます!"
   browse_archives: アーカイブを見る
 
-# ---- 手机端刻度尺导航 ----
 mobile:
   scale_hint: "左右にスワイプ · タップで開く"
 
-# ---- 分类 ----
 category:
   all: すべてのカテゴリ
+  browse_all: すべてのカテゴリを見る
   empty: カテゴリなし
   start_adding: 記事にカテゴリを追加しましょう
   related: カテゴリ
+  discover: "「"
+  related_posts: "」の関連記事"
   back_to_all: カテゴリ一覧に戻る
   no_posts: このカテゴリには記事がありません
+  try_other: 他のカテゴリを見てみましょう
+  try_other_or_home: 他のカテゴリを見るかホームに戻りましょう
 
-# ---- 标签 ----
 tag:
   empty: タグなし
   start_adding: 記事にタグを追加しましょう
@@ -164,15 +122,9 @@ tag:
   discover: "タグ「"
   related_posts: "」の関連記事"
   back_to_all: タグ一覧に戻る
+  no_posts: このタグの記事はありません
+  try_other_or_home: 他のタグを見るかホームに戻りましょう
 
-# ---- 计数 / 通用 ----
-common:
-  back_home: ホームに戻る
-  total: 全
-  posts_unit: 記事
-  copy: コピー
-
-# ---- 友链页 ----
 link:
   portals: ポータル
   slogan: 志ある者は事竟に成る、なんて素敵な世界
@@ -188,27 +140,15 @@ link:
   copy_template: テンプレートをコピー
   shuffle: "シャッフル~"
 
-# ---- 评论区 ----
 comments:
   title: コメント
-  nickname: ニックネーム
-  url: URL
-  required: 必須
-  optional: 任意
-  preview: プレビュー
-  submit: 送信
-  empty: コメントなし
-  twikoo_loaded: Twikooコメントの読み込みに成功しました
 
-# ---- 追番页 UI ----
 anime:
   my_list: 私のアニメリスト
   empty: "アニメデータがありません。source/_data/anime/ に yml を作成してください"
   watched: 視聴済み
   click_to_watch: クリックして視聴
-  loading: "読み込み中..."
   episodes_sources: "エピソード/ソース"
-  loading_short: "読み込み中..."
   episodes: エピソード
   playlist: プレイリスト
   characters: 登場キャラクター
@@ -220,38 +160,10 @@ anime:
   no_characters: キャラクター情報がありません
   load_failed: "読み込みに失敗しました。ネットワークを確認してください"
   source_not_found: "「{t}」の再生ソースが見つかりません。yml 設定を確認してください！"
-  # 番剧标题(官方日文标题)
-  title_01: "劇場版 呪術廻戦 0"
-  title_02: 呪術廻戦 第1期
-  title_03: 呪術廻戦 第2期
-  title_04: 呪術廻戦 第3期
-  title_05: ジョジョの奇妙な冒険
-  title_06: ジョジョの奇妙な冒険 スターダストクルセイダース
-  title_07: ジョジョの奇妙な冒険 スターダストクルセイダース エジプト編
-  title_08: ジョジョの奇妙な冒険 黄金の風
-  title_09: ジョジョの奇妙な冒険 ダイヤモンドは砕けない
-  title_10: ジョジョの奇妙な冒険 ストーンオーシャン
-  title_11: ジョジョの奇妙な冒険 スティール・ボール・ラン
-  title_12: 岸辺露伴は動かない
-  title_13: SPY×FAMILY シーズン1
-  title_14: SPY×FAMILY シーズン2
-  title_15: "映画 SPY×FAMILY CODE: White"
-  title_16: はたらく細胞
-  title_17: はたらく細胞!!
-  title_18: はたらく細胞 BLACK
-  title_19: Dr.STONE
-  title_20: Dr.STONE STONE WARS
-  title_21: Dr.STONE 龍水
-  title_22: Dr.STONE NEW WORLD
-  title_23: Dr.STONE SCIENCE FUTURE
-  title_24: 進撃の巨人
-  title_25: 進撃の巨人 Season 2
-  title_26: 進撃の巨人 Season 3
-  title_27: 進撃の巨人 The Final Season
-  title_28: チェンソーマン
-  title_29: 劇場版 チェンソーマン レゼ篇
+  default_source: デフォルトソース
+  no_m3u8: "お使いのブラウザは m3u8 再生に対応していません"
+  blob_error: "再生に失敗しました!\n\nblob: リンクが検出されました。これは他サイトの一時キャッシュで、クロスオリジン再生できません。\nソースを切り替えるか、実際の .m3u8 直リンクを使用してください!"
 
-# ---- 更多菜单 ----
 more:
   site_1: もう一つのサイト
   site_2: もう二つ目のサイト(笑)
@@ -259,14 +171,12 @@ more:
   gitee: 私のGitee
   csdn: 私のCSDN
 
-# ---- 隐藏内容 ----
 hidden:
   reveal: 隠しコンテンツを表示
   click_view: クリックして表示
   click_view_icon: "👆 クリックして表示"
   click_restore: " (クリックで戻す)"
 
-# ---- AI 摘要 ----
 ai:
   name: アロナ
   introduce: 自己紹介
@@ -275,7 +185,6 @@ ai:
   greeting: "こんにちは先生! 私はアロナ、OpenAI GPT-4oベースの強力な言語モデルです。今日は何をお手伝いしましょうか? 😊"
   generating: "生成中. . ."
   please_wait: "お待ちください. . ."
-  # 以下为 AI 面板的运行期文案与提示词({name}/{title}/{content} 为占位符)
   init: "{name}を初期化中..."
   error: "{name}のAIリクエストでエラーが発生しました。後でもう一度お試しください。"
   rate_limited: "リクエストが多すぎます。しばらくしてからもう一度お試しください。"
@@ -283,33 +192,35 @@ ai:
   prompt_summary: "以下の記事内容から簡潔な要約を日本語で生成してください。200文字以内、改行なし、提案や評論は不要で、主な要点だけをまとめてください。記事のタイトルと内容は以下の通りです：{content}"
   content_wrapper: "記事タイトル：{title}。記事内容：{content}"
 
-# ---- 文章 ----
 post:
   click_read: "クリックして読む ->"
   read_full: 続きを読む
+  read_more_arrow: "Read more →"
   prev: "← 前の記事"
   next: "次の記事 →"
+  prev_page: 前のページ
+  next_page: 次のページ
+  page_input_hint: "ページ番号:入力して「記事をさらに読み込む」でジャンプ"
   load_more: 記事をさらに読み込む
-  loading: " 読み込み中..."
+  loading: "読み込み中..."
   no_more: "記事はこれ以上ありません~"
+  invalid_page: "無効なページ番号です~"
   load_error: 記事の読み込みに失敗しました
   minutes: 分
   words: 文字
   found_results: "{n} 件の結果が見つかりました"
   untitled: 無題
 
-# ---- 目录 ----
 toc:
   title: 目次
   empty: 目次なし
+  toggle: 折りたたみ/展開
 
-# ---- 搜索 ----
 search:
   placeholder: "記事を検索..."
   index_missing: 検索インデックスが未読み込みです
   no_results: 結果が見つかりませんでした
 
-# ---- 图片查看器 ----
 viewer:
   prev: 前の画像
   next: 次の画像
@@ -317,8 +228,12 @@ viewer:
   lock: 向きをロック
   unlock: ロック解除
   save: 画像を保存
+  close: 閉じる
 
-# ---- 分享 ----
+video:
+  facade_tip: "クリックで読み込み · 自動再生なし"
+  embed_title: 埋め込み動画
+
 share:
   title: この記事をシェアする
   twitter: Twitter
@@ -332,24 +247,16 @@ share:
   wechat_scan: WeChatでスキャンしてシェア
   wechat_tip: "WeChatを開き、下部の「発見」をタップして「スキャン」でこのページをモーメンツにシェアできます。"
 
-# ---- 主页作者名片拉绳 ----
 author_card:
   hide: 名刺を閉じる
   show: 名刺を開く
 
-# ---- 置顶徽章 ----
-badge:
-  pinned: 固定
-
-# ---- 调色盘 ----
 palette:
   custom_color: テーマカラーのカスタマイズ
 
-# ---- Sakana 小人 ----
 sakana:
   switch_character: キャラクター切替
 
-# ---- 音乐播放器 ----
 music:
   expand: プレーヤーを展開
   collapse: プレーヤーを閉じる
@@ -361,14 +268,14 @@ music:
   not_playing: 再生していません
   no_songs: "_config.yml で曲を設定してください"
 
-# ---- 照片墙 ----
 wall:
   leave_mark: ここに足跡を残してください
   message: メッセージ
   message_board: 掲示板
   title: フォトウォール
+  anonymous: 匿名
+  nothing_left: "何も残していません~"
 
-# ---- 桌宠 ----
 pet:
   drag_1: "離して!!!"
   drag_2: "助けて!!!"
@@ -388,7 +295,6 @@ pet:
   idle_6: "曲を流してくれない?聴きたい!!!"
   no_right_click: 右クリックでつつかないで
 
-# ---- 桌宠设置面板 ----
 pet_settings:
   music_control: グローバル音楽コントロール
   no_music: 音楽が未読み込みです
@@ -396,26 +302,22 @@ pet_settings:
   mute: ミュート
   unmute: ミュート解除
 
-# ---- Mermaid 图表 ----
 mermaid:
   zoom_in: 拡大
   zoom_out: 縮小
   reset: リセット
   restore: 復元
   copy_source: ソースをコピー
-  copied_check: "コピー済み ✓"
-  copied: コピー済み
   fullscreen: 全画面表示
   expand: 図を展開
   collapse: 図を折りたたむ
 
-# ---- 表格 ----
 table:
   copy: 表をコピー
   expand: 表を展開
   collapse: 表を折りたたむ
+  reset: 復元
 
-# ---- 读者设置面板 ----
 settings:
   title: 設定
   close: 閉じる
@@ -443,8 +345,10 @@ settings:
   click_effect: クリックエフェクト
   heart_text: ハートテキスト
   triangle_fireworks: 三角花火
+  off: オフ
   cover: カバー
   cover_enable: カバーを有効化
+  hero_effects: トップエフェクト
   hero_fx_enable: トップエフェクトを有効化
   reading: 記事の閲覧
   view_mode: 閲覧方式
@@ -463,13 +367,13 @@ settings:
   pjax: シームレス更新
   pjax_enable: シームレス更新を有効化
   top_banner: トップバナーを表示
+  murmur_banner: つぶやきバナー
   author_card: 作者名刺
   width: 幅
   card_size: カードサイズ
   size_normal: 標準
   size_large: 大
 
-# ---- 分类页文件夹视图(仅电脑端) ----
 categories_view:
   list: リスト
   folders: フォルダ
@@ -478,7 +382,6 @@ categories_view:
   sort_date: 日付順
   sort_name: 名前順
 
-# ---- 碎碎念/万花筒 ----
 murmur:
   title: 万華鏡
   empty: "まだつぶやきがありません、何か記録してみましょう~"

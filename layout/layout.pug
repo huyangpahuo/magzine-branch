@@ -174,6 +174,10 @@ html(lang=config.language)
     //- ★ 性能修改:全部加 defer——不阻塞 HTML 解析,首屏文字可以先渲染;
     //-   defer 保持文档顺序执行,且仍在 DOMContentLoaded 之前跑完,
     //-   各脚本里监听 DOMContentLoaded 的初始化逻辑不受影响(pjax 换页也会重新派发该事件)。
+    //- ★ 语言层最先加载:window.i18n 在脚本执行期(而非 DOMContentLoaded)注册,
+    //-   后续组件的取词调用(i18n.get/text/set)才能拿到字典
+    script(defer, src=url_for('js/core/lang-dict.js'))
+    script(defer, src=url_for('js/core/lang-switch.js'))
     script(defer, src=url_for('js/core/main.js'))
     //- ★ 内容按视口加载:代码块/表格/图表/公式/视频离屏不渲染(模态与直链通用)
     script(defer, src=url_for('js/content/content-lazy.js'))
@@ -196,6 +200,8 @@ html(lang=config.language)
     script(defer, src=url_for('js/core/loading-animation.js'))
     script(defer, src=url_for('js/features/article-modal.js'))
     script(defer, src=url_for('js/features/music-player.js'))
+    //- 模态播放器声波波动图(依附于播放器音频,可在 config.yml 关闭播放器)
+    script(defer, src=url_for('js/features/music-wave.js'))
     script(defer, src=url_for('js/pages/wall.js'))
     script(defer, src=url_for('js/pages/anime.js'))
     script(defer, src=url_for('js/pages/about.js'))
@@ -221,6 +227,8 @@ html(lang=config.language)
         script(defer, src=url_for('js/effects/hero-fluid.js'))
       if theme.hero.effects.watercolor && theme.hero.effects.watercolor.enable !== false
         script(defer, src=url_for('js/effects/hero-watercolor.js'))
+      if theme.hero.effects.waterwave && theme.hero.effects.waterwave.enable !== false
+        script(defer, src=url_for('js/effects/hero-waterwave.js'))
 
     //- PJAX 无感刷新(自研实现,放最后加载;可在 config.yml 关闭)
     if theme.pjax && theme.pjax.enable !== false

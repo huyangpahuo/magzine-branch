@@ -14,10 +14,10 @@ document.addEventListener("DOMContentLoaded", function () {
   var registerCopy = !window.__codeBlockV2Copy;
   window.__codeBlockV2Copy = true;
 
-  function t(text) {
-    return window.i18n && typeof window.i18n.get === "function"
-      ? window.i18n.get(text)
-      : text;
+  function t(key) {
+    return window.i18n && typeof window.i18n.text === "function"
+      ? window.i18n.text(key)
+      : key;
   }
 
   /* ---------- 1. 复制(事件委托,兼容动态内容) ---------- */
@@ -36,7 +36,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function flash() {
       if (notice) {
-        notice.textContent = t("已复制");
+        notice.textContent = t("common.copied");
+        notice.setAttribute("data-i18n-key", "common.copied");
         notice.style.opacity = "1";
         setTimeout(function () {
           notice.style.opacity = "0";
@@ -130,14 +131,18 @@ document.addEventListener("DOMContentLoaded", function () {
         var btn = document.createElement("button");
         btn.type = "button";
         btn.className = "codecard-fold";
+        // 折叠状态文案:文字节点打 key 标记,语言切换时 applyTree 按状态刷新
         btn.innerHTML =
-          '<span class="codecard-fold-text">' +
-          t("展开代码") +
+          '<span class="codecard-fold-text" data-i18n-key="code.expand">' +
+          t("code.expand") +
           '</span><span class="codecard-fold-arrow" aria-hidden="true">▾</span>';
         btn.addEventListener("click", function () {
           var folded = block.classList.toggle("folded");
           var txt = btn.querySelector(".codecard-fold-text");
-          if (txt) txt.textContent = folded ? t("展开代码") : t("折叠代码");
+          if (txt) {
+            txt.setAttribute("data-i18n-key", folded ? "code.expand" : "code.collapse");
+            txt.textContent = folded ? t("code.expand") : t("code.collapse");
+          }
         });
         block.appendChild(btn);
       });

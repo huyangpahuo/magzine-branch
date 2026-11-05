@@ -45,7 +45,11 @@ document.addEventListener("DOMContentLoaded", function () {
         ".tk-nick, .vnick, .gt-comment-username",
       );
       // ★ 将 innerText 改为 textContent
-      const author = authorEl ? authorEl.textContent.trim() : "匿名";
+      const author = authorEl
+        ? authorEl.textContent.trim()
+        : window.i18n && window.i18n.text
+        ? window.i18n.text("wall.anonymous")
+        : "匿名"; // i18n:allow(值通道/内容,有意保留的中文)
 
       // 提取留言内容（兼容 Twikoo, Valine, Gitalk）
       const contentEl = comment.querySelector(
@@ -53,7 +57,10 @@ document.addEventListener("DOMContentLoaded", function () {
       );
 
       // ★ 将 innerText 改为 textContent，并过滤掉多余的换行符
-      let message = "什么也没留下~";
+      let message =
+        window.i18n && window.i18n.text
+          ? window.i18n.text("wall.nothing_left")
+          : "什么也没留下~"; // i18n:allow(值通道/内容,有意保留的中文)
       if (contentEl) {
         // 获取文本，并将多个空格、换行替换为单空格
         message = contentEl.textContent.replace(/\s+/g, " ").trim();

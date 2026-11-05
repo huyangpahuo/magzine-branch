@@ -14,7 +14,7 @@ script(src="https://cdn.jsdelivr.net/npm/artplayer/dist/artplayer.js")
       path(d="M16 3l-2 3")
       path(d="M9 13v-2")
       path(d="M15 11v2")
-    span 我的追番
+    span&attributes(t('anime.my_list'))= zh('anime.my_list')
 
   //- 追番卡片网格
   .bili-grid
@@ -51,33 +51,33 @@ script(src="https://cdn.jsdelivr.net/npm/artplayer/dist/artplayer.js")
         - var episodesJson = item.episodes ? JSON.stringify(item.episodes) : "[]";
         - var defaultUrl = item.url || "";
         
-        //- data-title-zh:观看历史的稳定键(不会被翻译层改写;data-title 在
-        //- 非中文模式下会被翻译,用它做键会导致切语言后徽章错乱)
+        //- data-title-zh:观看历史的稳定键;★ 番剧名不再翻译(标题一律显示
+        //- 数据原文),data-title/alt/h3 都直接用 item.title,不走任何翻译通道
         //- data-own-context-menu:本卡片自己响应右键(弹出"登场角色"),
         //- 让全局右键设置面板跳过,避免两个面板重叠(见 reader-settings.js)
-        a.bili-card-wrapper(href="javascript:void(0);" data-url=defaultUrl data-title=item.title data-title-zh=item.title data-bangumi=item.bangumi_url data-sources=sourcesJson data-episodes=episodesJson data-own-context-menu="1")&attributes(i18n_attrs(item, 'title', 'data-title'))
+        a.bili-card-wrapper(href="javascript:void(0);" data-url=defaultUrl data-title=item.title data-title-zh=item.title data-bangumi=item.bangumi_url data-sources=sourcesJson data-episodes=episodesJson data-own-context-menu="1")
           .bili-card
             //- h3 放在 cover-wrapper 之外:watched-badge/play-overlay 都是
             //- 绝对定位锚定 cover-wrapper,标题混在里面会让徽章随标题高度乱飘
             .cover-wrapper
-              img(src=item.cover alt=item.title loading="lazy" referrerpolicy="no-referrer")&attributes(i18n_attrs(item, 'title', 'alt'))
-              .watched-badge(style="display:none;") 已观看
+              img(src=item.cover alt=item.title loading="lazy" referrerpolicy="no-referrer")
+              .watched-badge(style="display:none;")&attributes(t('anime.watched'))= zh('anime.watched')
               .play-overlay
-                span.play-text 点击观看
-            h3(data-i18n-zh=item.title)&attributes(i18n_attrs(item, 'title'))= item.title
+                span.play-text&attributes(t('anime.click_to_watch'))= zh('anime.click_to_watch')
+            h3= item.title
     else
-      p(style="grid-column: 1 / -1; text-align: center;") 暂无追番数据，请确保已在 source/_data/anime/ 目录下创建了 yml 文件
+      p(style="grid-column: 1 / -1; text-align: center;")&attributes(t('anime.empty'))= zh('anime.empty')
 
 //- ★ 播放器模态窗口 (更新了UI区)
 #anime-modal.anime-modal
   .anime-modal-content
     .anime-modal-header
-      h2#anime-modal-title 正在加载...
+      h2#anime-modal-title&attributes(t('common.loading'))= zh('common.loading')
       .anime-modal-tools
         //- 选集/换源按钮
         button#anime-episode-btn.anime-tool-btn(style="display:none;")
           i.fas.fa-list-ul
-          span 选集/换源
+          span&attributes(t('anime.episodes_sources'))= zh('anime.episodes_sources')
         //- 关闭按钮
         button#anime-modal-close.anime-modal-close
           i.fas.fa-times
@@ -92,7 +92,7 @@ script(src="https://cdn.jsdelivr.net/npm/artplayer/dist/artplayer.js")
       //- ★ 选集侧边栏面板
       #anime-episode-sidebar.anime-episode-sidebar
         .sidebar-header
-          h3 播放列表
+          h3&attributes(t('anime.playlist'))= zh('anime.playlist')
           //- ★ 新增：换源下拉菜单
           select#anime-source-select(style="display:none;")
           button#sidebar-close-btn
@@ -103,6 +103,6 @@ script(src="https://cdn.jsdelivr.net/npm/artplayer/dist/artplayer.js")
 //- 右键角色菜单窗口
 #anime-context-menu.anime-context-menu
   .context-menu-header
-    span#context-menu-title 登场角色
-    span#context-menu-loading.loading-text(style="display:none;") 加载中...
+    span#context-menu-title&attributes(t('anime.characters'))= zh('anime.characters')
+    span#context-menu-loading.loading-text(style="display:none;")&attributes(t('common.loading'))= zh('common.loading')
   .context-menu-body#context-menu-characters

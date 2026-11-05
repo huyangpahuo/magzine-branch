@@ -110,8 +110,16 @@
     overlay.className = "read-overlay";
     var overlayText = document.createElement("span");
     overlayText.className = "read-text";
-    overlayText.setAttribute("data-label", "点击阅读->");
-    overlayText.textContent = "点击阅读->";
+    // 悬停提示文案走词条,并打上文本/属性两路 key 标记,语言切换时随 applyTree 刷新
+    var jrKey = "post.click_read";
+    var jrText =
+      window.i18n && typeof window.i18n.text === "function"
+        ? window.i18n.text(jrKey)
+        : "点击阅读->"; // i18n:allow
+    overlayText.setAttribute("data-i18n-key", jrKey);
+    overlayText.setAttribute("data-i18n-key-data-label", jrKey);
+    overlayText.setAttribute("data-label", jrText);
+    overlayText.textContent = jrText;
     overlay.appendChild(overlayText);
     imgLink.appendChild(overlay);
     image.appendChild(imgLink);
@@ -157,7 +165,7 @@
             });
           } else if (jrLang === "zh") {
             dateEl.textContent =
-              d.getFullYear() + "年" + (d.getMonth() + 1) + "月" + d.getDate() + "日";
+              d.getFullYear() + "年" + (d.getMonth() + 1) + "月" + d.getDate() + "日"; // i18n:allow
           } else {
             // 其他语言统一国际格式:2026-9-14
             dateEl.textContent =
@@ -261,7 +269,14 @@
     if (image) {
       var badge = document.createElement("div");
       badge.className = "pin-badge";
-      badge.innerHTML = '<i class="fas fa-book-open"></i><span>刚读过</span>';
+      var badgeSpan = document.createElement("span");
+      badgeSpan.setAttribute("data-i18n-key", "recent.label");
+      badgeSpan.textContent =
+        window.i18n && typeof window.i18n.text === "function"
+          ? window.i18n.text("recent.label")
+          : "刚读过"; // i18n:allow
+      badge.innerHTML = '<i class="fas fa-book-open"></i>';
+      badge.appendChild(badgeSpan);
       image.appendChild(badge);
     }
   }

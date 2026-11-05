@@ -22,7 +22,7 @@ function initSearch() {
   // 1. 辅助翻译函数
   function t(text) {
     if (window.i18n && typeof window.i18n.get === "function") {
-      return window.i18n.get(text);
+      return window.i18n.text ? window.i18n.text(text) : text;
     }
     return text;
   }
@@ -85,7 +85,7 @@ function initSearch() {
 
     if (!searchIndex) {
       // ★★★ 修改点 1：翻译错误提示 ★★★
-      searchResults.innerHTML = `<div class="search-no-results">${t("搜索索引未加载")}</div>`;
+      searchResults.innerHTML = `<div class="search-no-results">${t("search.index_missing")}</div>`;
       return;
     }
 
@@ -138,23 +138,18 @@ function initSearch() {
   function displaySearchResults(results, query) {
     if (results.length === 0) {
       // ★★★ 修改点 2：翻译无结果提示 ★★★
-      searchResults.innerHTML = `<div class="search-no-results">${t("没有找到相关结果")}</div>`;
+      searchResults.innerHTML = `<div class="search-no-results">${t("search.no_results")}</div>`;
       return;
     }
 
-    // ★ 带变量的计数文案走 i18n.format(语言字典缺译时自动回退英文) ★
-    let countHtml = `找到 ${results.length} 个结果`;
-    if (window.i18n && typeof window.i18n.format === "function") {
-      countHtml = window.i18n.format("找到 {n} 个结果", {
-        n: results.length,
-      });
-    }
+    // ★ 带变量的计数文案走 i18n.format(词条缺译时自动回退英文/中文) ★
+    let countHtml = (window.i18n && window.i18n.format ? window.i18n.format("post.found_results", { n: results.length }) : results.length + " 个结果");
 
     let html = `<div class="search-results-count">${countHtml}</div>`;
 
     results.forEach((result) => {
       // Highlight matching text
-      let title = result.title || t("无标题");
+      let title = result.title || t("post.untitled");
       let content = toPlainText(result.content);
 
       // Simple highlight for title

@@ -2,11 +2,11 @@
 .post-wrapper
   article.post-container
     .post-header
-      h1.post-title= page.title || '相关分类'
+      h1.post-title= page.title || zh('category.related')
       .post-subtitle
-        span 探索与
+        span&attributes(t('category.discover'))= zh('category.discover')
         |  "#{page.category}" 
-        span 相关的所有文章
+        span&attributes(t('category.related_posts'))= zh('category.related_posts')
 
     .category-content
       if page.posts && page.posts.length
@@ -17,13 +17,14 @@
                 i.fas.fa-folder
                 |  #{page.category}
               .category-description
-                span 共有
+                span&attributes(t('common.total'))= zh('common.total')
                 |  #{page.posts.length} 
-                span 篇文章
+                span&attributes(t('common.posts_unit'))= zh('common.posts_unit')
             .category-back
               a(href="/categories/")
                 i.fas.fa-arrow-left
-                |  返回所有分类
+                |  
+                span&attributes(t('category.back_to_all'))= zh('category.back_to_all')
 
           .post-list
             each post, index in page.posts.toArray()
@@ -57,12 +58,12 @@
 
                     .post-meta-right
                       a.read-more(href=url_for(post.path))
-                        | 阅读全文
+                        span&attributes(t('post.read_full'))= zh('post.read_full')
                         i.fas.fa-arrow-right
       else
         .no-posts
           .empty-state
             i.fas fa-inbox
-            h3 该分类下暂无文章
-            p 尝试浏览其他分类或返回首页
-            a.button(href="/") 返回首页
+            h3&attributes(t('category.no_posts'))= zh('category.no_posts')
+            p&attributes(t('categories.try_other_or_home'))= zh('categories.try_other_or_home')
+            a.button(href="/")&attributes(t('common.back_home'))= zh('common.back_home')

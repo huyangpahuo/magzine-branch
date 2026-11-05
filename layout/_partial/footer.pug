@@ -3,7 +3,8 @@ footer.footer
   .footer-bottom
     .footer-copyright
       if theme.footer.copyright
-        != theme.footer.copyright
+        //- 配置里的中文,走 data-i18n-value 值索引(site.copyright 词条)
+        span(data-i18n-value=theme.footer.copyright)!= theme.footer.copyright
       else
         p= '© ' + new Date().getFullYear() + ' ' + config.title
     // Footer centered image with link

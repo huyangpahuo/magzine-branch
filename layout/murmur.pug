@@ -18,12 +18,13 @@ main.murmur-page
         img(src=url_for(bannerCfg.background_image || '/images/1.webp'), alt="Banner", onerror="this.style.display='none'")
         .banner-gradient
       .murmur-banner-title
-        h1 万花筒
+        h1&attributes(t('murmur.title'))= zh('murmur.title')
       .murmur-banner-meta
         .murmur-banner-avatar
           img(src=url_for(avatarSrc), alt="Avatar")
         .murmur-banner-text
-          p= bannerText
+          //- 横幅文字来自 _config.yml(hero.typing_text),值索引翻译
+          p(data-i18n-value=bannerText)= bannerText
 
   //- 碎碎念内容区
   .murmur-container
@@ -49,7 +50,7 @@ main.murmur-page
                     .murmur-video-embed!= vData.html
                   else if vData && vData.src
                     .murmur-video.hexo-video-embed.murmur-video-normal
-                      iframe(src=vData.src, frameborder="0", allowfullscreen="allowfullscreen", referrerpolicy=vData.referrerPolicy, allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen", title="嵌入视频")
+                      iframe(src=vData.src, frameborder="0", allowfullscreen="allowfullscreen", referrerpolicy=vData.referrerPolicy, allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen", title="嵌入视频")&attributes(ta('title', 'video.embed_title'))
               
               .murmur-card-footer
                 span.murmur-date
@@ -61,5 +62,5 @@ main.murmur-page
                     = item.location
     else
       .murmur-empty
-        p 暂无碎碎念，去记录点什么吧~
+        p&attributes(t('murmur.empty'))= zh('murmur.empty')
 

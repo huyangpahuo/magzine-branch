@@ -19,7 +19,7 @@ if theme.hero && theme.hero.enable
             .scroll-wheel
           .scroll-arrow
             span ↓
-        .scroll-text= theme.hero.scroll_hint || 'Scroll down to explore'
+        .scroll-text(data-i18n-value=theme.hero.scroll_hint || 'Scroll down to explore')= theme.hero.scroll_hint || 'Scroll down to explore'
 
 //- Author Card Section
 include _partial/author-card.pug
@@ -52,7 +52,7 @@ section.articles-section
                 img(src=url_for(coverPath), alt=article.title, loading="lazy")&attributes(i18n_attrs(article, 'title', 'alt'))
                 //- ★★★ 新增：悬停遮罩层 ★★★
                 .read-overlay
-                  span.read-text(data-label="点击阅读->") 点击阅读->
+                  span.read-text(data-label="点击阅读->")&attributes(t('post.click_read'), ta('data-label', 'post.click_read'))= zh('post.click_read')
                 //- 文章访问统计徽标(封面左上角,配置见 post_stats)
                 if theme.post_stats && theme.post_stats.enable
                   .card-stats-badge(data-stats-path=stats_key(article))
@@ -76,7 +76,7 @@ section.articles-section
                 //- 摘要正文单独一层:非中文模式用 front-matter 的 description_<lang> 整体替换,
                 //- 中文模式恢复原始摘要 HTML(见 lang-switch.js 的显式属性处理)
                 .excerpt-body&attributes(i18n_attrs(article, 'description'))!= article.excerpt
-                a.read-more(href=url_for(article.path)) Read more →
+                a.read-more(href=url_for(article.path))&attributes(t('post.read_more_arrow'))= zh('post.read_more_arrow')
             
             .article-tags
               if article.tags.length
@@ -86,4 +86,4 @@ section.articles-section
 //- Load More Button
 if page.total > 1
   .load-more-container
-    button.load-more-btn(data-current-page=(page.current || 1), data-total-pages=page.total) 加载更多文章
+    button.load-more-btn(data-current-page=(page.current || 1), data-total-pages=page.total)&attributes(t('post.load_more'))= zh('post.load_more')

@@ -23,8 +23,10 @@ if theme.author_card && theme.author_card.enable
             .author-avatar
               img(src=url_for(theme.author_card.avatar), alt="Author Avatar")
           .author-info
-            h2.author-name= theme.author_card.name || "Author Name"
-            p.author-bio= theme.author_card.bio || "Author bio goes here..."
+            //- 名字/简介是 _config.yml 的配置中文,走 data-i18n-value 值索引
+            //- (site.owner_name / site.tagline);想要英文可加 name_en/bio_en 字段
+            h2.author-name(data-i18n-value=theme.author_card.name || "Author Name")= theme.author_card.name || "Author Name"
+            p.author-bio(data-i18n-value=theme.author_card.bio || "Author bio goes here...")= theme.author_card.bio || "Author bio goes here..."
             .author-social
               if theme.social.github
                 a.social-link(href=theme.social.github, target="_blank", rel="noopener", data-title="GitHub")
@@ -49,14 +51,15 @@ if theme.author_card && theme.author_card.enable
                   i.fas.fa-rss
             if theme.author_card.button_text && theme.author_card.button_link
               .author-cta
-                a.author-button(href=url_for(theme.author_card.button_link))= theme.author_card.button_text
+                //- 按钮文字是 _config.yml 配置中文,值索引翻译(如"关于我"→nav.about_me)
+                a.author-button(href=url_for(theme.author_card.button_link), data-i18n-value=theme.author_card.button_text)= theme.author_card.button_text
 
-      //- 拉绳台灯开关:点击收起/展开上方名片
+      //- 拉绳台灯开关:点击收起/展开上方名片。data-title/aria-label 的初始值
+      //- 由 lang-switch 按 author_card.hide 词条填充(见 main.js setLabel),
+      //- 这里不再写死中文
       .author-card-pull-cord(
-        data-title="收起名片",
-        aria-label="收起名片",
         role="button",
         tabindex="0"
-      )
+      )&attributes(ta('data-title', 'author_card.hide'), ta('aria-label', 'author_card.hide'))
         span.pull-cord-line
         span.pull-cord-knob

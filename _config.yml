@@ -36,6 +36,8 @@ hero:
       speed: 0.45 # 动画速度
       intensity: 0.55 # 水彩强度
       hover: true # 鼠标/触摸交互
+    waterwave:
+      enable: true # 水波折射特效(与开屏封面同款 WebGL 水波)
 
 # Article List 首页文章卡片大小
 article_list:
@@ -238,7 +240,7 @@ image_viewer:
 #音乐配置文件为music.yml,请前往source/_data/music.yml文件修改
 music_player:
   enable: true #是否启用音乐播放器
-  style: "pill" #桌面端播放器形态: "pill" (圆条型) 或 "card" (卡片模式)
+  style: "card" #桌面端播放器形态: "pill" (圆条型) 或 "card" (卡片模式)
   mobile_style: "card" #手机端播放器形态: "pill" (纵向圆条) 或 "card" (纵向卡片),与桌面端互不影响
   pc_position: "header" # PC端位置: "header"(塞入导航菜单作者名字右侧) 或 "floating"(默认左上角且自由拖拽)
   autoplay: false
@@ -401,14 +403,11 @@ inject:
 
     #以下是背景动画特效
     - <script defer src="/js/effects/falling-leaves.js"></script> # 梧桐落叶特效
-    #以下是语言切换支持
-    # ★ lang-dict.js 由 themes/magzine/language/{zh,en}.yml 构建期生成,必须先于 lang-switch.js 加载
-    - <script defer src="/js/core/lang-dict.js"></script> # 语言字典(由 yml 生成)
-    - <script defer src="/js/core/lang-switch.js"></script> # 语言切换脚本
 
 # 语言切换功能
-#翻译词条统一维护在 themes/magzine/language/zh.yml 与 en.yml(键=中文原文,值=译文),
-#修改后重新 hexo generate 即可,不要直接改 public/js/core/lang-dict.js(构建会覆盖)。
+#翻译词条统一维护在 themes/magzine/language/*.yml(zh.yml 为唯一文案源,键=词条ID),
+#lang-dict.js / lang-switch.js 由 layout.pug 最先加载(不在 inject 里,保证取词时机)。
+#修改 yml 后重新 hexo generate 即可,不要直接改 public/js/core/lang-dict.js(构建会覆盖)。
 
 # 阿尼亚自定义鼠标指针
 # 由 .agents/skills/web-cursor-converter/scripts/cursor_convert.py 把 Windows 光标包(.ani/.cur)转换成 PNG 帧序列,

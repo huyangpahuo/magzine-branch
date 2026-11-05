@@ -1,6 +1,6 @@
 ﻿if (!window.hasOwnProperty("aiExecuted")) {
   console.log(
-    `%cPost-Summary-AI 文章摘要AI生成工具,魔改自：%chttps://github.com/qxchuckle/Post-Summary-AI%c`,
+    `%cPost-Summary-AI 文章摘要AI生成工具,魔改自：%chttps://github.com/qxchuckle/Post-Summary-AI%c`, // i18n:allow(值通道/内容,有意保留的中文)
     "border:1px #888 solid;border-right:0;border-radius:5px 0 0 5px;padding: 5px 10px;color:white;background:#4976f5;margin:10px 0",
     "border:1px #888 solid;border-left:0;border-radius:0 5px 5px 0;padding: 5px 10px;",
     "",
@@ -67,11 +67,11 @@ function ChucklePostAI(AI_option) {
 
     const interface = {
       // 兜底默认值:正常由主题 _config.yml 的 ai_summary 传入覆盖(见 post.pug)
-      name: "阿罗娜",
+      name: "阿罗娜", // i18n:allow(值通道/内容,有意保留的中文)
       introduce:
-        "老师好, 我是阿罗娜, 一个基于OpenAI GPT-4o的强大语言模型, 今天有什么可以帮到您? 😊",
+        "老师好, 我是阿罗娜, 一个基于OpenAI GPT-4o的强大语言模型, 今天有什么可以帮到您? 😊", // i18n:allow(值通道/内容,有意保留的中文)
       version: "OpenAI GPT-4o",
-      button: ["介绍自己😎", "来点灵感💡", "生成AI简介🤖"],
+      button: ["介绍自己😎", "来点灵感💡", "生成AI简介🤖"], // i18n:allow(值通道/内容,有意保留的中文)
       ...AI_option.interface,
     };
 

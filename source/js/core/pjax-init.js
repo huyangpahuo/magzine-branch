@@ -197,7 +197,7 @@
         var newMain = doc.querySelector(SWAP_SELECTOR);
         var oldMain = document.querySelector(SWAP_SELECTOR);
         if (!newMain || !oldMain)
-          throw new Error("pjax: 目标页面缺少 " + SWAP_SELECTOR);
+          throw new Error("pjax: 目标页面缺少 " + SWAP_SELECTOR); // i18n:allow(值通道/内容,有意保留的中文)
 
         // ★ 先更新地址栏,再替换内容并重建脚本:
         //   页面内嵌脚本(twikoo 等)重建执行时会用 location.pathname

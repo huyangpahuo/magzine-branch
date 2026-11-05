@@ -33,6 +33,14 @@
     return window.innerWidth <= 768;
   }
 
+  // 工具栏提示文案走 language/*.yml 词条(查看器每次打开重建,
+  // 建时取词即可;中文模式解析 zh.yml,缺译回退英文)
+  function t(key) {
+    return window.i18n && typeof window.i18n.text === "function"
+      ? window.i18n.text(key)
+      : key;
+  }
+
   /* ── Copy table as HTML (fallback: TSV) ─────────────────────────────── */
   function copyTable(table, noticeEl) {
     var html = table.outerHTML;
@@ -241,20 +249,20 @@
         // Mobile toolbar: Copy · Lock · Rotate  (image-zoom style)
         var mobileCopyBtn = document.createElement("button");
         mobileCopyBtn.className = "table-viewer-btn";
-        mobileCopyBtn.setAttribute("data-title", "复制表格");
+        mobileCopyBtn.setAttribute("data-title", t("table.copy"));
         mobileCopyBtn.innerHTML = I_COPY;
         mobileCopyBtn.addEventListener("click", function (e) {
           e.stopPropagation();
           copyTable(table, null);
-          mobileCopyBtn.setAttribute("data-title", "已复制 ✓");
+          mobileCopyBtn.setAttribute("data-title", t("common.copied_check"));
           setTimeout(function () {
-            mobileCopyBtn.setAttribute("data-title", "复制表格");
+            mobileCopyBtn.setAttribute("data-title", t("table.copy"));
           }, 1500);
         });
 
         mobileResetBtn = document.createElement("button");
         mobileResetBtn.className = "table-viewer-btn reset-btn";
-        mobileResetBtn.setAttribute("data-title", "复原");
+        mobileResetBtn.setAttribute("data-title", t("table.reset"));
         mobileResetBtn.innerHTML = I_RESET;
         mobileResetBtn.addEventListener("click", function (e) {
           e.stopPropagation();
@@ -267,7 +275,7 @@
 
         var mobileRotateBtn = document.createElement("button");
         mobileRotateBtn.className = "table-viewer-btn rotate-btn";
-        mobileRotateBtn.setAttribute("data-title", "旋转90°");
+        mobileRotateBtn.setAttribute("data-title", t("viewer.rotate"));
         mobileRotateBtn.innerHTML = I_ROTATE;
         mobileRotateBtn.addEventListener("click", function (e) {
           e.stopPropagation();
@@ -324,19 +332,19 @@
         }
 
         toolbar.appendChild(
-          makeBtn("放大", I_ZOOM_IN, function () {
+          makeBtn(t("mermaid.zoom_in"), I_ZOOM_IN, function () {
             scale = Math.min(scale * 1.25, 10);
             updateTransform(true);
           }),
         );
         toolbar.appendChild(
-          makeBtn("缩小", I_ZOOM_OUT, function () {
+          makeBtn(t("mermaid.zoom_out"), I_ZOOM_OUT, function () {
             scale = Math.max(scale / 1.25, 0.1);
             updateTransform(true);
           }),
         );
         toolbar.appendChild(
-          makeBtn("重置", I_ZOOM_RESET, function () {
+          makeBtn(t("mermaid.reset"), I_ZOOM_RESET, function () {
             resetTransform(true);
           }),
         );
@@ -554,18 +562,18 @@
       // Desktop-only copy button (mobile has its own in the unified toolbar)
       var notice = document.createElement("span");
       notice.className = "table-viewer-copy-notice";
-      notice.textContent = "已复制";
+      notice.textContent = t("common.copied");
 
       var cpBtn = document.createElement("button");
       cpBtn.className = "table-viewer-btn";
-      cpBtn.setAttribute("data-title", "复制表格");
+      cpBtn.setAttribute("data-title", t("table.copy"));
       cpBtn.innerHTML = I_COPY;
       cpBtn.addEventListener("click", function (e) {
         e.stopPropagation();
         copyTable(table, notice);
-        cpBtn.setAttribute("data-title", "已复制 ✓");
+        cpBtn.setAttribute("data-title", t("common.copied_check"));
         setTimeout(function () {
-          cpBtn.setAttribute("data-title", "复制表格");
+          cpBtn.setAttribute("data-title", t("table.copy"));
         }, 1500);
       });
 
@@ -603,26 +611,26 @@
 
         var copyNotice = document.createElement("span");
         copyNotice.className = "table-copy-notice";
-        copyNotice.textContent = "已复制";
+        copyNotice.textContent = t("common.copied");
 
         var cpBtn = document.createElement("button");
         cpBtn.className = "table-toolbar-btn";
-        cpBtn.setAttribute("data-title", "复制表格");
-        cpBtn.setAttribute("aria-label", "复制表格");
+        cpBtn.setAttribute("data-title", t("table.copy"));
+        cpBtn.setAttribute("aria-label", t("table.copy"));
         cpBtn.innerHTML = I_COPY;
         cpBtn.addEventListener("click", function (e) {
           e.stopPropagation();
           copyTable(table, copyNotice);
-          cpBtn.setAttribute("data-title", "已复制 ✓");
+          cpBtn.setAttribute("data-title", t("common.copied_check"));
           setTimeout(function () {
-            cpBtn.setAttribute("data-title", "复制表格");
+            cpBtn.setAttribute("data-title", t("table.copy"));
           }, 1500);
         });
 
         var fsBtn = document.createElement("button");
         fsBtn.className = "table-toolbar-btn";
-        fsBtn.setAttribute("data-title", "全屏查看");
-        fsBtn.setAttribute("aria-label", "全屏查看");
+        fsBtn.setAttribute("data-title", t("mermaid.fullscreen"));
+        fsBtn.setAttribute("aria-label", t("mermaid.fullscreen"));
         fsBtn.innerHTML = I_FULLSCREEN;
         fsBtn.addEventListener("click", function (e) {
           e.stopPropagation();
@@ -639,12 +647,18 @@
 
           var toggleBtn = document.createElement("button");
           toggleBtn.className = "table-toggle";
-          toggleBtn.textContent = "展开表格";
+          // 常驻按钮:打 key 标记,语言切换时 applyTree 按折叠状态刷新
+          toggleBtn.setAttribute("data-i18n-key", "table.expand");
+          toggleBtn.textContent = t("table.expand");
           toggleBtn.addEventListener("click", function () {
             var isCollapsed = box.classList.contains("table-collapsed");
             box.classList.toggle("table-collapsed", !isCollapsed);
             box.classList.toggle("table-expanded", isCollapsed);
-            toggleBtn.textContent = isCollapsed ? "折叠表格" : "展开表格";
+            toggleBtn.setAttribute(
+              "data-i18n-key",
+              isCollapsed ? "table.collapse" : "table.expand",
+            );
+            toggleBtn.textContent = isCollapsed ? t("table.collapse") : t("table.expand");
             // 折叠回去时复位横向滚动,否则停在半途看着像内容缺了一截
             if (isCollapsed) wrapper.scrollLeft = 0;
           });

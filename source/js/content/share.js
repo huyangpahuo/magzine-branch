@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // 1. 辅助翻译函数
   function t(text) {
     if (window.i18n && typeof window.i18n.get === "function") {
-      return window.i18n.get(text);
+      return window.i18n.text ? window.i18n.text(text) : text;
     }
     return text;
   }
@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const span = button.querySelector("span");
     if (span) {
       const originalText = span.textContent;
-      span.textContent = t("已复制!");
+      span.textContent = t("share.copied");
       setTimeout(() => {
         span.textContent = originalText;
       }, 2000);
@@ -131,10 +131,8 @@ document.addEventListener("DOMContentLoaded", function () {
       const modal = document.createElement("div");
       modal.className = "wechat-share-modal";
 
-      const titleText = t("微信扫一扫分享");
-      const descText = t(
-        '打开微信，点击底部的"发现"，使用"扫一扫"即可将网页分享至朋友圈。',
-      );
+      const titleText = t("share.wechat_scan");
+      const descText = t("share.wechat_tip");
 
       modal.innerHTML = `
         <div class="wechat-share-container">

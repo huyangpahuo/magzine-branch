@@ -198,122 +198,122 @@
     var rawTheme = window.__themeRaw || window.theme;
     var available = [
       {
-        key: "music_player", label: "音乐播放器",
+        key: "music_player", label: "settings.music_player",
         show: !!(rawTheme.music_player && rawTheme.music_player.enable),
         items: [
-          { key: "music_style", label: "形态", type: "select",
-            options: [["pill", "圆条型"], ["card", "卡片"]], def: (rawTheme.music_player && rawTheme.music_player.style) || "pill" },
-          { key: "music_position", label: "位置(电脑端)", type: "select",
-            options: [["floating", "悬浮左侧"], ["header", "导航栏内"]], def: (rawTheme.music_player && rawTheme.music_player.pc_position) || "floating" },
+          { key: "music_style", label: "settings.form", type: "select",
+            options: [["pill", "settings.form_pill"], ["card", "settings.form_card"]], def: (rawTheme.music_player && rawTheme.music_player.style) || "pill" },
+          { key: "music_position", label: "settings.position_desktop", type: "select",
+            options: [["floating", "settings.position_float_left"], ["header", "settings.position_navbar"]], def: (rawTheme.music_player && rawTheme.music_player.pc_position) || "floating" },
         ],
       },
       {
-        key: "pet", label: "桌宠",
+        key: "pet", label: "settings.pet",
         show: !!(rawTheme.pet && rawTheme.pet.enable),
         items: [
-          { key: "pet", label: "启用桌宠", type: "toggle", def: "on" },
-          { key: "pet_pretext", label: "文字穿梭效果", type: "toggle",
+          { key: "pet", label: "settings.pet_enable", type: "toggle", def: "on" },
+          { key: "pet_pretext", label: "settings.text_repel", type: "toggle",
             def: (rawTheme.pet && rawTheme.pet.pretext_interaction && rawTheme.pet.pretext_interaction.enable) ? "on" : "off" },
         ],
       },
       {
-        key: "sakana", label: "Sakana 小人",
+        key: "sakana", label: "settings.sakana_widget",
         show: !!(rawTheme.sakana && rawTheme.sakana.enable),
-        items: [{ key: "sakana", label: "显示 Sakana", type: "toggle", def: "on" }],
+        items: [{ key: "sakana", label: "settings.sakana_show", type: "toggle", def: "on" }],
       },
       {
-        key: "navbar", label: "导航栏", show: true,
+        key: "navbar", label: "settings.navbar", show: true,
         items: [
-          { key: "navbar", label: "样式", type: "select",
-            options: [["bubble", "气泡式"], ["fill", "填充式"]],
+          { key: "navbar", label: "settings.style", type: "select",
+            options: [["bubble", "settings.style_bubble"], ["fill", "settings.style_filled"]],
             def: (rawTheme.navbar && rawTheme.navbar.style) || "bubble" },
         ],
       },
       {
-        key: "theme_color", label: "主题色",
+        key: "theme_color", label: "settings.theme_color",
         show: !!(rawTheme.color_picker && rawTheme.color_picker.enable),
-        items: [{ key: "color_picker", label: "显示调色盘", type: "toggle", def: "on" }],
+        items: [{ key: "color_picker", label: "settings.show_palette", type: "toggle", def: "on" }],
       },
       {
-        key: "click_effect", label: "鼠标点击效果", show: true,
+        key: "click_effect", label: "settings.click_effect", show: true,
         items: [
-          { key: "click_effect", label: "效果", type: "select",
-            options: [["heart", "爱心文字"], ["fireworks", "三角烟花"], ["off", "关闭"]], def: "heart" },
+          { key: "click_effect", label: "settings.effect", type: "select",
+            options: [["heart", "settings.heart_text"], ["fireworks", "settings.triangle_fireworks"], ["off", "settings.off"]], def: "heart" },
         ],
       },
       {
-        key: "cover", label: "封面",
+        key: "cover", label: "settings.cover",
         show: !!(rawTheme.cover && rawTheme.cover.enable),
-        items: [{ key: "cover", label: "启用封面", type: "toggle", def: "on" }],
+        items: [{ key: "cover", label: "settings.cover_enable", type: "toggle", def: "on" }],
       },
       {
-        key: "hero", label: "首页图片",
+        key: "hero", label: "settings.hero_image",
         // config 里 hero.enable 为 false 时整个模块不渲染,面板同样不显示
         show: !!(rawTheme.hero && rawTheme.hero.enable),
-        items: [{ key: "hero", label: "启用首页图片", type: "toggle", def: "on" }],
+        items: [{ key: "hero", label: "settings.hero_image_enable", type: "toggle", def: "on" }],
       },
       {
-        key: "hero_effects", label: "首页特效",
+        key: "hero_effects", label: "settings.hero_effects",
         show: !!(rawTheme.hero && rawTheme.hero.effects && rawTheme.hero.effects.enable),
-        items: [{ key: "hero_effects", label: "启用首页特效", type: "toggle", def: "on" }],
+        items: [{ key: "hero_effects", label: "settings.hero_fx_enable", type: "toggle", def: "on" }],
       },
       {
-        key: "article_view", label: "文章浏览",
+        key: "article_view", label: "settings.reading",
         show: !!(rawTheme.article_list),
         items: [
-          { key: "article_view", label: "浏览方式", type: "select",
-            options: [["modal", "模态窗口"], ["direct", "直接打开"]],
+          { key: "article_view", label: "settings.view_mode", type: "select",
+            options: [["modal", "settings.modal"], ["direct", "settings.direct"]],
             def: (rawTheme.article_list && rawTheme.article_list.view_mode) || "modal" },
-          { key: "card_size", label: "卡片大小", type: "select",
-            options: [["normal", "标准"], ["large", "大"]],
+          { key: "card_size", label: "settings.card_size", type: "select",
+            options: [["normal", "settings.size_normal"], ["large", "settings.size_large"]],
             def: (rawTheme.article_list && rawTheme.article_list.card_size) || "normal" },
           // "刚读过"开关仅在主题开启 just_read 功能时显示(见上方 rawTheme 说明)
           ...(rawTheme.just_read && rawTheme.just_read.enable !== false
-            ? [{ key: "just_read", label: "刚读过置顶", type: "toggle", def: "on" }]
+            ? [{ key: "just_read", label: "recent.pin", type: "toggle", def: "on" }]
             : []),
         ],
       },
       {
-        key: "pjax", label: "无感刷新",
+        key: "pjax", label: "settings.pjax",
         // config 里 pjax.enable 为 false 时主题已改用整页加载,面板不再提供开关
         show: !!(rawTheme.pjax && rawTheme.pjax.enable !== false),
-        items: [{ key: "pjax", label: "启用无感刷新", type: "toggle", def: "on" }],
+        items: [{ key: "pjax", label: "settings.pjax_enable", type: "toggle", def: "on" }],
       },
       {
-        key: "murmur_banner", label: "万花筒",
+        key: "murmur_banner", label: "murmur.title",
         // config 里 murmur.banner.enable 为 false 时横幅不渲染,面板同样不显示
         show: !!(rawTheme.murmur && rawTheme.murmur.banner && rawTheme.murmur.banner.enable !== false),
-        items: [{ key: "murmur_banner", label: "显示顶部横幅", type: "toggle", def: "on" }],
+        items: [{ key: "murmur_banner", label: "settings.top_banner", type: "toggle", def: "on" }],
       },
       {
-        key: "author_card", label: "作者卡片",
+        key: "author_card", label: "settings.author_card",
         show: !!(rawTheme.author_card && rawTheme.author_card.enable),
         items: [
-          { key: "author_card_width", label: "宽度", type: "select",
-            options: [["normal", "标准"], ["large", "大"]],
+          { key: "author_card_width", label: "settings.width", type: "select",
+            options: [["normal", "settings.size_normal"], ["large", "settings.size_large"]],
             def: (rawTheme.author_card && rawTheme.author_card.width) || "normal" },
         ],
       },
       {
-        key: "image_viewer", label: "图片查看器", show: true,
+        key: "image_viewer", label: "settings.image_viewer", show: true,
         items: [
-          { key: "image_mode", label: "切换方式(电脑端)", type: "select",
-            options: [["peek", "两侧预览图"], ["buttons", "上一张/下一张"]],
+          { key: "image_mode", label: "settings.switch_mode_desktop", type: "select",
+            options: [["peek", "settings.side_preview"], ["buttons", "settings.prev_next"]],
             def: (rawTheme.image_viewer && rawTheme.image_viewer.desktop_switch_mode) || "peek" },
-          { key: "image_thumbs", label: "电脑端缩略图", type: "toggle",
+          { key: "image_thumbs", label: "settings.desktop_thumbs", type: "toggle",
             def: (rawTheme.image_viewer && rawTheme.image_viewer.desktop_thumbnails !== false) ? "on" : "off" },
         ],
       },
       {
-        key: "falling_leaves", label: "落叶效果", show: true,
-        items: [{ key: "leaves", label: "启用落叶", type: "toggle", def: "on" }],
+        key: "falling_leaves", label: "settings.leaves", show: true,
+        items: [{ key: "leaves", label: "settings.leaves_enable", type: "toggle", def: "on" }],
       },
     ].filter(function (s) { return s.show && items[s.key] !== false; });
 
     /* ---- 面板文案(接入 lang-switch.js 的 window.i18n,英文模式自动翻译) ---- */
     function t(key) {
-      if (window.i18n && typeof window.i18n.get === "function") {
-        return window.i18n.get(key);
+      if (window.i18n && typeof window.i18n.text === "function") {
+        return window.i18n.text(key);
       }
       return key;
     }
@@ -335,11 +335,21 @@
     document.body.appendChild(panel);
     var body = panel.querySelector(".rs-panel-body");
 
-    // 骨架固定文案(标题/按钮)按当前语言翻译
-    panel.querySelector(".rs-panel-title").textContent = t("设置");
-    panel.querySelector(".rs-panel-close").setAttribute("title", t("关闭"));
-    panel.querySelector(".rs-panel-reset").textContent = t("恢复默认");
-    panel.querySelector(".rs-panel-apply").textContent = t("确定设置");
+    // 骨架固定文案(标题/按钮)按当前语言翻译;同时打上 data-i18n-key
+    // 键通道标记,语言切换时由 lang-switch 的 applyTree 统一刷新。
+    // ★ 关闭按钮是 × 图标:图标不能被词条覆盖,译文只进 title/aria-label
+    function markSkeleton(el, key) {
+      el.setAttribute("data-i18n-key", key);
+      el.textContent = t(key);
+    }
+    markSkeleton(panel.querySelector(".rs-panel-title"), "settings.title");
+    var rsCloseBtn = panel.querySelector(".rs-panel-close");
+    rsCloseBtn.setAttribute("data-i18n-key-title", "settings.close");
+    rsCloseBtn.setAttribute("title", t("settings.close"));
+    rsCloseBtn.setAttribute("aria-label", t("settings.close"));
+    rsCloseBtn.innerHTML = "&times;";
+    markSkeleton(panel.querySelector(".rs-panel-reset"), "settings.reset");
+    markSkeleton(panel.querySelector(".rs-panel-apply"), "settings.apply");
 
     function buildPanel() {
       body.innerHTML = "";
@@ -349,6 +359,7 @@
         group.className = "rs-group";
         var title = document.createElement("div");
         title.className = "rs-group-title";
+        title.setAttribute("data-i18n-key", section.label);
         title.textContent = t(section.label);
         group.appendChild(title);
 
@@ -357,6 +368,7 @@
           row.className = "rs-row";
           var label = document.createElement("label");
           label.className = "rs-label";
+          label.setAttribute("data-i18n-key", item.label);
           label.textContent = t(item.label);
           row.appendChild(label);
 
@@ -379,6 +391,7 @@
             item.options.forEach(function (opt) {
               var o = document.createElement("option");
               o.value = opt[0];
+              o.setAttribute("data-i18n-key", opt[1]);
               o.textContent = t(opt[1]);
               sel.appendChild(o);
             });

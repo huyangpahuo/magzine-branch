@@ -11,14 +11,14 @@
   if (!window.HeroFX) return;
 
   var CONTROLS = [
-    { key: "speed", label: "动画速度", type: "range", min: 0, max: 1.5, step: 0.05 },
-    { key: "intensity", label: "光晕强度", type: "range", min: 0, max: 1, step: 0.05 },
-    { key: "hover", label: "悬停交互", type: "checkbox" },
+    { key: "speed", label: "动画速度", type: "range", min: 0, max: 1.5, step: 0.05 }, // i18n:allow
+    { key: "intensity", label: "光晕强度", type: "range", min: 0, max: 1, step: 0.05 }, // i18n:allow
+    { key: "hover", label: "悬停交互", type: "checkbox" }, // i18n:allow
   ];
 
   window.HeroFX.register({
     id: "watercolor",
-    name: "水彩光晕",
+    name: "水彩光晕", // i18n:allow
     icon: "🖌️",
     defaults: { speed: 0.1, intensity: 0.55, hover: true },
     controls: CONTROLS,

@@ -280,7 +280,7 @@
 
 /* ★ 嵌入/悬浮形态:信息区定宽 150px,播放器长度恒定且能展示较长歌名;
    不作用于模态窗口(其纵向布局下 flex-basis 会变成高度,导致面板过长) */
-.music-player.in-header .music-player-pill-info,
+.music-player.in-header:not(.in-modal-mode) .music-player-pill-info,
 .music-player.is-floating:not(.in-modal-mode) .music-player-pill-info {
     width: 150px;
     flex: 0 0 150px;
@@ -837,4 +837,60 @@ body.dark-mode .music-player.in-modal-mode .music-player-pill-title {
     .music-player.in-modal-mode.collapsed .music-player-mini {
         transform: scale(0.8) !important;
     }
+}
+/* ★ 模态播放器的声波波动图(默认隐藏;仅电脑端模态形态显示,
+   手机端不显示——占位卡保持原样) */
+.music-player .music-wave {
+    display: none;
+    margin: 6px 0;
+}
+
+/* 圆条(纵向):固定尺寸——画布固有尺寸不再撑宽面板 */
+.music-player .music-player-pill .music-wave {
+    width: 56px;
+    height: 90px;
+}
+
+/* 卡片(横向):与信息区同宽,长度恒定 */
+.music-player .music-player-card .music-wave {
+    width: 150px;
+    height: 90px;
+}
+
+@media (min-width: 769px) {
+    .music-player.in-modal-mode .music-wave {
+        display: block;
+    }
+}
+
+/* ★★ 模态卡片:紧凑纵向布局(高度=内容,不再拉伸撑出空白);
+   空白区由声波波动图填充,封面/文字/控制键居中 ★★ */
+.music-player.in-modal-mode .music-player-card {
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 208px !important;
+    height: fit-content !important;
+    min-height: 0 !important;
+    max-height: calc(100vh - 40px) !important;
+    min-width: 0 !important;
+    max-width: calc(100vw - 20px) !important;
+    gap: 12px !important;
+    padding: 18px 14px 14px !important;
+}
+
+.music-player.in-modal-mode .music-player-cover {
+    width: 64px !important;
+    height: 64px !important;
+}
+
+.music-player.in-modal-mode .music-player-info {
+    width: 100% !important;
+    flex: 0 0 auto !important;
+    text-align: center !important;
+}
+
+.music-player.in-modal-mode .music-player-card .music-wave {
+    width: 180px !important;
+    height: 64px !important;
 }

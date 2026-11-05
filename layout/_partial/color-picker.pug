@@ -1,6 +1,6 @@
 //- 调色板组件 (悬浮在右上角导航栏下方)
 .theme-color-picker-container
-  label(for="theme-color-picker" data-title="自定义主题色")
+  label(for="theme-color-picker", data-title="自定义主题色")&attributes(ta('data-title', 'palette.custom_color'))
     i.fas.fa-palette
   //- 原生隐藏的颜色输入框
   input(type="color" id="theme-color-picker" value=theme.colors.accent || '#ff6b6b')

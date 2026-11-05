@@ -3,7 +3,7 @@
   article.post-container
     .post-header
       h1.post-title= page.title || 'Categories'
-      .post-subtitle= theme.categories.layout === 'accordion' ? '所有分类' : '浏览所有分类'
+      .post-subtitle&attributes(t(theme.categories.layout === 'accordion' ? 'category.all' : 'category.browse_all'))= theme.categories.layout === 'accordion' ? zh('category.all') : zh('category.browse_all')
 
     .categories-content
       if page.category
@@ -16,13 +16,14 @@
                 |  #{page.category}
               //- 第一处 (特定分类头):
               .category-description 
-              span 共有
+              span&attributes(t('common.total'))= zh('common.total')
               |  #{page.posts ? page.posts.length : 0} 
-              span 篇文章
+              span&attributes(t('common.posts_unit'))= zh('common.posts_unit')
             .category-back
               a(href="/categories/")
                 i.fas.fa-arrow-left
-                |  返回所有分类
+                |  
+                span&attributes(t('category.back_to_all'))= zh('category.back_to_all')
 
           if page.posts && page.posts.length
             .post-list
@@ -38,15 +39,15 @@
                           |  #{date(post.date, "YYYY-MM-DD")}
                       .post-meta-right
                         a.read-more(href=url_for(post.path))
-                          | 阅读全文
+                          span&attributes(t('post.read_full'))= zh('post.read_full')
                           i.fas.fa-arrow-right
           else
             .no-posts
               .empty-state
                 i.fas fa-inbox
-                h3 该分类下暂无文章
-                p 尝试浏览其他分类或返回首页
-                a.button(href="/") 返回首页
+                h3&attributes(t('category.no_posts'))= zh('category.no_posts')
+                p&attributes(t('categories.try_other_or_home'))= zh('categories.try_other_or_home')
+                a.button(href="/")&attributes(t('common.back_home'))= zh('common.back_home')
       else if theme.categories.layout === 'accordion'
         // 展开式分类布局
         if site.categories && site.categories.length
@@ -58,10 +59,10 @@
             .categories-view-toolbar
               button.cx-mode-btn(type="button", data-mode="classic")
                 i.fas.fa-align-left
-                span 竖排
+                span&attributes(t('categories_view.list'))= zh('categories_view.list')
               button.cx-mode-btn(type="button", data-mode="explorer")
                 i.fas.fa-folder
-                span 文件夹
+                span&attributes(t('categories_view.folders'))= zh('categories_view.folders')
 
           .categories-accordion
             each category, index in sortedCategories
@@ -76,9 +77,9 @@
                         |  #{category.name}
                       //- 第二处 (Accordion 列表里):
                       .category-description
-                        span 共有
+                        span&attributes(t('common.total'))= zh('common.total')
                         |  #{category.posts ? category.posts.length : 0} 
-                        span 篇文章
+                        span&attributes(t('common.posts_unit'))= zh('common.posts_unit')
                     .category-toggle
                       i.fas.fa-chevron-down
 
@@ -97,14 +98,14 @@
                                     |  #{date(post.date, "YYYY-MM-DD")}
                                 .post-meta-right
                                   a.read-more(href=url_for(post.path))
-                                    | 阅读全文
+                                    span&attributes(t('post.read_full'))= zh('post.read_full')
                                     i.fas.fa-arrow-right
                   else
                     .no-posts(style="display: none;")
                       .empty-state
                         i.fas fa-inbox
-                        h3 该分类下暂无文章
-                        p 尝试浏览其他分类
+                        h3&attributes(t('category.no_posts'))= zh('category.no_posts')
+                        p&attributes(t('categories.try_other'))= zh('categories.try_other')
 
           //- 文件夹视图(仅电脑端显示,手机端由 CSS 强制回退竖排):
           //- 左侧分类文件夹列表,右侧当前分类的文章卡片,支持网格/列表两种排列,
@@ -130,8 +131,8 @@
                     span.cx-main-count= sortedCategories[0] && sortedCategories[0].posts ? sortedCategories[0].posts.length : 0
                   .cx-header-actions
                     .cx-sort-toggle
-                      button.cx-sort-btn(type="button", data-sort="date") 按日期
-                      button.cx-sort-btn(type="button", data-sort="alpha") 按字母
+                      button.cx-sort-btn(type="button", data-sort="date")&attributes(t('categories_view.sort_date'))= zh('categories_view.sort_date')
+                      button.cx-sort-btn(type="button", data-sort="alpha")&attributes(t('categories_view.sort_name'))= zh('categories_view.sort_name')
                     .cx-layout-toggle
                       button.cx-layout-btn(type="button", data-layout="grid")
                         i.fas.fa-th-large
@@ -153,14 +154,14 @@
                               span.cx-item-name(data-i18n-zh=post.title)&attributes(i18n_attrs(post, 'title'))= post.title
                               span.cx-item-date= date(post.date, "YYYY-MM-DD")
                         else
-                          .cx-empty 该分类下暂无文章
+                          .cx-empty&attributes(t('category.no_posts'))= zh('category.no_posts')
         else
           .no-categories
             .empty-state
               i.fas fa-folder
-              h3 暂无分类
-              p 开始为您的文章添加分类
-              a.button(href="/") 返回首页
+              h3&attributes(t('category.empty'))= zh('category.empty')
+              p&attributes(t('category.start_adding'))= zh('category.start_adding')
+              a.button(href="/")&attributes(t('common.back_home'))= zh('common.back_home')
       else
         // 跳转式分类布局 - 显示所有分类的分类云
         .categories-header
@@ -179,6 +180,6 @@
           .no-categories
             .empty-state
               i.fas fa-folder
-              h3 暂无分类
-              p 开始为您的文章添加分类
-              a.button(href="/") 返回首页
+              h3&attributes(t('category.empty'))= zh('category.empty')
+              p&attributes(t('category.start_adding'))= zh('category.start_adding')
+              a.button(href="/")&attributes(t('common.back_home'))= zh('common.back_home')

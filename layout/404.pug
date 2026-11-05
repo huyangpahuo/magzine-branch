@@ -28,19 +28,19 @@ main.notfound-page
       span.d1 4
       span.d0 0
       span.d2 4
-    p.nf-title 哎呀, 页面迷路了~
+    p.nf-title&attributes(t('error404.title'))= zh('error404.title')
     p.nf-desc
-      | 你要找的页面不存在, 或者它跑去二次元了 (´･ω･`)
+      span&attributes(t('error404.desc'))= zh('error404.desc')
       br
-      | 别担心, 点击下面的按钮就能回家!
+      span&attributes(t('error404.back_home'))= zh('error404.back_home')
 
     .nf-actions
       a.nf-btn.primary(href='/')
         i.fas.fa-home
-        span 返回首页
+        span&attributes(t('common.back_home'))= zh('common.back_home')
       a.nf-btn.ghost(href='/archives/')
         i.fas.fa-compass
-        span 去逛归档
+        span&attributes(t('error404.browse_archives'))= zh('error404.browse_archives')
 
   //- 底部波浪使用主题全局的 #waves-container(layout.pug),
   //- 这里不再重复渲染,避免 404 页出现两层波浪。

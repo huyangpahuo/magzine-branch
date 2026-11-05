@@ -22,20 +22,20 @@
   var CONTROLS = [
     {
       key: "color_source",
-      label: "取色",
+      label: "取色", // i18n:allow
       type: "select",
-      options: [["image", "背景图主色"], ["random", "随机彩色"]],
+      options: [["image", "背景图主色"], ["random", "随机彩色"]], // i18n:allow
     },
     {
       key: "quality",
-      label: "质量",
+      label: "质量", // i18n:allow
       type: "select",
-      options: [["high", "高"], ["medium", "中"], ["low", "低"]],
+      options: [["high", "高"], ["medium", "中"], ["low", "低"]], // i18n:allow
     },
-    { key: "curl", label: "涡旋强度", type: "range", min: 0, max: 50, step: 1 },
+    { key: "curl", label: "涡旋强度", type: "range", min: 0, max: 50, step: 1 }, // i18n:allow
     {
       key: "splat_radius",
-      label: "笔刷大小",
+      label: "笔刷大小", // i18n:allow
       type: "range",
       min: 0.05,
       max: 1,
@@ -43,16 +43,16 @@
     },
     {
       key: "density_dissipation",
-      label: "消散速度",
+      label: "消散速度", // i18n:allow
       type: "range",
       min: 0,
       max: 4,
       step: 0.1,
     },
-    { key: "hover", label: "悬停触发", type: "checkbox" },
-    { key: "hold_on_hover", label: "悬停不消散", type: "checkbox" },
-    { key: "bloom", label: "辉光", type: "checkbox" },
-    { key: "__splats", label: "随机喷发", type: "button" },
+    { key: "hover", label: "悬停触发", type: "checkbox" }, // i18n:allow
+    { key: "hold_on_hover", label: "悬停不消散", type: "checkbox" }, // i18n:allow
+    { key: "bloom", label: "辉光", type: "checkbox" }, // i18n:allow
+    { key: "__splats", label: "随机喷发", type: "button" }, // i18n:allow
   ];
 
   var DEFAULTS = {
@@ -70,7 +70,7 @@
 
   window.HeroFX.register({
     id: "fluid",
-    name: "流体模拟",
+    name: "流体模拟", // i18n:allow
     icon: "🌊",
     defaults: DEFAULTS,
     controls: CONTROLS,

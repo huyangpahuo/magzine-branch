@@ -4,10 +4,10 @@
   #photo-wall-container.photo-wall-container
     // 居中操作区
     .center-action-area
-      .empty-tip#wall-empty-tip 在这里留下你的足迹
+      .empty-tip#wall-empty-tip&attributes(t('wall.leave_mark'))= zh('wall.leave_mark')
       button#leave-msg-btn.leave-msg-btn
         i.fas.fa-pen
-        span 留言
+        span&attributes(t('wall.message'))= zh('wall.message')
 
   // 居中弹出的留言面板模态框
   #twikoo-modal.wall-modal.hidden
@@ -15,7 +15,7 @@
     .wall-modal-content
       button#close-modal-btn.close-btn
         i.fas.fa-times
-      h2.modal-title 留言板
+      h2.modal-title&attributes(t('wall.message_board'))= zh('wall.message_board')
       
       // ★★★ 直接引入全局评论区组件 ★★★
       .wall-comments-container

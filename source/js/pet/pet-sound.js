@@ -54,23 +54,34 @@ export class PetSound {
     menu.id = "pet-sound-menu";
 
     // 角色音效区块
+    // 界面文案走 language/*.yml 词条;静音按钮文案随状态切换,同步更新 key 标记
+    const petT = (key) =>
+      window.i18n && typeof window.i18n.text === "function"
+        ? window.i18n.text(key)
+        : key;
+    const muteHtml = (muted) =>
+      (muted
+        ? '<i class="fas fa-volume-mute"></i> <span data-i18n-key="pet_settings.unmute">'
+        : '<i class="fas fa-volume-up"></i> <span data-i18n-key="pet_settings.mute">') +
+      petT(muted ? "pet_settings.unmute" : "pet_settings.mute") +
+      "</span>";
+
     const soundLabel = document.createElement("div");
     soundLabel.className = "pet-menu-label";
-    soundLabel.innerHTML = `<i class="fas fa-shoe-prints"></i> 角色音效`;
+    soundLabel.innerHTML =
+      '<i class="fas fa-shoe-prints"></i> <span data-i18n-key="pet_settings.sound_effects">' +
+      petT("pet_settings.sound_effects") +
+      "</span>";
 
     const muteBtn = document.createElement("button");
     muteBtn.className = "pet-menu-btn";
-    muteBtn.innerHTML = this.muted
-      ? `<i class="fas fa-volume-mute"></i> 取消静音`
-      : `<i class="fas fa-volume-up"></i> 静音`;
+    muteBtn.innerHTML = muteHtml(this.muted);
 
     muteBtn.addEventListener("click", () => {
       this.muted = !this.muted;
       this.audio.muted = this.muted;
       localStorage.setItem("pet_sound_muted", this.muted); // 保存
-      muteBtn.innerHTML = this.muted
-        ? `<i class="fas fa-volume-mute"></i> 取消静音`
-        : `<i class="fas fa-volume-up"></i> 静音`;
+      muteBtn.innerHTML = muteHtml(this.muted);
     });
 
     const volSlider = document.createElement("input");

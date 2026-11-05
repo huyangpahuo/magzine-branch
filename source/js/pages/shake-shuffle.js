@@ -76,9 +76,17 @@
       btn = document.createElement("button");
       btn.type = "button";
       btn.className = "shake-btn";
-      btn.setAttribute("data-title", "摇一摇~");
+      // 文案走词条 + key 标记,语言切换随 applyTree 刷新
+      var shuffleT = (k) =>
+        window.i18n && typeof window.i18n.text === "function"
+          ? window.i18n.text(k)
+          : k;
+      btn.setAttribute("data-i18n-key-title", "link.shuffle");
+      btn.setAttribute("data-title", shuffleT("link.shuffle"));
       btn.innerHTML =
-        '<i class="fas fa-dice"></i><span class="shake-btn-text">摇一摇~</span>';
+        '<i class="fas fa-dice"></i><span class="shake-btn-text" data-i18n-key="link.shuffle">' +
+        shuffleT("link.shuffle") +
+        "</span>";
       container.parentNode.insertBefore(btn, container.nextSibling);
     }
 

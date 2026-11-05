@@ -14,6 +14,13 @@
   var MERMAID_CDN =
     "https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js";
 
+  // 工具栏/按钮文案走 language/*.yml 词条(中文模式解析 zh.yml,缺译回退英文)
+  function mt(key) {
+    return window.i18n && typeof window.i18n.text === "function"
+      ? window.i18n.text(key)
+      : key;
+  }
+
   var ICON_FULLSCREEN =
     '<svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>';
 
@@ -259,14 +266,14 @@
         // Mobile toolbar: Copy · Lock · Rotate  (image-zoom style)
         var mobileCopyBtn = document.createElement("button");
         mobileCopyBtn.className = "mermaid-viewer-btn";
-        mobileCopyBtn.setAttribute("data-title", "复制源码");
+        mobileCopyBtn.setAttribute("data-title", mt("mermaid.copy_source"));
         mobileCopyBtn.innerHTML = ICON_COPY;
         mobileCopyBtn.addEventListener("click", function (e) {
           e.stopPropagation();
           function flash() {
-            mobileCopyBtn.setAttribute("data-title", "已复制 ✓");
+            mobileCopyBtn.setAttribute("data-title", mt("common.copied_check"));
             setTimeout(function () {
-              mobileCopyBtn.setAttribute("data-title", "复制源码");
+              mobileCopyBtn.setAttribute("data-title", mt("mermaid.copy_source"));
             }, 1800);
           }
           if (navigator.clipboard) {
@@ -284,7 +291,7 @@
 
         mobileResetBtn = document.createElement("button");
         mobileResetBtn.className = "mermaid-viewer-btn reset-btn";
-        mobileResetBtn.setAttribute("data-title", "复原");
+        mobileResetBtn.setAttribute("data-title", mt("mermaid.restore"));
         mobileResetBtn.innerHTML = ICON_RESET;
         mobileResetBtn.addEventListener("click", function (e) {
           e.stopPropagation();
@@ -297,7 +304,7 @@
 
         var mobileRotateBtn = document.createElement("button");
         mobileRotateBtn.className = "mermaid-viewer-btn rotate-btn";
-        mobileRotateBtn.setAttribute("data-title", "旋转90°");
+        mobileRotateBtn.setAttribute("data-title", mt("viewer.rotate"));
         mobileRotateBtn.innerHTML = ICON_ROTATE;
         mobileRotateBtn.addEventListener("click", function (e) {
           e.stopPropagation();
@@ -322,7 +329,7 @@
 
         var btnIn = document.createElement("button");
         btnIn.className = "mermaid-viewer-btn";
-        btnIn.setAttribute("data-title", "放大");
+        btnIn.setAttribute("data-title", mt("mermaid.zoom_in"));
         btnIn.innerHTML = ICON_ZOOM_IN;
         btnIn.addEventListener("click", function (e) {
           e.stopPropagation();
@@ -332,7 +339,7 @@
 
         var btnOut = document.createElement("button");
         btnOut.className = "mermaid-viewer-btn";
-        btnOut.setAttribute("data-title", "缩小");
+        btnOut.setAttribute("data-title", mt("mermaid.zoom_out"));
         btnOut.innerHTML = ICON_ZOOM_OUT;
         btnOut.addEventListener("click", function (e) {
           e.stopPropagation();
@@ -342,7 +349,7 @@
 
         var btnReset = document.createElement("button");
         btnReset.className = "mermaid-viewer-btn";
-        btnReset.setAttribute("data-title", "重置");
+        btnReset.setAttribute("data-title", mt("mermaid.reset"));
         btnReset.innerHTML = ICON_ZOOM_RESET;
         btnReset.addEventListener("click", function (e) {
           e.stopPropagation();
@@ -565,21 +572,21 @@
       // Desktop-only copy button (mobile has its own in the unified toolbar)
       var copyBtn = document.createElement("button");
       copyBtn.className = "mermaid-viewer-btn";
-      copyBtn.setAttribute("data-title", "复制源码");
+      copyBtn.setAttribute("data-title", mt("mermaid.copy_source"));
       copyBtn.innerHTML = ICON_COPY;
 
       var copyNotice = document.createElement("span");
       copyNotice.className = "mermaid-viewer-copy-notice";
-      copyNotice.textContent = "已复制";
+      copyNotice.textContent = mt("common.copied");
 
       copyBtn.addEventListener("click", function (e) {
         e.stopPropagation();
         function flash() {
           copyNotice.style.opacity = "1";
-          copyBtn.setAttribute("data-title", "已复制 ✓");
+          copyBtn.setAttribute("data-title", mt("common.copied_check"));
           setTimeout(function () {
             copyNotice.style.opacity = "0";
-            copyBtn.setAttribute("data-title", "复制源码");
+            copyBtn.setAttribute("data-title", mt("mermaid.copy_source"));
           }, 1800);
         }
         if (navigator.clipboard) {
@@ -636,7 +643,7 @@
 
     var fsBtn = document.createElement("button");
     fsBtn.className = "mermaid-fullscreen-btn";
-    fsBtn.setAttribute("aria-label", "全屏查看");
+    fsBtn.setAttribute("aria-label", mt("mermaid.fullscreen"));
     fsBtn.innerHTML = ICON_FULLSCREEN;
     fsBtn.addEventListener("click", function (e) {
       e.stopPropagation();
@@ -727,20 +734,18 @@
 
     var btn = document.createElement("button");
     btn.className = "mermaid-toggle";
-    btn.setAttribute("data-text", "展开图表");
+    btn.setAttribute("data-i18n-key-data-text", "mermaid.expand");
+    btn.setAttribute("data-text", mt("mermaid.expand"));
 
     btn.addEventListener("click", function (e) {
       e.stopPropagation();
       var isCollapsed = wrapper.classList.contains("collapsed");
       wrapper.classList.toggle("collapsed", !isCollapsed);
       wrapper.classList.toggle("expanded", isCollapsed);
-      var t = function (s) {
-        return window.i18n && window.i18n.get ? window.i18n.get(s) : s;
-      };
-      btn.setAttribute(
-        "data-text",
-        isCollapsed ? t("折叠图表") : t("展开图表"),
-      );
+      // 同步更新词条标记与当前文案(常驻按钮,语言切换随 applyTree 刷新)
+      var key = isCollapsed ? "mermaid.expand" : "mermaid.collapse";
+      btn.setAttribute("data-i18n-key-data-text", key);
+      btn.setAttribute("data-text", mt(key));
     });
 
     wrapper.appendChild(btn);

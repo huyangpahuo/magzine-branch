@@ -1,6 +1,6 @@
 if theme.sakana && theme.sakana.enable
   #sakana-widget-wrapper
-    .sakana-switch-btn 切换角色
+    .sakana-switch-btn&attributes(t('sakana.switch_character'))= zh('sakana.switch_character')
     .sakana-box#sakana-box-inner
 
   style.
@@ -133,7 +133,13 @@ if theme.sakana && theme.sakana.enable
           const sakanaInstance = Sakana.init({
             el: sakanaBox,
             character: savedChar,
-            canSwitchCharacter: false
+            canSwitchCharacter: false,
+            // ★ 平抑物理参数:默认 r=60(入场大倾角)+ decay=0.99(几乎无阻尼)
+            //   会让摆动越晃越烈以至于拉伸变形;降低惯性、加强阻尼、
+            //   减小初始倾角后,入场只有轻微摆动并快速回正
+            inertia: 0.02,
+            decay: 0.9,
+            r: 10
           });
           
           Sakana.setMute(true);

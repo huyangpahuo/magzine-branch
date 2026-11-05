@@ -51,6 +51,12 @@ document.addEventListener("DOMContentLoaded", function () {
   // 判断是否为移动端
   const isMobile = () => window.innerWidth <= 768;
 
+  // 界面文案统一走 language/*.yml 词条(中文模式解析 zh.yml,缺译回退英文)
+  const t = (key) =>
+    window.i18n && typeof window.i18n.text === "function"
+      ? window.i18n.text(key)
+      : key;
+
   // 修复原生全屏事件下的侧边栏显示问题
   document.addEventListener("fullscreenchange", function () {
     const sidebar = document.getElementById("anime-episode-sidebar");
@@ -88,9 +94,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 拦截 blob 临时链接
     if (finalUrl.startsWith("blob:")) {
-      alert(
-        "播放失败！\n\n检测到使用了 blob: 链接，这通常是其他网站的临时缓存，无法跨站播放。\n请换源或使用真实的 .m3u8 直链！",
-      );
+      alert(t("anime.blob_error"));
       iframe.style.display = "none";
       playerContainer.style.display = "none";
       return;
@@ -131,7 +135,7 @@ document.addEventListener("DOMContentLoaded", function () {
           } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
             video.src = url;
           } else {
-            artInstance.notice.show = "您的浏览器不支持 m3u8 播放";
+            artInstance.notice.show = t("anime.no_m3u8");
           }
         };
       }
@@ -161,8 +165,8 @@ document.addEventListener("DOMContentLoaded", function () {
           controls: [
             {
               position: "right",
-              html: '<div style="display:flex;align-items:center;gap:4px;font-size:14px;padding:0 10px;cursor:pointer;"><i class="fas fa-list-ul"></i> 选集</div>',
-              tooltip: "播放列表",
+              html: '<div style="display:flex;align-items:center;gap:4px;font-size:14px;padding:0 10px;cursor:pointer;"><i class="fas fa-list-ul"></i> ' + t("anime.episodes") + "</div>",
+              tooltip: t("anime.playlist"),
               click: function () {
                 episodeSidebar.classList.toggle("show");
               },
@@ -185,12 +189,12 @@ document.addEventListener("DOMContentLoaded", function () {
             activeBtn.nextElementSibling &&
             activeBtn.nextElementSibling.classList.contains("episode-btn")
           ) {
-            art.notice.show = "即将自动播放下一集...";
+            art.notice.show = t("anime.autoplay_next");
             setTimeout(() => {
               activeBtn.nextElementSibling.click();
             }, 1500);
           } else {
-            art.notice.show = "已经是最后一集了~";
+            art.notice.show = t("anime.last_episode");
           }
         });
       }
@@ -296,15 +300,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // 兼容旧版写法：如果没有 sources 数组但有 episodes 数组
       if (yamlSources.length === 0 && rootEpisodes.length > 0) {
-        yamlSources = [{ name: "默认源", episodes: rootEpisodes }];
+        yamlSources = [{ name: t("anime.default_source"), episodes: rootEpisodes }];
       }
 
       // 无论移动端PC端，若是既没有直链也没数据，一律提示并返回，不弹空模态框
       if (yamlSources.length === 0 && !defaultUrl) {
         alert(
           window.i18n && typeof window.i18n.format === "function"
-            ? window.i18n.format("未能找到《{t}》的播放源，请检查 yml 配置！", { t: title })
-            : `未能找到《${title}》的播放源，请检查 yml 配置！`,
+            ? window.i18n.format("anime.source_not_found", { t: title })
+            : t("anime.source_not_found").split("{t}").join(title),
         );
         return;
       }
@@ -333,7 +337,7 @@ document.addEventListener("DOMContentLoaded", function () {
           episodeList.innerHTML = "";
 
           if (eps.length === 0) {
-            episodeList.innerHTML = `<div style="padding: 20px; color: #aaa; text-align: center;">该源暂无集数数据</div>`;
+            episodeList.innerHTML = `<div style="padding: 20px; color: #aaa; text-align: center;">${t("anime.no_episodes")}</div>`;
             return;
           }
 

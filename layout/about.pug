@@ -15,8 +15,8 @@ main.about-page
         img(src=url_for(theme.author_card && theme.author_card.avatar ? theme.author_card.avatar : '/img/avatar.png'), alt="Avatar")
       - var authorName = theme.author_card && theme.author_card.name ? theme.author_card.name : 'Your Name'
       - var authorBio = theme.author_card && theme.author_card.bio ? theme.author_card.bio : 'Your Bio'
-      h1.about-name(data-i18n-zh=authorName)&attributes(i18n_attrs(theme.author_card || {}, 'name'))= authorName
-      p.about-bio(data-i18n-zh=authorBio)&attributes(i18n_attrs(theme.author_card || {}, 'bio'))= authorBio
+      h1.about-name(data-i18n-zh=authorName, data-i18n-value=authorName)&attributes(i18n_attrs(theme.author_card || {}, 'name'))= authorName
+      p.about-bio(data-i18n-zh=authorBio, data-i18n-value=authorBio)&attributes(i18n_attrs(theme.author_card || {}, 'bio'))= authorBio
 
     //- 卡片展示区 (保持不变)
     .interests-showcase
@@ -39,14 +39,13 @@ main.about-page
               .card-hover-content
                 p(data-i18n-zh=card.details)&attributes(i18n_attrs(card, 'details'))= card.details
       else
-         p(style="text-align:center; opacity:0.6") 暂无数据
+         p(style="text-align:center; opacity:0.6")&attributes(t('about.no_data'))= zh('about.no_data')
     //- 详情区域
     .about-details
 
-      //- 1. 关于我
       //- 1. 关于我 (自适应贴纸布局)
       .about-section
-        h2 关于我
+        h2&attributes(t('about.me'))= zh('about.me')
         .intro-card-wrapper
           //- 背景图片层
           .intro-banner-bg
@@ -54,49 +53,35 @@ main.about-page
             .banner-overlay
 
           //- 内容层：现在由它来撑开高度
+          //- ★ 个人资料是会增删的词条:数据在 source/_data/about.yml 的 profile,
+          //-   每条自带可选 _en/_ja/_ru 字段(label 左侧灰字 + value 正文)
           .profile-info-content
-            .profile-item(data-label="称呼") 胡杨怕火
-            .profile-item(data-label="年龄") 19岁
-            .profile-item(data-label="大学") 河南师范大学软件工程
-            .profile-item(data-label="爱好") 做游戏和绘画
-            .profile-item(data-label="擅长") 吃饱睡睡饱吃
-            .profile-item(data-label="身份") 二次元爱好者
+            if site.data.about && site.data.about.profile
+              each item in site.data.about.profile
+                .profile-item(data-label=item.label, data-i18n-zh=item.value)&attributes(i18n_attrs(item, 'value'), i18n_attrs(item, 'label', 'data-label'))= item.value
 
       //- 2. 我的技能点
       .about-section
-        h2 我的技能点
+        h2&attributes(t('about.skills_title'))= zh('about.skills_title')
         .interest-cloud
-          span.tag 摄影和剪辑
-          span.tag 像素画和二次元绘画
-          span.tag Logo和矢量图设计
-          span.tag 各种计算机语言
-          span.tag Blender建模
-          span.tag Linux
-          span.tag 计算机图形学
-          span.tag 微信小程序
-          span.tag AI
-          span.tag 游戏制作
-          span.tag 写小说
-          span.tag 我的世界模组制作
-          span.tag 英语
-          span.tag 日语
-          span.tag 前端和数据库
-          span.tag 安卓应用制作
+          if site.data.about && site.data.about.skills
+            each item in site.data.about.skills
+              span.tag(data-i18n-zh=item.name)&attributes(i18n_attrs(item, 'name'))= item.name
 
       //- 3. 碎碎念
       .about-section
-        h2 碎碎念
+        h2&attributes(t('about.murmur'))= zh('about.murmur')
         .bio-content(style="white-space: pre-wrap;")
           != page.content
 
       //- 4. 联系方式
       .about-section
-        h2 联系方式
+        h2&attributes(t('about.contact'))= zh('about.contact')
         .contact-info
           a.contact-item(href="mailto:3930088367@qq.com")
             i.fas.fa-envelope
             div
-              .contact-label 邮箱
+              .contact-label&attributes(t('about.contact_email'))= zh('about.contact_email')
               .contact-value 3930088367@qq.com
           a.contact-item(href="https://github.com/huyangpahuo")
             i.fab.fa-github
@@ -106,6 +91,6 @@ main.about-page
           a.contact-item(href="https://space.bilibili.com/3546621941910044")
             i.fas.fa-tv
             div
-              .contact-label 哔哩哔哩
-              .contact-value 胡杨怕火
+              .contact-label&attributes(t('about.contact_bilibili'))= zh('about.contact_bilibili')
+              .contact-value(data-i18n-value="胡杨怕火") 胡杨怕火
 

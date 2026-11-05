@@ -14,7 +14,7 @@ if theme.music_player && theme.music_player.enable
     style="--player-opacity: " + playerOpacity,
     class="style-" + playerStyle
   )
-    button.music-player-toggle(data-title="展开播放器")
+    button.music-player-toggle(data-title="展开播放器")&attributes(ta('data-title', 'music.expand'))
       i.fas.fa-music
 
     // 卡片型播放器
@@ -22,38 +22,38 @@ if theme.music_player && theme.music_player.enable
       .music-player-cover
         img(src=url_for(theme.music_player.default_cover || '/images/0.webp'), alt="Cover")
       .music-player-info
-        .music-player-title 未在播放
+        .music-player-title&attributes(t('music.not_playing'))= zh('music.not_playing')
         .music-player-artist -
       .music-player-controls
-        button.music-player-btn.music-player-prev(data-title="上一首")
+        button.music-player-btn.music-player-prev(data-title="上一首")&attributes(ta('data-title', 'music.prev'))
           i.fas.fa-step-backward
-        button.music-player-btn.music-player-play(data-title="播放/暂停")
+        button.music-player-btn.music-player-play(data-title="播放/暂停")&attributes(ta('data-title', 'music.play_pause'))
           i.fas.fa-play
-        button.music-player-btn.music-player-next(data-title="下一首")
+        button.music-player-btn.music-player-next(data-title="下一首")&attributes(ta('data-title', 'music.next'))
           i.fas.fa-step-forward
-        button.music-player-btn.music-player-loop(data-title="列表循环")
+        button.music-player-btn.music-player-loop(data-title="列表循环")&attributes(ta('data-title', 'music.loop_list'))
           i.fas.fa-retweet
-        button.music-player-btn.music-player-collapse(data-title="收起播放器")
+        button.music-player-btn.music-player-collapse(data-title="收起播放器")&attributes(ta('data-title', 'music.collapse'))
           i.fas.fa-chevron-left
 
     // 圆条型播放器
     .music-player-mini.music-player-pill
       .music-player-pill-inner
-        button.music-player-btn.music-player-pill-collapse(data-title="收起播放器")
+        button.music-player-btn.music-player-pill-collapse(data-title="收起播放器")&attributes(ta('data-title', 'music.collapse'))
           i.fas.fa-chevron-left
         .music-player-pill-cover
           img(src=url_for(theme.music_player.default_cover || '/images/0.webp'), alt="Cover")
         .music-player-pill-info
-          .music-player-pill-title 未在播放
+          .music-player-pill-title&attributes(t('music.not_playing'))= zh('music.not_playing')
           .music-player-pill-artist -
         .music-player-pill-divider
-        button.music-player-btn.music-player-prev(data-title="上一首")
+        button.music-player-btn.music-player-prev(data-title="上一首")&attributes(ta('data-title', 'music.prev'))
           i.fas.fa-step-backward
-        button.music-player-btn.music-player-play(data-title="播放/暂停")
+        button.music-player-btn.music-player-play(data-title="播放/暂停")&attributes(ta('data-title', 'music.play_pause'))
           i.fas.fa-play
-        button.music-player-btn.music-player-next(data-title="下一首")
+        button.music-player-btn.music-player-next(data-title="下一首")&attributes(ta('data-title', 'music.next'))
           i.fas.fa-step-forward
-        button.music-player-btn.music-player-loop(data-title="列表循环")
+        button.music-player-btn.music-player-loop(data-title="列表循环")&attributes(ta('data-title', 'music.loop_list'))
           i.fas.fa-retweet
 
   audio.music-player-audio(preload="metadata")

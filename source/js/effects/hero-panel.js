@@ -336,10 +336,16 @@
   }
 
   /* ── 控制面板 UI ────────────────────────────────────────────── */
+  // 文案(特效名/控件标签/下拉选项)是各特效文件里的中文值,与
+  // language/*.yml 的 hero_panel.* 词条一一对应;打上 data-i18n-value
+  // 值通道标记后,由 lang-switch 的 applyTree 按当前语言渲染与刷新
   function el(tag, cls, text) {
     var node = document.createElement(tag);
     if (cls) node.className = cls;
-    if (text != null) node.textContent = text;
+    if (text != null) {
+      node.setAttribute("data-i18n-value", text);
+      node.textContent = text;
+    }
     return node;
   }
 
@@ -350,6 +356,7 @@
     var toggle = el("button", "hero-fx-toggle", "✦ 特效");
     toggle.type = "button";
     toggle.setAttribute("aria-label", "首页特效面板");
+    toggle.setAttribute("data-i18n-value-aria-label", "首页特效面板");
     toggle.setAttribute("aria-expanded", "false");
 
     var body = el("div", "hero-fx-body");
@@ -358,6 +365,7 @@
     var closeBtn = el("button", "hero-fx-close", "✕");
     closeBtn.type = "button";
     closeBtn.setAttribute("aria-label", "收起面板");
+    closeBtn.setAttribute("data-i18n-value-aria-label", "收起面板");
     head.appendChild(closeBtn);
     body.appendChild(head);
 
@@ -487,6 +495,7 @@
       (ctl.options || []).forEach(function (opt) {
         var o = document.createElement("option");
         o.value = opt[0];
+        o.setAttribute("data-i18n-value", opt[1]);
         o.textContent = opt[1];
         input.appendChild(o);
       });

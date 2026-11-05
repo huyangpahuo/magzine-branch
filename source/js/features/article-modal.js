@@ -5,6 +5,12 @@ document.addEventListener("DOMContentLoaded", function () {
   //   iframe 内文章之间的跳转(上一篇/下一篇/相关文章)保留原有体验。
   if (window.self !== window.top) return;
 
+  // 界面文案统一走 language/*.yml 词条(中文模式解析 zh.yml,缺译回退英文)
+  const t = (key) =>
+    window.i18n && typeof window.i18n.text === "function"
+      ? window.i18n.text(key)
+      : key;
+
   // 检查是否启用模态窗口模式，且屏幕宽度足够大
   const isSmallScreen = window.innerWidth <= 768;
 
@@ -27,8 +33,8 @@ document.addEventListener("DOMContentLoaded", function () {
     modal.innerHTML = `
       <div class="article-modal-content">
         <div class="article-modal-header">
-          <h2 class="article-modal-title">加载中...</h2>
-          <button class="article-modal-close" aria-label="关闭">
+          <h2 class="article-modal-title">${t("common.loading")}</h2>
+          <button class="article-modal-close" data-i18n-key-aria-label="common.close" aria-label="${t("common.close")}">
             <i class="fas fa-times"></i>
           </button>
         </div>
@@ -194,7 +200,8 @@ document.addEventListener("DOMContentLoaded", function () {
           const articleUrl = this.getAttribute("href");
 
           // 设置初始标题 (作为加载时的占位符)
-          let initialTitle = "加载中...";
+          const loadingText = t("common.loading");
+          let initialTitle = loadingText;
 
           // ★★★ 新增：如果点击的是搜索结果链接 ★★★
           if (this.classList.contains("search-result-link")) {
@@ -230,8 +237,8 @@ document.addEventListener("DOMContentLoaded", function () {
               }
             }
           }
-          if (!initialTitle || initialTitle === "加载中...") {
-            initialTitle = this.getAttribute("title") || "文章详情";
+          if (!initialTitle || initialTitle === loadingText) {
+            initialTitle = this.getAttribute("title") || t("common.article_detail");
           }
 
           modalTitle.textContent = initialTitle;

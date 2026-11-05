@@ -222,15 +222,17 @@ function initLoadMore() {
   if (!loadMoreBtn) return;
 
   loadMoreBtn.addEventListener("click", function () {
-    // Simulate loading more articles
-    this.innerHTML = '<span class="loading"></span> 加载中...';
+    // Simulate loading more articles(文案走词条,中文模式解析 zh.yml)
+    const t = (k) =>
+      window.i18n && window.i18n.text ? window.i18n.text(k) : k;
+    this.innerHTML = '<span class="loading"></span>' + t("post.loading");
     this.disabled = true;
 
     // Simulate API call
     setTimeout(() => {
       // In a real implementation, this would fetch new articles
       // For now, we'll just show a message
-      this.innerHTML = "没有了哦~";
+      this.innerHTML = t("post.no_more");
       this.style.opacity = "0.6";
 
       // You would typically append new articles to the grid here
@@ -260,7 +262,11 @@ function initPostShare() {
 
       if (navigator.clipboard) {
         navigator.clipboard.writeText(url).then(() => {
-          showNotification("链接已复制到剪切板!");
+          showNotification(
+            window.i18n && window.i18n.text
+              ? window.i18n.text("share.link_copied")
+              : "链接已复制到剪切板!", // i18n:allow
+          );
         });
       } else {
         // Fallback for older browsers
@@ -270,7 +276,11 @@ function initPostShare() {
         textArea.select();
         document.execCommand("copy");
         document.body.removeChild(textArea);
-        showNotification("链接已复制到剪切板!");
+        showNotification(
+          window.i18n && window.i18n.text
+            ? window.i18n.text("share.link_copied")
+            : "链接已复制到剪切板!", // i18n:allow
+        );
       }
     });
   }
@@ -401,8 +411,15 @@ function initAuthorCardPullCord() {
   if (!foldable || !cord || cord.dataset.cordBound) return;
   cord.dataset.cordBound = "1";
 
+  // 名片收起/展开的提示文案随折叠状态变化:每次同时更新 data-i18n-key-*
+  // 标记,语言切换时 applyTree 按当前状态重新渲染
   const setLabel = (folded) => {
-    const text = folded ? "展开名片" : "收起名片";
+    const key = folded ? "author_card.show" : "author_card.hide";
+    const fallback = folded ? "展开名片" : "收起名片"; // i18n:allow(值通道/内容,有意保留的中文)
+    const text =
+      window.i18n && window.i18n.text ? window.i18n.text(key) : fallback;
+    cord.setAttribute("data-i18n-key-title", key);
+    cord.setAttribute("data-i18n-key-aria-label", key);
     cord.dataset.title = text;
     cord.setAttribute("aria-label", text);
   };
@@ -742,8 +759,11 @@ function initCodeBlockFolding() {
       // Create toggle button
       const toggleButton = document.createElement("button");
       toggleButton.className = "code-toggle";
-      // ★★★ 1. 设置初始文字属性 (中文) ★★★
-      toggleButton.setAttribute("data-text", "展开代码");
+      // 初始文字走词条;data-text 同步打上 key 标记,语言切换可刷新
+      const codeT = (k) =>
+        window.i18n && window.i18n.text ? window.i18n.text(k) : k;
+      toggleButton.setAttribute("data-i18n-key-data-text", "code.expand");
+      toggleButton.setAttribute("data-text", codeT("code.expand"));
 
       // Add toggle button to wrapper
       wrapper.appendChild(toggleButton);
@@ -754,15 +774,13 @@ function initCodeBlockFolding() {
         wrapper.classList.toggle("collapsed");
         wrapper.classList.toggle("expanded");
 
-        // ★★★ 2. 动态切换并翻译 ★★★
-        // 获取翻译函数 (如果已经有 window.i18n)
-        const t = (text) =>
-          window.i18n && window.i18n.get ? window.i18n.get(text) : text;
-
+        // 动态切换:同步更新词条标记与当前文案
         if (wrapper.classList.contains("expanded")) {
-          toggleButton.setAttribute("data-text", t("折叠代码"));
+          toggleButton.setAttribute("data-i18n-key-data-text", "code.collapse");
+          toggleButton.setAttribute("data-text", codeT("code.collapse"));
         } else {
-          toggleButton.setAttribute("data-text", t("展开代码"));
+          toggleButton.setAttribute("data-i18n-key-data-text", "code.expand");
+          toggleButton.setAttribute("data-text", codeT("code.expand"));
         }
       });
     }

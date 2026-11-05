@@ -68,6 +68,8 @@
   }
 
   /* ---- 收集一级菜单(语言项已抽出为 .nav-lang 独立按钮,跳过) ---- */
+  // 每项同时带上 zh 源文案(菜单项在 header.pug 里带 data-i18n-value),
+  // 刻度尺节点据此打上值通道标记,语言切换时随 applyTree 刷新
   function collectItems(menu) {
     // 桌面端菜单项包在 .nav-strip 里(见 header.pug),手机端直接取其子元素
     var root = menu.querySelector(".nav-strip") || menu;
@@ -82,6 +84,7 @@
             var href = a.getAttribute("href") || "";
             children.push({
               title: a.textContent.trim(),
+              zh: a.getAttribute("data-i18n-value") || a.textContent.trim(),
               href: href,
               external: /^https?:\/\//i.test(href),
             });
@@ -90,6 +93,9 @@
         var link = el.querySelector(".nav-link");
         list.push({
           title: link ? link.textContent.trim() : "",
+          zh: link
+            ? link.getAttribute("data-i18n-value") || link.textContent.trim()
+            : "",
           href: "",
           external: false,
           children: children,
@@ -104,6 +110,7 @@
         if (el.hasAttribute("data-lang-switch-btn")) return;
         list.push({
           title: el.textContent.trim(),
+          zh: el.getAttribute("data-i18n-value") || el.textContent.trim(),
           href: href,
           external: /^https?:\/\//i.test(href),
           children: null,
@@ -200,6 +207,7 @@
     subRow.innerHTML = "";
     it.children.forEach(function (c) {
       var a = document.createElement("a");
+      a.setAttribute("data-i18n-value", c.zh);
       a.textContent = c.title;
       if (c.external) a.target = "_blank";
       a.rel = "noopener";
@@ -301,6 +309,7 @@
         t.setAttribute("class", "ns-text");
         t.setAttribute("x", x);
         t.setAttribute("y", BASELINE);
+        t.setAttribute("data-i18n-value", items[i].zh);
         t.textContent = items[i].title;
         g.appendChild(t);
         track.appendChild(g);

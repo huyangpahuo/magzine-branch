@@ -10,24 +10,27 @@ header.header(class=navbarStyle === 'bubble' ? 'navbar-bubble' : '')
       //- 菜单条:菜单项一律不折行,宽度不够时由左右小三角翻动(见 nav-strip.js);
       //- 语言切换不在这里,单独钉在 .nav-right 最右侧,不参与挤压
       .nav-menu
-        button.nav-strip-arrow.prev(type="button", aria-label="向左滚动菜单", hidden)
+        button.nav-strip-arrow.prev(type="button", aria-label="向左滚动菜单", hidden)&attributes(ta('aria-label', 'nav.scroll_left'))
           i.fas.fa-chevron-left
         .nav-strip
+          //- 菜单标题来自 _config.yml(theme.menu,会增删的用户配置),
+          //- 用 data-i18n-value 走"中文值→词条ID"索引翻译;nav.* 的中文值
+          //- 与菜单文案保持一致即可。加菜单不用改字典,想翻译就往 nav.* 加同文案词条。
           - var menu = theme.menu || {}
           each path, title in menu
             if path === '#lang-switch'
               //- 语言项在 .nav-right 单独渲染,这里跳过
             else if typeof path === 'object'
               .nav-item.has-submenu
-                span.nav-link= title
+                span.nav-link(data-i18n-value=title)= title
                 .submenu
                   each subPath, subTitle in path
-                    a.submenu-item(href=url_for(subPath))= subTitle
+                    a.submenu-item(href=url_for(subPath), data-i18n-value=subTitle)= subTitle
             else if path === '/'
-              a.nav-item(href=url_for(path), class=is_home() ? 'active' : '')= title
+              a.nav-item(href=url_for(path), class=is_home() ? 'active' : '', data-i18n-value=title)= title
             else
-              a.nav-item(href=url_for(path), class=is_current(path) ? 'active' : '')= title
-        button.nav-strip-arrow.next(type="button", aria-label="向右滚动菜单", hidden)
+              a.nav-item(href=url_for(path), class=is_current(path) ? 'active' : '', data-i18n-value=title)= title
+        button.nav-strip-arrow.next(type="button", aria-label="向右滚动菜单", hidden)&attributes(ta('aria-label', 'nav.scroll_right'))
           i.fas.fa-chevron-right
 
       //- 最右固定区:搜索 + 语言切换(永不换行、不参与菜单挤压)
