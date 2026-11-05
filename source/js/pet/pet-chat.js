@@ -87,7 +87,13 @@ export class PetChat {
   say(text, duration = 3000) {
     if (!this.bubbleEl || !this.textEl) return;
 
-    this.textEl.textContent = text;
+    // ★ 显示前先按当前语言渲染:此前靠 lang-switch 的观察器事后翻译,
+    //   气泡会先闪一下中文再变成译文,观感很差
+    const translated =
+      window.i18n && typeof window.i18n.get === "function"
+        ? window.i18n.get(text)
+        : text;
+    this.textEl.textContent = translated;
     this.bubbleEl.style.display = "block";
     this.bubbleEl.style.opacity = "1";
     this.isSpeaking = true;

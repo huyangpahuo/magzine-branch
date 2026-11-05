@@ -268,9 +268,13 @@ export class PetPretextInteraction {
     const doc = this.iframe.contentDocument;
     if (!doc) return;
 
-    // 判断切文章:iframe 文档对象变了则彻底重置
+    // 判断切文章:iframe 文档对象变了则彻底重置。
+    // ★ resetAll 后立刻记住当前文档:preparedDoc 原本只在延迟 800ms 的
+    //   prepareIframeText 里赋值,导致准备期间每帧都会再 resetAll 一次,
+    //   并不断追加新的 800ms 定时器(定时器风暴反复清空包裹队列)
     if (this.preparedDoc !== doc) {
       this.resetAll();
+      this.preparedDoc = doc;
     }
 
     // 首次/换页:等 iframe 完全加载后开始准备(稍延迟避免页面仍在抖动)

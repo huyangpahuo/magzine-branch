@@ -58,23 +58,27 @@
     }
   }
 
-  function fetchTotal() {
+  function fetchTotal(force) {
     if (totalPromise) return totalPromise; // in-flight 去重
     totalPromise = (async function () {
-      // 负缓存:TTL 内请求失败过就不再发,挂载点保持「-」
-      var failed = false;
-      try {
-        var failT = Number(sessionStorage.getItem(FAIL_CACHE_KEY));
-        failed = failT > 0 && Date.now() - failT <= TTL;
-      } catch (e) {
-        /* 隐私模式等取不到就当作没有 */
+      if (!force) {
+        // 负缓存:TTL 内请求失败过就不再发,挂载点保持「-」
+        var failed = false;
+        try {
+          var failT = Number(sessionStorage.getItem(FAIL_CACHE_KEY));
+          failed = failT > 0 && Date.now() - failT <= TTL;
+        } catch (e) {
+          /* 隐私模式等取不到就当作没有 */
+        }
+        if (failed) throw new Error('negative cache');
+
+        var hit = readTotalCache();
+        if (hit) return hit;
       }
-      if (failed) throw new Error('negative cache');
 
-      var hit = readTotalCache();
-      if (hit) return hit;
-
-      var res = await fetch(BASE + '/total');
+      // 文章页(force):绕过客户端缓存拉新,让本页数字尽量及时(服务端
+      // 边缘缓存 60s),回写的缓存也让首页"刚读过"卡片同步到最新
+      var res = await fetch(BASE + '/total', force ? { cache: 'no-cache' } : undefined);
       if (!res.ok) throw new Error('HTTP ' + res.status);
       var data = await res.json();
       try {
@@ -161,7 +165,8 @@
       return;
     }
 
-    fetchTotal()
+    // 文章页强制拉新(绕过客户端 TTL),列表页走缓存减压
+    fetchTotal(!!own)
       .then(function (data) {
         fillAll(groups, data);
       })

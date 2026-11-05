@@ -219,14 +219,15 @@ html(lang=config.language)
     if theme.pjax && theme.pjax.enable !== false
       script(defer, src=url_for('js/core/pjax-init.js'))
 
+    //- 文章访问统计(可在 config.yml 关闭)。★ 必须先于 just-read 加载:
+    //- just-read 的 init 在脚本执行期同步运行,彼时就要用 window.__statsKey
+    //- 给"刚读过"置顶卡创建统计徽标;放在后面会导致整页刷新时徽标丢失
+    if theme.post_stats && theme.post_stats.enable
+      script(defer, src=url_for('js/features/visitor-stats.js'))
+
     //- 刚读过的文章置顶(可在 config.yml 关闭)
     if theme.just_read && theme.just_read.enable !== false
       script(defer, src=url_for('js/features/just-read.js'))
-
-    //- 文章访问统计(可在 config.yml 关闭;放在 just-read 之后,
-    //- 其置顶卡片依赖 window.__statsKey / __statsRefresh)
-    if theme.post_stats && theme.post_stats.enable
-      script(defer, src=url_for('js/features/visitor-stats.js'))
 
     // 传递图片配置给 JS
     script.

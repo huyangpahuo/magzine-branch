@@ -247,14 +247,21 @@ if theme.cover && theme.cover.enable
       const configAuthor = !{JSON.stringify(theme.cover.author || "胡杨怕火")};
       const configBtn = !{JSON.stringify(theme.cover.btn_text || "开始你的旅行")};
 
-      // 稍微延迟 100ms 等待 lang-switch 注册好全局 window.i18n
-      setTimeout(() => {
-        const titleStr = (window.i18n && window.i18n.get) ? window.i18n.get(configTitle) : configTitle;
-        const authorStr = (window.i18n && window.i18n.get) ? window.i18n.get(configAuthor) : configAuthor;
-        const btnStr = (window.i18n && window.i18n.get) ? window.i18n.get(configBtn) : configBtn;
+      // ★ 修复"非中文语言下二次进站 cover 仍是中文":lang-switch 经 inject
+      //   加载,时机晚于本模块,原先固定 100ms 后取一次译文,取早了就一直是
+      //   中文。改为:立即尝试 + 监听 langchange(初始化完成与手动切换都会
+      //   广播),就绪后(重新)按当前语言渲染,不再出现中文残留
+      const applyCoverTexts = () => {
+        if (!(window.i18n && window.i18n.get)) return;
+        const titleStr = window.i18n.get(configTitle);
+        const authorStr = window.i18n.get(configAuthor);
+        const btnStr = window.i18n.get(configBtn);
 
         document.getElementById('start-journey-text').textContent = btnStr;
         splitAndAnimateText(titleStr, document.getElementById('animated-title'), 0);
         splitAndAnimateText(authorStr, document.getElementById('animated-author'), 0.5);
-      }, 100);
+      };
+
+      setTimeout(applyCoverTexts, 100);
+      document.addEventListener('langchange', applyCoverTexts);
     }

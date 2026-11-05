@@ -7,9 +7,9 @@ hero:
   enable: true # 是否开启首页图片
   background_image: /images/24.png
   typing_text: 有志者事竟成多么美好的世界呀
-  typing_speed: 100
-  delete_speed: 50
-  pause_duration: 2000
+  typing_speed: 55 # 打字间隔(毫秒),越小越快
+  delete_speed: 28 # 删除间隔(毫秒)
+  pause_duration: 1100 # 打完一句话后的停留时长(毫秒)
   scroll_hint: 向下滚动探索更多
   # ── 首页特效(可扩展框架) ─────────────────────────────────────
   # 新增特效:写 js/effects/hero-xxx.js 调用 HeroFX.register 注册,

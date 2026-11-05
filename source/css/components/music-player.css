@@ -697,6 +697,26 @@ body.dark-mode .music-player.in-modal-mode .music-player-pill-title {
         max-width: 90px;
     }
 
+    /* ★ 修复:歌名/作者名过长把播放器撑宽(实测可到 300px,占屏 77%),
+       与页面其他 UI 重叠。信息区收紧 + 整体硬上限,超出省略号截断 */
+    .music-player .music-player-pill {
+        max-width: calc(100vw - 20px);
+    }
+
+    .music-player .music-player-pill-inner {
+        min-width: 0;
+    }
+
+    .music-player .music-player-pill-info,
+    .music-player.in-modal-mode .music-player-pill-info {
+        max-width: 68px !important;
+    }
+
+    .music-player .music-player-pill-title,
+    .music-player .music-player-pill-artist {
+        max-width: 100%;
+    }
+
     .music-player-pill-title {
         font-size: 0.75rem;
     }
@@ -708,5 +728,13 @@ body.dark-mode .music-player.in-modal-mode .music-player-pill-title {
     .music-player-toggle {
         width: 42px;
         height: 42px;
+    }
+}
+
+/* 超小屏:隐藏上一首/下一首(保留播放/列表循环),播放器保持紧凑 */
+@media (max-width: 480px) {
+    .music-player .music-player-pill .music-player-prev,
+    .music-player .music-player-pill .music-player-next {
+        display: none;
     }
 }
