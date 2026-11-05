@@ -1,11 +1,12 @@
 # Magzine 主题
 
-> [!NOTE] 请特别注意
-> 本仓库不再更新,本主题是 [forever218](https://github.com/forever218) 的 [magzine 主题](https://github.com/forever218/hexo-theme-magzine)的分支版本
+> [!NOTE]
+> **请特别注意**
+> 本仓库不再更新，本主题是 [forever218](https://github.com/forever218) 的 [magzine 主题](https://github.com/forever218/hexo-theme-magzine)的分支版本。
 >
-> 不过由于技术债和历史遗留问题还有先前我不合理的设计导致我一直在用agent打补丁,每一次决策都要消耗巨大的精力😭
+> 不过由于技术债和历史遗留问题还有先前我不合理的设计导致我一直在用agent打补丁，每一次决策都要消耗巨大的精力😭
 >
-> 我决定用typescript和其他技术重写,不再在原项目上操作了 , 此版本为最后一个稳定版本
+> 我决定用typescript和其他技术重写，不再在原项目上操作了，此版本为最后一个稳定版本
 
 一款现代化的杂志风格 Hexo 主题:大屏支持、简洁优雅,内置桌宠、Sakana 小人、
 评论、AI 摘要、音乐播放器、首页 WebGL 特效等大量可开关组件,并做了深度的
