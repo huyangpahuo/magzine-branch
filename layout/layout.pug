@@ -57,41 +57,40 @@ html(lang=config.language)
     //- Styles
     != css('css/core/main')
     != css('css/components/tags')
-    != css('css/pages/categories')
-    != css('css/pages/categories-accordion')
-    != css('css/pages/categories-explorer')
     != css('css/components/highlight')
     != css('css/components/toc')
     != css('css/components/image-zoom')
-    != css('css/components/mermaid')
-    != css('css/components/share')
     != css('css/components/mobile-nav')
     != css('css/components/search')
-    != css('css/core/scrollbar')
-    != css('css/components/timeline')
-    //- ★ animations.css 在主题中不存在(历史遗留引用,每页产生一个 404),已移除
-    != css('css/components/ai-theme')
     != css('css/components/loading-animation')
-    != css('css/components/article-modal')
     != css('css/components/music-player')
-    != css('css/components/table')
     //- 首页 hero 特效层 + 控制面板(仅样式,脚本按需加载)
     != css('css/components/hero-effects')
-    //- 独立页面样式全局加载(均以页面级 class 作作用域,不会互相污染)。
-    //- pjax 只替换 main.main,不替换 <head>,这些样式必须常驻,
-    //- 否则关于/照片墙/追番页面无感刷新后会丢失样式(关于页背景会错乱)
-    //- about.css 已完全以 .about-page / .about-section / .interest-cloud 为作用域,
-    //- 可安全常驻,不会污染其他页面(之前曾用条件加载,会导致 pjax 进入关于页丢失样式)
-    != css('css/pages/about')
-    != css('css/pages/wall')
-    != css('css/pages/anime')
-    != css('css/pages/link')
-    != css('css/pages/murmur')
-    != css('css/pages/404')
     != css('css/components/cursor')
-    != css('css/components/carousel')
     //- 文章访问统计(卡片封面徽标 + 文章页 meta 项)
     != css('css/components/post-stats')
+
+    //- ★ 页面级/按需样式改为非阻塞异步加载(media=print + onload 切回 all):
+    //-   它们都以页面级 class 作作用域、不会污染其他页面,且首屏渲染用不到;
+    //-   GTmetrix 实测渲染阻塞 CSS 曾占 31 个请求/114KB,这是其中最大的一块。
+    //-   pjax 只替换 main.main、不替换 <head>,异步加载后样式常驻,无感刷新不丢
+    link(rel="stylesheet", href=url_for('css/pages/categories.css'), media="print", onload="this.media='all'")
+    link(rel="stylesheet", href=url_for('css/pages/categories-accordion.css'), media="print", onload="this.media='all'")
+    link(rel="stylesheet", href=url_for('css/pages/categories-explorer.css'), media="print", onload="this.media='all'")
+    link(rel="stylesheet", href=url_for('css/components/mermaid.css'), media="print", onload="this.media='all'")
+    link(rel="stylesheet", href=url_for('css/components/share.css'), media="print", onload="this.media='all'")
+    link(rel="stylesheet", href=url_for('css/core/scrollbar.css'), media="print", onload="this.media='all'")
+    link(rel="stylesheet", href=url_for('css/components/timeline.css'), media="print", onload="this.media='all'")
+    link(rel="stylesheet", href=url_for('css/components/ai-theme.css'), media="print", onload="this.media='all'")
+    link(rel="stylesheet", href=url_for('css/components/article-modal.css'), media="print", onload="this.media='all'")
+    link(rel="stylesheet", href=url_for('css/components/table.css'), media="print", onload="this.media='all'")
+    link(rel="stylesheet", href=url_for('css/pages/about.css'), media="print", onload="this.media='all'")
+    link(rel="stylesheet", href=url_for('css/pages/wall.css'), media="print", onload="this.media='all'")
+    link(rel="stylesheet", href=url_for('css/pages/anime.css'), media="print", onload="this.media='all'")
+    link(rel="stylesheet", href=url_for('css/pages/link.css'), media="print", onload="this.media='all'")
+    link(rel="stylesheet", href=url_for('css/pages/murmur.css'), media="print", onload="this.media='all'")
+    link(rel="stylesheet", href=url_for('css/pages/404.css'), media="print", onload="this.media='all'")
+    link(rel="stylesheet", href=url_for('css/components/carousel.css'), media="print", onload="this.media='all'")
 
 
     //- Theme color variables from config
