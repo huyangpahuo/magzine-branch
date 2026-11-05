@@ -131,13 +131,13 @@ cover:
     - /images/1.png
     - /images/2.png
     - /images/4.png
-    - /images/5.jpg
+    - /images/5.png
     - /images/6.png
     - /images/7.png
     - /images/8.png
     - /images/9.png
     - /images/10.png
-    - /images/11.png
+    - /images/11.webp
     - /images/12.png
     - /images/14.png
     - /images/15.png
@@ -158,7 +158,7 @@ photo_wall:
     - /images/8.png
     - /images/9.png
     - /images/10.png
-    - /images/11.png
+    - /images/11.webp
     - /images/12.png
     - /images/14.png
     - /images/15.png
@@ -238,7 +238,8 @@ image_viewer:
 #音乐配置文件为music.yml,请前往source/_data/music.yml文件修改
 music_player:
   enable: true #是否启用音乐播放器
-  style: "pill" #播放器形态: "pill" (圆条型) 或 "card" (卡片模式)
+  style: "pill" #桌面端播放器形态: "pill" (圆条型) 或 "card" (卡片模式)
+  mobile_style: "card" #手机端播放器形态: "pill" (纵向圆条) 或 "card" (纵向卡片),与桌面端互不影响
   pc_position: "header" # PC端位置: "header"(塞入导航菜单作者名字右侧) 或 "floating"(默认左上角且自由拖拽)
   autoplay: false
   default_cover: /images/0.png
@@ -361,7 +362,7 @@ compress_images:
   enable: true # 是否开启图片压缩 (默认开启)
   mode: "webp" # "webp"(推荐) 或 "keep"
   convert: [".png", ".jpg", ".jpeg"] # webp 模式下参与转换的扩展名(gif 转换耗时长,默认不含)
-  max_width: 1920 # 宽度超过此值等比缩小;0 = 不限制
+  max_width: 1600 # 宽度超过此值等比缩小;0 = 不限制(★ GTmetrix 实测 20 张图超需 26-50%,1920→1600 可省约三成)
   min_size: 10240 # 小于此大小(10KB)的图片不处理
   ignore: [] # 忽略的图片格式,例如 ['.gif', '.svg']
   # protect 下的路径前缀不转换也不压缩:供 JS 运行时动态拼接路径的资源使用
@@ -370,7 +371,7 @@ compress_images:
   quality: # 各种格式的压缩质量 (0-100)
     jpeg: 80
     png: 80
-    webp: 75
+    webp: 70
     avif: 60
     gif: 80
 
@@ -380,14 +381,17 @@ inject:
     # Custom CSS
     # - <link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'">
     # ★ Font Awesome 已在 layout.pug 本地化引入(lib/font-awesome),此处删除重复的 cdnjs 外链
-    # ★ AI 样式改为非阻塞加载:media="print" + onload 切回 all,
-    #   原先它是渲染阻塞外链,外站超时会让整页白屏等待 30 秒
-    - <link rel="stylesheet" href="https://cdn1.tianli0.top/gh/qxchuckle/Post-Summary-AI/chuckle-post-ai.css" media="print" onload="this.media='all'"> #AI
+    # ★ AI 样式已本地化(css/components/chuckle-post-ai.css),不再依赖
+    #   tianli0 CDN(其域名 DNS 已无法解析,每次进站都报 ERR_NAME_NOT_RESOLVED);
+    #   保留 media="print" + onload 非阻塞加载
+    - <link rel="stylesheet" href="/css/components/chuckle-post-ai.css" media="print" onload="this.media='all'"> #AI
   bottom:
     # Custom JavaScript
     # - <script src="/js/xxx"></script>
     # ★ 性能修改:注入脚本统一加 defer,不再阻塞页面解析
-    - <script defer src="/js/features/ai.js"></script> #ai
+    # ★ ai.js(原插件示例初始化,选择器与主题不符且先于类定义执行导致
+    #   ReferenceError)已移除:文章页的 AI 由 postai.js + post.pug 内的
+    #   守卫式初始化负责
     - <script defer src="/js/features/postai.js"></script> #ai
     #以下是数学公式支持
     - <script defer src="/js/content/math-support.js"></script> # 数学公式

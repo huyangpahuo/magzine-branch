@@ -6,6 +6,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const wallContainer = document.getElementById("photo-wall-container");
   const emptyTip = document.getElementById("wall-empty-tip");
 
+  // ★ 本脚本全站加载(见 layout.pug),非照片墙页面上这些元素不存在,
+  //   直接返回,避免 null.addEventListener 报错
+  if (!modal || !btnOpen || !btnClose || !overlay) return;
+
   let zIndexCounter = 10;
 
   // 1. 模态框开关逻辑

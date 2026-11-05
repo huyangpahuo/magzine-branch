@@ -9,6 +9,7 @@ if theme.music_player && theme.music_player.enable
     data-autoplay=theme.music_player.autoplay ? "true" : "false",
     data-songs=songsJson,
     data-style=playerStyle,
+    data-mobile-style=(theme.music_player.mobile_style || playerStyle),
     data-pc-position=pcPosition,
     style="--player-opacity: " + playerOpacity,
     class="style-" + playerStyle

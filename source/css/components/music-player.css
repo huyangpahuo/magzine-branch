@@ -7,6 +7,18 @@
     font-family: var(--font-primary);
     -webkit-user-select: none;
     user-select: none;
+    /* ★ 默认隐藏:JS 完成"嵌入导航栏/悬浮/模态"定位后(加对应类)才显示,
+       否则首次进入会在左下角先画一帧默认位置的播放器再消失(闪现) */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.music-player.in-header,
+.music-player.is-floating,
+.music-player.in-modal-mode {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 /* 旋转动画相关 */
@@ -86,6 +98,13 @@
     max-width: 380px;
 }
 
+/* ★ 悬浮/嵌入的卡片:信息区定宽 150px 后总宽超过旧上限 380px,
+   放宽到 460px,控制键不再溢出卡片背景 */
+.music-player.in-header .music-player-card,
+.music-player.is-floating:not(.in-modal-mode) .music-player-card {
+    max-width: 460px;
+}
+
 .music-player-card:hover {
     box-shadow: 0 6px 24px rgba(0, 0, 0, 0.16);
     transform: translateY(-2px);
@@ -116,6 +135,14 @@
     flex: 1;
     min-width: 0;
     overflow: hidden;
+}
+
+/* ★ 卡片型信息区定宽(与圆条型 150px 对齐):嵌入导航栏/悬浮形态下
+   播放器长度不随歌曲名变化;模态窗口不受影响(flex:1 原样) */
+.music-player.in-header .music-player-info,
+.music-player.is-floating:not(.in-modal-mode) .music-player-info {
+    flex: 0 0 150px;
+    width: 150px;
 }
 
 .music-player-title {
@@ -245,8 +272,18 @@
     display: flex;
     flex-direction: column;
     min-width: 0;
+    /* ★ 基础上限 120px;嵌入/悬浮形态由下方规则改为定宽 150px
+       (定宽不能写在这里:模态窗口是纵向布局,flex-basis 会变成高度) */
     max-width: 120px;
     margin-right: 2px;
+}
+
+/* ★ 嵌入/悬浮形态:信息区定宽 150px,播放器长度恒定且能展示较长歌名;
+   不作用于模态窗口(其纵向布局下 flex-basis 会变成高度,导致面板过长) */
+.music-player.in-header .music-player-pill-info,
+.music-player.is-floating:not(.in-modal-mode) .music-player-pill-info {
+    width: 150px;
+    flex: 0 0 150px;
 }
 
 .music-player-pill-title {
@@ -591,10 +628,18 @@ body.dark-mode .music-player.in-modal-mode .music-player-pill-title {
 }
 
 
-/* ===== Responsive (Mobile) ===== */
+/* ===== Responsive (Mobile) =====
+   手机端播放器形态总览(所有形态都固定在左下角):
+   · 收起态:一个圆形音乐钮;
+   · 展开态-圆条型:横向面板逆时针转 90° 成纵向长条,贴屏幕左边缘
+     向上伸展;面板内按钮/封面顺时针转 90° 保持直立,歌名/作者侧放;
+   · 展开态-卡片型:不旋转,整块悬停在圆钮正上方;
+   · 出现/收起动画统一为"向上弹出 / 向下沉回"(translate + 淡入淡出),
+     旋转是静态的,不参与过渡;
+   · 模态窗口内:维持横向布局,不参与以上任何旋转。 */
 @media (max-width: 768px) {
 
-    /* 移动端不显示悬浮提示，防止触屏残留 */
+    /* ---- 0. 基础:固定左下角;触屏不显示悬浮提示 ---- */
     .music-player-btn::after,
     .music-player-toggle::after {
         display: none !important;
@@ -612,41 +657,134 @@ body.dark-mode .music-player.in-modal-mode .music-player-pill-title {
         z-index: 2000 !important;
     }
 
+    /* ---- 1. 圆钮 ---- */
+    .music-player-toggle {
+        width: 42px;
+        height: 42px;
+    }
+
     .music-player.collapsed .music-player-toggle {
         position: relative !important;
         transform: scale(1) !important;
     }
 
-    .music-player.in-modal-mode .music-player-card,
-    .music-player.in-modal-mode .music-player-pill,
-    .music-player.in-modal-mode .music-player-pill-inner {
-        flex-direction: row !important;
+    .music-player .music-player-toggle:active {
+        transform: scale(0.85) !important; /* 按压动效 */
     }
 
-    .music-player.in-modal-mode .music-player-collapse,
-    .music-player.in-modal-mode .music-player-pill-collapse {
+    /* 展开态圆钮保持可见:点它即可收起 */
+    .music-player:not(.collapsed):not(.in-modal-mode) .music-player-toggle {
+        position: relative !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: scale(1) !important;
+    }
+
+    /* ---- 2. 面板公共:向上弹出 / 向下沉回 ---- */
+    .music-player:not(.in-modal-mode) .music-player-mini {
+        position: absolute !important;
+        left: 0 !important;
+        right: auto !important;
+        margin: 0 !important;
+        transition: opacity 0.25s ease, visibility 0.25s ease,
+            translate 0.3s cubic-bezier(0.2, 0.9, 0.35, 1.18) !important;
+    }
+
+    /* 收起:沉向圆钮并隐藏(旋转保持不变,不会横竖瞬切) */
+    .music-player.collapsed:not(.in-modal-mode) .music-player-mini {
+        opacity: 0 !important;
+        visibility: hidden !important;
+        translate: 0 34px !important;
+        pointer-events: none !important;
+    }
+
+    /* 展开:从圆钮位置向上弹出 */
+    .music-player:not(.collapsed):not(.in-modal-mode) .music-player-mini {
+        opacity: 1 !important;
+        visibility: visible !important;
+        translate: 0 0 !important;
+    }
+
+    /* ---- 3. 圆条型:旋转成纵向长条 ---- */
+    .music-player:not(.in-modal-mode) .music-player-pill {
+        top: -6px !important; /* 旋转后长条底边正好悬在圆钮上方 6px */
+        bottom: auto !important;
+        transform: rotate(-90deg) !important;
+        transform-origin: left top !important;
+        padding: 5px 8px !important;
+    }
+
+    /* 面板内按钮/封面/分隔线顺时针转 90° 保持直立(歌名/作者依旧侧放) */
+    .music-player:not(.in-modal-mode) .music-player-pill .music-player-btn,
+    .music-player:not(.in-modal-mode) .music-player-pill .music-player-pill-cover,
+    .music-player:not(.in-modal-mode) .music-player-pill .music-player-pill-divider {
+        transform: rotate(90deg) !important;
+    }
+
+    .music-player-pill .music-player-btn {
+        width: 24px;
+        height: 24px;
+        font-size: 0.7rem;
+    }
+
+    .music-player-pill .music-player-play {
+        width: 28px;
+        height: 28px;
+    }
+
+    .music-player-pill-cover {
+        width: 26px;
+        height: 26px;
+    }
+
+    .music-player-pill-info {
+        /* 定宽:纵向长条的长度恒定,不随歌曲名变化 */
+        width: 90px;
+        flex: 0 0 90px;
+    }
+
+    .music-player-pill-title {
+        font-size: 0.75rem;
+    }
+
+    .music-player-pill-artist {
+        font-size: 0.65rem;
+    }
+
+    /* ---- 4. 卡片型:纵向堆叠(大封面/信息/控制键自上而下),悬在圆钮上方 ---- */
+    .music-player:not(.in-modal-mode) .music-player-card {
+        flex-direction: column !important;
+        align-items: center !important;
+        bottom: 62px !important;
+        top: auto !important;
+        transform: none !important;
+        width: 208px !important;
+        max-width: calc(100vw - 20px) !important;
+        padding: 16px 14px 12px !important;
+        gap: 10px !important;
+        border-radius: 16px !important;
+    }
+
+    /* 大封面居中,播放时旋转展示 */
+    .music-player:not(.in-modal-mode) .music-player-cover {
+        width: 92px !important;
+        height: 92px !important;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+    }
+
+    .music-player:not(.in-modal-mode) .music-player-info {
+        width: 100% !important;
+        flex: 0 0 auto !important;
+        text-align: center !important;
+    }
+
+    .music-player:not(.in-modal-mode) .music-player-controls {
+        gap: 16px !important;
+    }
+
+    /* 纵向卡片里隐藏收起箭头(点击圆钮即可收起) */
+    .music-player:not(.in-modal-mode) .music-player-collapse {
         display: none !important;
-    }
-
-    .music-player.in-modal-mode .music-player-pill-divider {
-        width: 1px !important;
-        height: 20px !important;
-        margin: 0 6px !important;
-    }
-
-    .music-player.in-modal-mode .music-player-info,
-    .music-player.in-modal-mode .music-player-pill-info {
-        text-align: left !important;
-    }
-
-    .music-player.in-modal-mode.collapsed .music-player-mini {
-        transform: scale(0.8) !important;
-    }
-
-    .music-player-card {
-        padding: 8px 10px;
-        gap: 8px;
-        max-width: 280px !important;
     }
 
     .music-player-cover {
@@ -673,68 +811,30 @@ body.dark-mode .music-player.in-modal-mode .music-player-pill-title {
         height: 30px;
     }
 
-    .music-player-pill {
-        padding: 5px 8px !important;
+    /* ---- 5. 模态窗口内:维持横向布局(不参与旋转/上浮) ---- */
+    .music-player.in-modal-mode .music-player-card,
+    .music-player.in-modal-mode .music-player-pill,
+    .music-player.in-modal-mode .music-player-pill-inner {
+        flex-direction: row !important;
     }
 
-    .music-player-pill .music-player-btn {
-        width: 24px;
-        height: 24px;
-        font-size: 0.7rem;
+    .music-player.in-modal-mode .music-player-collapse,
+    .music-player.in-modal-mode .music-player-pill-collapse {
+        display: none !important;
     }
 
-    .music-player-pill .music-player-play {
-        width: 28px;
-        height: 28px;
+    .music-player.in-modal-mode .music-player-pill-divider {
+        width: 1px !important;
+        height: 20px !important;
+        margin: 0 6px !important;
     }
 
-    .music-player-pill-cover {
-        width: 26px;
-        height: 26px;
-    }
-
-    .music-player-pill-info {
-        max-width: 90px;
-    }
-
-    /* ★ 修复:歌名/作者名过长把播放器撑宽(实测可到 300px,占屏 77%),
-       与页面其他 UI 重叠。信息区收紧 + 整体硬上限,超出省略号截断 */
-    .music-player .music-player-pill {
-        max-width: calc(100vw - 20px);
-    }
-
-    .music-player .music-player-pill-inner {
-        min-width: 0;
-    }
-
-    .music-player .music-player-pill-info,
+    .music-player.in-modal-mode .music-player-info,
     .music-player.in-modal-mode .music-player-pill-info {
-        max-width: 68px !important;
+        text-align: left !important;
     }
 
-    .music-player .music-player-pill-title,
-    .music-player .music-player-pill-artist {
-        max-width: 100%;
-    }
-
-    .music-player-pill-title {
-        font-size: 0.75rem;
-    }
-
-    .music-player-pill-artist {
-        font-size: 0.65rem;
-    }
-
-    .music-player-toggle {
-        width: 42px;
-        height: 42px;
-    }
-}
-
-/* 超小屏:隐藏上一首/下一首(保留播放/列表循环),播放器保持紧凑 */
-@media (max-width: 480px) {
-    .music-player .music-player-pill .music-player-prev,
-    .music-player .music-player-pill .music-player-next {
-        display: none;
+    .music-player.in-modal-mode.collapsed .music-player-mini {
+        transform: scale(0.8) !important;
     }
 }

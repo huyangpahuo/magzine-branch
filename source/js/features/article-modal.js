@@ -292,8 +292,10 @@ document.addEventListener("DOMContentLoaded", function () {
     function closeModal() {
       modal.classList.remove("active");
       // 延迟清空 src，避免关闭瞬间闪烁白屏
+      // ★ 必须用 about:blank:空字符串会让 iframe 重新加载父页首页,
+      //   隐藏 iframe 里 WebGL 流体/音频等全部照跑,是阅读页内存暴涨的元凶
       setTimeout(() => {
-        modalIframe.src = "";
+        modalIframe.src = "about:blank";
       }, 300);
       document.body.style.overflow = ""; // 恢复背景滚动
       modalTitle.textContent = "";

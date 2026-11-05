@@ -244,10 +244,11 @@
 
     // 适配说明:画布 CSS 使用 mix-blend-mode: screen(叠光),染料只向
     // 背景图"加光",不会产生暗色蒙版;特效自身不透明度保持原版 100%。
-    var displayShader = compileShader(
-      gl.FRAGMENT_SHADER,
-      "\n    precision highp float;\n    precision highp sampler2D;\n    varying vec2 vUv;\n    varying vec2 vL;\n    varying vec2 vR;\n    varying vec2 vT;\n    varying vec2 vB;\n    uniform sampler2D uTexture;\n    uniform sampler2D uBloom;\n    uniform sampler2D uSunrays;\n    uniform sampler2D uDithering;\n    uniform vec2 ditherScale;\n    uniform vec2 texelSize;\n    vec3 linearToGamma (vec3 color) {\n        color = max(color, vec3(0));\n        return max(1.055 * pow(color, vec3(0.416666667)) - 0.055, vec3(0));\n    }\n    void main () {\n        vec3 c = texture2D (uTexture, vUv).rgb;\n    #ifdef SHADING\n        vec3 lc = texture2D (uTexture, vL).rgb;\n        vec3 rc = texture2D (uTexture, vR).rgb;\n        vec3 tc = texture2D (uTexture, vT).rgb;\n        vec3 bc = texture2D (uTexture, vB).rgb;\n        float dx = length(rc) - length(lc);\n        float dy = length(tc) - length(bc);\n        vec3 n = normalize(vec3(dx, dy, length(texelSize)));\n        vec3 l = vec3(0.0, 0.0, 1.0);\n        float diffuse = clamp(dot(n, l) + 0.7, 0.7, 1.0);\n        c *= diffuse;\n    #endif\n    #ifdef BLOOM\n        vec3 bloom = texture2D (uBloom, vUv).rgb;\n    #endif\n    #ifdef SUNRAYS\n        float sunrays = texture2D (uSunrays, vUv).r;\n        c *= sunrays;\n    #endif\n    #ifdef BLOOM\n        float noise = texture2D (uDithering, vUv * ditherScale).r;\n        noise = noise * 2.0 - 1.0;\n        bloom += noise / 255.0;\n        bloom = linearToGamma (bloom);\n        c += bloom;\n    #endif\n        float a = max (c.r, max (c.g, c.b));\n        gl_FragColor = vec4 (c, a);\n    }\n",
-    );
+    // ★ displayMaterial 需要的是"源码字符串":此前误传了编译后的
+    //   displayShader 对象,setKeywords 一拼串就变成 "[object WebGLShader]",
+    //   着色器编译必然失败,进而 256 次 useProgram INVALID_OPERATION 刷屏
+    var displayShaderSource = "\n    precision highp float;\n    precision highp sampler2D;\n    varying vec2 vUv;\n    varying vec2 vL;\n    varying vec2 vR;\n    varying vec2 vT;\n    varying vec2 vB;\n    uniform sampler2D uTexture;\n    uniform sampler2D uBloom;\n    uniform sampler2D uSunrays;\n    uniform sampler2D uDithering;\n    uniform vec2 ditherScale;\n    uniform vec2 texelSize;\n    vec3 linearToGamma (vec3 color) {\n        color = max(color, vec3(0));\n        return max(1.055 * pow(color, vec3(0.416666667)) - 0.055, vec3(0));\n    }\n    void main () {\n        vec3 c = texture2D (uTexture, vUv).rgb;\n    #ifdef SHADING\n        vec3 lc = texture2D (uTexture, vL).rgb;\n        vec3 rc = texture2D (uTexture, vR).rgb;\n        vec3 tc = texture2D (uTexture, vT).rgb;\n        vec3 bc = texture2D (uTexture, vB).rgb;\n        float dx = length(rc) - length(lc);\n        float dy = length(tc) - length(bc);\n        vec3 n = normalize(vec3(dx, dy, length(texelSize)));\n        vec3 l = vec3(0.0, 0.0, 1.0);\n        float diffuse = clamp(dot(n, l) + 0.7, 0.7, 1.0);\n        c *= diffuse;\n    #endif\n    #ifdef BLOOM\n        vec3 bloom = texture2D (uBloom, vUv).rgb;\n    #endif\n    #ifdef SUNRAYS\n        float sunrays = texture2D (uSunrays, vUv).r;\n        c *= sunrays;\n    #endif\n    #ifdef BLOOM\n        float noise = texture2D (uDithering, vUv * ditherScale).r;\n        noise = noise * 2.0 - 1.0;\n        bloom += noise / 255.0;\n        bloom = linearToGamma (bloom);\n        c += bloom;\n    #endif\n        float a = max (c.r, max (c.g, c.b));\n        gl_FragColor = vec4 (c, a);\n    }\n";
+    var displayShader = compileShader(gl.FRAGMENT_SHADER, displayShaderSource);
 
     /* ═══════════════ WebGL 基础设施(原版) ═══════════════ */
     var blit = (function () {
@@ -300,7 +301,7 @@
       baseVertexShader,
       gradientSubtractShader,
     );
-    var displayMaterial = new Material(baseVertexShader, displayShader);
+    var displayMaterial = new Material(baseVertexShader, displayShaderSource);
 
     /* ═══════════════ 帧缓冲 ═══════════════ */
     var dye, velocity, divergence, curl, pressure, bloom, ditheringTexture, bloomFramebuffers = [], sunrays, sunraysTemp;

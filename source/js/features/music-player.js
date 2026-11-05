@@ -20,44 +20,91 @@
     const toggleIcon = toggleBtn ? toggleBtn.querySelector("i") : null;
 
     const playerStyle = player.dataset.style || "pill";
+    const mobileStyle = player.dataset.mobileStyle || playerStyle;
     const pcPosition = player.dataset.pcPosition || "floating";
-    const isPill = playerStyle === "pill";
 
-    const mini = isPill
-      ? player.querySelector(".music-player-pill")
-      : player.querySelector(".music-player-card");
+    // ★ 桌面/手机允许配置不同形态(style + mobile_style):两个面板都保留
+    //   在 DOM 中,由 applyStyleScope 按当前宽度切换显示哪一个
+    const pillMini = player.querySelector(".music-player-pill");
+    const cardMini = player.querySelector(".music-player-card");
+    if (!pillMini || !cardMini) return;
 
-    if (!mini) return;
-
-    // ----- UI Position Logic -----
-    if (window.innerWidth > 768) {
-      if (pcPosition === "header") {
-        const navLogo = document.querySelector(".nav-logo");
-        if (navLogo) {
-          navLogo.insertAdjacentElement("afterend", player);
-          player.classList.add("in-header");
-          player.classList.remove("collapsed");
-        }
-      } else if (pcPosition === "floating") {
-        player.classList.add("is-floating");
-        setTimeout(() => {
-          const startTop = Math.max(
-            0,
-            (window.innerHeight - player.offsetHeight) / 2,
-          );
-          player.style.top = startTop + "px";
-          player.style.left = "20px";
-          player.style.bottom = "auto";
-          player.style.right = "auto";
-        }, 50);
-        makeDraggable(player);
-      }
+    function activeStyle() {
+      return window.innerWidth <= 768 ? mobileStyle : playerStyle;
+    }
+    function applyStyleScope() {
+      const active = activeStyle();
+      player.classList.toggle("style-pill", active === "pill");
+      player.classList.toggle("style-card", active === "card");
+    }
+    // 对两个面板同时执行同一操作:隐藏形态的控件状态也保持同步
+    function eachMini(fn) {
+      [pillMini, cardMini].filter(Boolean).forEach(fn);
+    }
+    function miniEls(selector) {
+      const out = [];
+      eachMini((m) => {
+        const el = m.querySelector(selector);
+        if (el) out.push(el);
+      });
+      return out;
     }
 
-    const collapseBtn = isPill
-      ? mini.querySelector(".music-player-pill-collapse")
-      : mini.querySelector(".music-player-collapse");
-    const collapseIcon = collapseBtn ? collapseBtn.querySelector("i") : null;
+    // ----- UI 定位逻辑 -----
+    // ★ 统一入口 placePlayer():桌面按配置嵌入导航栏或悬浮;手机端固定左下角。
+    //   初始化与跨越 768 分界的 resize 都会调用,避免形态切换后样式错乱;
+    //   模态窗口打开期间(in-modal-mode)不重新放置,由 article-modal 接管
+    function placePlayer() {
+      if (player.classList.contains("in-modal-mode")) return;
+
+      applyStyleScope();
+
+      if (window.innerWidth > 768) {
+        if (pcPosition === "header") {
+          const navLogo = document.querySelector(".nav-logo");
+          if (navLogo) {
+            if (navLogo.nextElementSibling !== player) {
+              navLogo.insertAdjacentElement("afterend", player);
+            }
+            player.classList.add("in-header");
+            player.classList.remove("is-floating");
+            player.classList.remove("collapsed");
+          }
+        } else {
+          player.classList.add("is-floating");
+          player.classList.remove("in-header");
+          setTimeout(() => {
+            const startTop = Math.max(
+              0,
+              (window.innerHeight - player.offsetHeight) / 2,
+            );
+            player.style.top = startTop + "px";
+            player.style.left = "20px";
+            player.style.bottom = "auto";
+            player.style.right = "auto";
+          }, 50);
+          if (!player.dataset.draggable) {
+            player.dataset.draggable = "1";
+            makeDraggable(player);
+          }
+        }
+      } else {
+        // 手机端:固定左下角(样式见 music-player.css 移动端块)。
+        // 补加 is-floating 让默认隐藏的播放器显示出来(否则 opacity 恒为 0)
+        player.classList.add("is-floating");
+        player.classList.remove("in-header");
+        // ★ 手机端默认收起,只显示圆钮;点击圆钮向上弹出播放器。
+        //   若初始为展开态,圆钮的第一下点击会变成"收起",用户将永远
+        //   看不到播放面板,也无法开始播放
+        if (!player.classList.contains("collapsed")) {
+          player.classList.add("collapsed");
+          updateIcons();
+        }
+      }
+    }
+    const collapseBtns = miniEls(".music-player-pill-collapse").concat(
+      miniEls(".music-player-collapse"),
+    );
 
     let isPlaying = false;
     let loopMode = "list"; // "list" or "single"
@@ -71,11 +118,13 @@
             : "fas fa-play"
           : "fas fa-music";
       }
-      if (collapseIcon) {
-        collapseIcon.className = collapsed
-          ? "fas fa-chevron-right"
-          : "fas fa-chevron-left";
-      }
+      collapseBtns.forEach((btn) => {
+        const icon = btn.querySelector("i");
+        if (icon)
+          icon.className = collapsed
+            ? "fas fa-chevron-right"
+            : "fas fa-chevron-left";
+      });
     }
 
     // ----- 边界限制 Logic -----
@@ -145,11 +194,12 @@
         e.stopPropagation();
         togglePlayer();
       });
-    if (collapseBtn)
-      collapseBtn.addEventListener("click", (e) => {
+    collapseBtns.forEach((btn) =>
+      btn.addEventListener("click", (e) => {
         e.stopPropagation();
         togglePlayer();
-      });
+      }),
+    );
 
     if (!player.classList.contains("in-header")) {
       try {
@@ -160,20 +210,32 @@
       } catch (e) {}
     }
 
-    const playBtn = mini.querySelector(".music-player-play");
-    const prevBtn = mini.querySelector(".music-player-prev");
-    const nextBtn = mini.querySelector(".music-player-next");
-    const loopBtn = mini.querySelector(".music-player-loop");
+    // ★ 放置播放器(须在 isPlaying/collapseBtns 就绪之后调用,见上)
+    placePlayer();
 
-    const titleEl = isPill
-      ? mini.querySelector(".music-player-pill-title")
-      : mini.querySelector(".music-player-title");
-    const artistEl = isPill
-      ? mini.querySelector(".music-player-pill-artist")
-      : mini.querySelector(".music-player-artist");
-    const coverEl = isPill
-      ? mini.querySelector(".music-player-pill-cover img")
-      : mini.querySelector(".music-player-cover img");
+    // 跨越 768 分界(旋转屏幕/拉伸窗口)时重新放置
+    let wasDesktop = window.innerWidth > 768;
+    window.addEventListener("resize", () => {
+      const isDesktop = window.innerWidth > 768;
+      if (isDesktop !== wasDesktop) {
+        wasDesktop = isDesktop;
+        placePlayer();
+      }
+    });
+
+    const playBtns = miniEls(".music-player-play");
+    const prevBtns = miniEls(".music-player-prev");
+    const nextBtns = miniEls(".music-player-next");
+    const loopBtns = miniEls(".music-player-loop");
+    const titleEls = miniEls(".music-player-pill-title").concat(
+      miniEls(".music-player-title"),
+    );
+    const artistEls = miniEls(".music-player-pill-artist").concat(
+      miniEls(".music-player-artist"),
+    );
+    const coverImgs = miniEls(".music-player-pill-cover img").concat(
+      miniEls(".music-player-cover img"),
+    );
 
     let songs = [];
     const songsData = player.dataset.songs;
@@ -186,8 +248,8 @@
     }
 
     if (songs.length === 0) {
-      if (titleEl) titleEl.textContent = "未在播放";
-      if (artistEl) artistEl.textContent = "请在 _config.yml 中配置歌曲";
+      titleEls.forEach((el) => (el.textContent = "未在播放"));
+      artistEls.forEach((el) => (el.textContent = "请在 _config.yml 中配置歌曲"));
       return;
     }
 
@@ -208,44 +270,48 @@
     }
 
     function updatePlayButton() {
-      if (!playBtn) return;
-      playBtn.innerHTML = isPlaying
-        ? '<i class="fas fa-pause"></i>'
-        : '<i class="fas fa-play"></i>';
+      playBtns.forEach((btn) => {
+        btn.innerHTML = isPlaying
+          ? '<i class="fas fa-pause"></i>'
+          : '<i class="fas fa-play"></i>';
+      });
       updateIcons();
     }
 
-    if (playBtn)
-      playBtn.addEventListener("click", (e) => {
+    playBtns.forEach((btn) =>
+      btn.addEventListener("click", (e) => {
         e.stopPropagation();
         togglePlay();
-      });
-    if (prevBtn)
-      prevBtn.addEventListener("click", (e) => {
+      }),
+    );
+    prevBtns.forEach((btn) =>
+      btn.addEventListener("click", (e) => {
         e.stopPropagation();
         prevSong();
-      });
-    if (nextBtn)
-      nextBtn.addEventListener("click", (e) => {
+      }),
+    );
+    nextBtns.forEach((btn) =>
+      btn.addEventListener("click", (e) => {
         e.stopPropagation();
         nextSong();
-      });
+      }),
+    );
 
-    if (loopBtn) {
-      loopBtn.addEventListener("click", (e) => {
+    loopBtns.forEach((btn) =>
+      btn.addEventListener("click", (e) => {
         e.stopPropagation();
         loopMode = loopMode === "list" ? "single" : "list";
-        loopBtn.innerHTML =
+        btn.innerHTML =
           loopMode === "list"
             ? '<i class="fas fa-retweet"></i>'
             : '<i class="fas fa-repeat"></i><span style="font-size:10px;font-weight:bold;margin-left:-6px;">1</span>';
 
-        loopBtn.setAttribute(
+        btn.setAttribute(
           "data-title",
           loopMode === "list" ? "列表循环" : "单曲循环",
         );
-      });
-    }
+      }),
+    );
 
     function resumeIfPlaying() {
       if (isPlaying) audio.play().catch(() => {});
@@ -267,13 +333,15 @@
       const song = songs[index];
       if (!song) return;
       audio.src = song.src;
-      if (titleEl) titleEl.textContent = song.title;
-      if (artistEl) artistEl.textContent = song.artist || "-";
-      if (coverEl && song.cover) {
-        coverEl.src = song.cover;
-        coverEl.style.animation = "none";
-        coverEl.offsetHeight;
-        coverEl.style.animation = null;
+      titleEls.forEach((el) => (el.textContent = song.title));
+      artistEls.forEach((el) => (el.textContent = song.artist || "-"));
+      if (song.cover) {
+        coverImgs.forEach((img) => {
+          img.src = song.cover;
+          img.style.animation = "none";
+          void img.offsetHeight; // 重启旋转动画
+          img.style.animation = null;
+        });
       }
     }
 
