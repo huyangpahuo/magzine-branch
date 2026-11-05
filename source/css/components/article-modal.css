@@ -84,33 +84,11 @@
 
 
 /* =========================================================
-   ★★★ 新增：iframe 内部专用样式 (配合 layout.pug 防止组件闪烁) ★★★ 
+   iframe 内部专用样式已移至 layout.pug <head> 内联:
+   本文件是 media=print 非阻塞异步加载,规则放在这里会让 iframe
+   里的导航栏/页脚/桌宠先渲染再消失(模态窗口导航栏闪现的根因)。
+   搜索 layout.pug 中的 "is-iframe" 可找到内联版本。
 ========================================================= */
-html.is-iframe .header,
-html.is-iframe header,
-html.is-iframe .navbar,
-html.is-iframe .footer,
-html.is-iframe footer,
-html.is-iframe .music-player,
-html.is-iframe .theme-color-picker-container,
-html.is-iframe #waves-container,
-html.is-iframe #pet-root,
-html.is-iframe #sakana-widget-wrapper,
-html.is-iframe .author-card-section,
-html.is-iframe .hero-section {
-  display: none !important;
-}
-
-html.is-iframe .post-wrapper,
-html.is-iframe .article-container,
-html.is-iframe main {
-  margin-top: 0 !important;
-  padding-top: 20px !important;
-}
-
-html.is-iframe body {
-  overflow-x: hidden !important;
-}
 
 /* 响应式调整 */
 @media (max-width: 768px) {

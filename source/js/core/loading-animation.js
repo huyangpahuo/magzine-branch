@@ -18,9 +18,9 @@ document.addEventListener('DOMContentLoaded', function() {
     document.body.appendChild(loadingOverlay);
 
     // 页面完全加载后隐藏加载动画
-    // ★ 性能修改:改为 DOMContentLoaded 后短暂延迟即隐藏。
-    //   原先监听 window 'load',要等所有图片(包括境外慢速/被墙资源)下载完,
-    //   加载遮罩会盖住早已渲染好的页面十几秒。
+    // 改为 DOMContentLoaded 后短暂延迟即隐藏。
+    // 原先监听 window 'load',要等所有图片(包括境外慢速/被墙资源)下载完,
+    // 加载遮罩会盖住早已渲染好的页面十几秒。
     function hideOverlay() {
       setTimeout(function() {
         loadingOverlay.style.opacity = '0';

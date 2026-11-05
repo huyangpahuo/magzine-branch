@@ -1,6 +1,6 @@
 //- 关于页面布局(pjax 友好 fragment:不含 html/head/body 外壳)
-//- ★ 不要加 doctype/html/body:完整文档里多余的 </body> 会把波浪/页脚/
-//-   桌宠/全部脚本"吸进" main.main,pjax 换页时会被整体搬走复制。
+//- 不要加 doctype/html/body:完整文档里多余的 </body> 会把波浪/页脚/
+//- 桌宠/全部脚本"吸进" main.main,pjax 换页时会被整体搬走复制。
 //- 样式已抽离到 css/about.css,脚本已抽离到 js/about.js
 //- (均由 layout.pug 全局加载,适配 pjax)
 
@@ -53,8 +53,8 @@ main.about-page
             .banner-overlay
 
           //- 内容层：现在由它来撑开高度
-          //- ★ 个人资料是会增删的词条:数据在 source/_data/about.yml 的 profile,
-          //-   每条自带可选 _en/_ja/_ru 字段(label 左侧灰字 + value 正文)
+          //- 个人资料是会增删的词条:数据在 source/_data/about.yml 的 profile,
+          //- 每条自带可选 _en/_ja/_ru 字段(label 左侧灰字 + value 正文)
           .profile-info-content
             if site.data.about && site.data.about.profile
               each item in site.data.about.profile

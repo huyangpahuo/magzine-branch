@@ -1,5 +1,11 @@
 - title: 咒术回战第三季
+  title_en: "Jujutsu Kaisen Season 3"
+  title_ja: "呪術廻戦 第3期"
   cover: https://lain.bgm.tv/r/400/pic/cover/l/ab/77/472741_MqsB8.jpg
   bangumi_url: "https://bangumi.tv/subject/472741"
   sources:
-   
+    - name: "7sefun"
+      player_api: ""
+      episodes:
+        - title: "1"
+          url: "https://www.7sefun.top/vodplay/26972-2-1.html"

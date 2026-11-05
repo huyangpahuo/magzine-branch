@@ -1305,6 +1305,8 @@ p {
 }
 
 .post-nav {
+  position: relative;
+  cursor: pointer;
   padding: var(--spacing-lg);
   background: var(--background-color);
   border-radius: var(--radius-md);
@@ -1323,6 +1325,14 @@ p {
 
 .post-nav.next {
   text-align: right;
+}
+
+/* 整卡可点:链接命中区铺满容器,手机端点到 padding 上也能跳转 */
+.post-nav a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
 }
 
 .nav-label {

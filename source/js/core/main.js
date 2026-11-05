@@ -29,8 +29,8 @@ function initTypingEffect() {
   typingElement.dataset.typingBound = "1";
 
   // Get typing text from theme config or use default
-  // ★ 打字机文本按当前界面语言取词:文本由本脚本逐字写入,.hero-typing 又在
-  //   翻译层的跳过名单里(避免每 50ms 触发一次翻译),所以必须在这里主动取译文。
+  // 打字机文本按当前界面语言取词:文本由本脚本逐字写入,.hero-typing 又在
+  // 翻译层的跳过名单里(避免每 50ms 触发一次翻译),所以必须在这里主动取译文。
   const typingTextZh =
     typingElement.getAttribute("data-text") || "Welcome to my blog";
   function currentTypingText() {
@@ -50,8 +50,8 @@ function initTypingEffect() {
   let isDeleting = false;
   let isPaused = false;
   let running = false; // 循环是否仍在运行(非循环模式下打完即停)
-  // ★ 代际令牌:语言切换会重置打字进度,此时旧的 setTimeout 链必须被淘汰,
-  //   否则新旧两条链会同时推进 i(新链从 0 开始、旧链继续减),导致 i 越界、文本永久空白
+  // 代际令牌:语言切换会重置打字进度,此时旧的 setTimeout 链必须被淘汰,
+  // 否则新旧两条链会同时推进 i(新链从 0 开始、旧链继续减),导致 i 越界、文本永久空白
   let gen = 0;
 
   // 语言切换:换成新语言的文本重新打字(从头开始,丢弃旧链)
@@ -446,7 +446,7 @@ function initAuthorCardPullCord() {
   };
 
   // 恢复上次状态(无动画,避免进页面就闪一段折叠动画)
-  // ★ 用 localStorage 持久保存,关掉浏览器再打开也记得
+  // 用 localStorage 持久保存,关掉浏览器再打开也记得
   if (localStorage.getItem("authorCardFolded") === "1") {
     foldable.classList.add("no-anim", "folded");
     foldable.style.maxHeight = "0px";
@@ -737,10 +737,10 @@ function initCodeBlockFolding() {
   }
 
   codeBlocks.forEach((block) => {
-    // ★★★ Skip mermaid blocks — mermaid.js handles their collapsing ★★★
+    // Skip mermaid blocks — mermaid.js handles their collapsing
     if (block.classList.contains("mermaid")) return;
-    // ★ 代码块 v2(.codecard)由 js/content/highlight.js 负责折叠,
-    //   这里只处理旧结构/裸 pre,避免双重包裹
+    // 代码块 v2(.codecard)由 js/content/highlight.js 负责折叠,
+    // 这里只处理旧结构/裸 pre,避免双重包裹
     if (block.classList.contains("codecard-pre") || block.closest(".codecard"))
       return;
 

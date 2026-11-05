@@ -49,14 +49,14 @@ const LC = {
   SWEAT_LIFE: 0.2,
   SWEAT_SIZE: 16,
   SWEAT_SPREAD: 20,
-  SWEAT_OPACITY: 0.4, // ★ 汗水透明度 40%
+  // SWEAT_OPACITY: 0.4, 汗水透明度 40%
 
   // —— 烟雾粒子 ——
-  SMOKE_N: 1, // ★ 每次生成 1 个粒子（沿轨迹排列）
+  // SMOKE_N: 1, 每次生成 1 个粒子（沿轨迹排列）
   SMOKE_LIFE: 0.8,
-  SMOKE_MIN_PX: 2, // ★ 最小 2×2
-  SMOKE_MAX_PX: 16, // ★ 最大 16×16
-  SMOKE_INTERVAL: 0.12, // ★ 间隔拉大（轨迹更稀疏）
+  // SMOKE_MIN_PX: 2, 最小 2×2
+  // SMOKE_MAX_PX: 16, 最大 16×16
+  // SMOKE_INTERVAL: 0.12, 间隔拉大（轨迹更稀疏）
 };
 
 export class PetLayers {
@@ -78,7 +78,7 @@ export class PetLayers {
     this.sweatT = 0;
     this.smokeT = 0;
 
-    // ★ 记录上一次粒子生成位置，用于沿轨迹排列
+    // 记录上一次粒子生成位置，用于沿轨迹排列
     this.lastSmokePos = null;
 
     this._initHalo();
@@ -102,7 +102,7 @@ export class PetLayers {
     if (!el) return;
 
     const off = right ? LC.HALO_R : LC.HALO_L;
-    // ★ 光环位置也要乘以角色缩放比
+    // 光环位置也要乘以角色缩放比
     const px = off.x * sc * 0.3;
     const py = off.y * sc * 0.3 + ofsY;
     const size = 64 * LC.HALO_SCALE * sc;
@@ -140,7 +140,7 @@ export class PetLayers {
     el.style.height = sh + "px";
     el.style.display = "block";
 
-    // ★ 核心修改：移除状态判断，无论何时影子都固定在脚底中央
+    // 移除状态判断，无论何时影子都固定在脚底中央
     el.style.left = -sw / 2 + "px";
     el.style.top = -sh / 2 + "px";
   }
@@ -162,7 +162,7 @@ export class PetLayers {
 
     positions.forEach((pos) => {
       const p = document.createElement("div");
-      // ★ 汗水位置也乘以 0.3 匹配角色缩放
+      // 汗水位置也乘以 0.3 匹配角色缩放
       const px = pos.x * sc * 0.3;
       const py = pos.y * sc * 0.3;
       p.style.cssText = `
@@ -203,13 +203,13 @@ export class PetLayers {
 
   // ==================== 烟雾粒子（沿轨迹排列）====================
   /**
-   * ★ 粒子不再随机散开，而是直接落在角色脚底的"过去位置"上，
+   *粒子不再随机散开，而是直接落在角色脚底的"过去位置"上，
    *    形成沿移动轨迹排列的效果。
    *    每个粒子 2~16px 随机大小，越老越透明。
    */
-  // ★ 全屏查看器(图片/表格/mermaid)打开时暂停粒子生成:
-  //   粒子挂 body 且 z-index 2001,直链查看器(9999)能盖住它,
-  //   但模态 iframe 内的查看器压不过父页面 —— 干脆看不见就别生成
+  // 全屏查看器(图片/表格/mermaid)打开时暂停粒子生成:
+  // 粒子挂 body 且 z-index 2001,直链查看器(9999)能盖住它,
+  // 但模态 iframe 内的查看器压不过父页面 —— 干脆看不见就别生成
   static particlesMuted = false;
 
   _updateSmoke(dt, state, sc, posX, posY) {
@@ -224,7 +224,7 @@ export class PetLayers {
     if (this.smokeT < LC.SMOKE_INTERVAL) return;
     this.smokeT = 0;
 
-    // ★ 间隔检查：与上次生成位置的距离必须足够大
+    // 间隔检查：与上次生成位置的距离必须足够大
     if (this.lastSmokePos) {
       const d = Math.hypot(
         posX - this.lastSmokePos.x,
@@ -236,17 +236,17 @@ export class PetLayers {
 
     // 生成粒子
     const p = document.createElement("div");
-    // ★ 随机大小 2~16px
+    // 随机大小 2~16px
     const sz =
       LC.SMOKE_MIN_PX + Math.random() * (LC.SMOKE_MAX_PX - LC.SMOKE_MIN_PX);
-    // ★ 初始透明度随机，靠近角色的更淡
+    // 初始透明度随机，靠近角色的更淡
     const alpha = 0.2 + Math.random() * 0.5;
     const life = LC.SMOKE_LIFE * (0.5 + Math.random() * 0.5);
 
-    // ★ 粒子直接放在角色当前脚底位置（屏幕绝对坐标）
-    //    因为 smokeContainer 跟随 pet-root 移动，所以用相对坐标 (0,0) 就是脚底
-    //    但粒子生成后不会再跟着角色走（它留在原地），
-    //    所以需要用绝对定位到屏幕上
+    // 粒子直接放在角色当前脚底位置（屏幕绝对坐标）
+    // 因为 smokeContainer 跟随 pet-root 移动，所以用相对坐标 (0,0) 就是脚底
+    // 但粒子生成后不会再跟着角色走（它留在原地），
+    // 所以需要用绝对定位到屏幕上
     p.style.cssText = `
       position:fixed;
       width:${sz}px; height:${sz}px;
@@ -285,7 +285,7 @@ export class PetLayers {
     this._updateHalo(p.facingRight, p.spriteOffsetY, p.scale);
     this._updateShadow(p.state, p.posX, p.posY, p.fallTargetY, p.scale);
     this._updateSweat(p.dt, p.state, p.facingRight, p.scale);
-    // ★ 传入角色屏幕坐标用于轨迹定位
+    // 传入角色屏幕坐标用于轨迹定位
     this._updateSmoke(p.dt, p.state, p.scale, p.posX, p.posY);
   }
 }

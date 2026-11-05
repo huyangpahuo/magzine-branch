@@ -7,7 +7,7 @@
  * 2. 电脑端右键页面空白处弹出设置面板(桌宠有自己的右键菜单,
  *    在桌宠上右键不会触发本面板),面板可滚动;
  *    点击"确定设置"后保存到浏览器并强制刷新生效。
- *    ★ 模态窗口(iframe)内禁用面板:模态里的"确定设置"只会刷新
+ *   模态窗口(iframe)内禁用面板:模态里的"确定设置"只会刷新
  *    iframe 本身,导致模态内外新旧设置共存,必须整页刷新才能恢复;
  *    因此在 iframe 内(以及模态遮罩上)一律不打开面板。
  *
@@ -138,16 +138,16 @@
   /* ============ 电脑端右键设置面板 ============ */
   document.addEventListener("DOMContentLoaded", function () {
     if (window.innerWidth <= 768) return; // 仅电脑端
-    // ★ 模态窗口(iframe)内禁用设置面板:
-    //   面板的"确定设置"靠 location.reload() 整页刷新生效,
-    //   在 iframe 内只会刷新文章本身,模态外的主页仍是旧设置,
-    //   造成两套模式共存,必须手动强制刷新才能恢复。
+    // 模态窗口(iframe)内禁用设置面板:
+    // 面板的"确定设置"靠 location.reload() 整页刷新生效,
+    // 在 iframe 内只会刷新文章本身,模态外的主页仍是旧设置,
+    // 造成两套模式共存,必须手动强制刷新才能恢复。
     if (window.self !== window.top) return;
     if (!(window.theme && window.theme.reader_settings && window.theme.reader_settings.enable))
       return;
-    // ★ 幂等守卫:pjax 换页后会重新派发 DOMContentLoaded(见 pjax-init.js),
-    //   若不拦截,每换一页就会再创建一个面板并叠加在一起——
-    //   点击关闭按钮只关掉最上面一层,看起来就像"必须点两次才能关闭"。
+    // 幂等守卫:pjax 换页后会重新派发 DOMContentLoaded(见 pjax-init.js),
+    // 若不拦截,每换一页就会再创建一个面板并叠加在一起——
+    // 点击关闭按钮只关掉最上面一层,看起来就像"必须点两次才能关闭"。
     if (window.__rsPanelInit) return;
     window.__rsPanelInit = true;
 
@@ -191,10 +191,10 @@
     }
 
     // 面板章节定义:show 由主题功能决定,渲染由 config 的 items 决定
-    // ★ "选项是否显示"必须用未打补丁的原始配置(__themeRaw)判断:
-    //   若用 window.theme,读者关掉某开关后 enable 变 false,选项会自己消失;
-    //   同时 config.yml 中设为 false 的模块(或其上级模块关闭)一律不显示,
-    //   例如 pjax.enable:false 时面板不出现"无感刷新"开关。
+    // "选项是否显示"必须用未打补丁的原始配置(__themeRaw)判断:
+    // 若用 window.theme,读者关掉某开关后 enable 变 false,选项会自己消失;
+    // 同时 config.yml 中设为 false 的模块(或其上级模块关闭)一律不显示,
+    // 例如 pjax.enable:false 时面板不出现"无感刷新"开关。
     var rawTheme = window.__themeRaw || window.theme;
     var available = [
       {
@@ -337,7 +337,7 @@
 
     // 骨架固定文案(标题/按钮)按当前语言翻译;同时打上 data-i18n-key
     // 键通道标记,语言切换时由 lang-switch 的 applyTree 统一刷新。
-    // ★ 关闭按钮是 × 图标:图标不能被词条覆盖,译文只进 title/aria-label
+    // 关闭按钮是 × 图标:图标不能被词条覆盖,译文只进 title/aria-label
     function markSkeleton(el, key) {
       el.setAttribute("data-i18n-key", key);
       el.textContent = t(key);

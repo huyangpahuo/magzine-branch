@@ -1,7 +1,7 @@
 /**
  * hero-panel.js — 首页 Hero 特效管理器 + 控制面板(可扩展框架)
  *
- * ★ 扩展方式(新增一种特效只需三步):
+ *扩展方式(新增一种特效只需三步):
  *   1. 新建 js/effects/hero-xxx.js,调用 window.HeroFX.register(def)
  *      def = { id, name, icon, defaults, controls, action?, create(layer, params, ctx) }
  *      create 返回 { destroy(), setParam(key, value), setVisible?(v) }

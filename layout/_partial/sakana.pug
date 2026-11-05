@@ -8,7 +8,7 @@ if theme.sakana && theme.sakana.enable
       position: fixed;
       bottom: 40px; 
       left: 30px; 
-      /* ★ 层级:文章模态(1000)之后、正文之上,与落叶同层 */
+      /* 层级:文章模态(1000)之后、正文之上,与落叶同层 */
       z-index: 998;
       pointer-events: none;
       transform: scale(0.3);
@@ -95,7 +95,7 @@ if theme.sakana && theme.sakana.enable
       // 1. 移动端禁用
       if (window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) return;
       
-      // 2. ★★★ 关键修复：如果处于 iframe（文章模态窗口）中，直接销毁，不加载第二个 Sakana ★★★
+      // 2. 如果处于 iframe（文章模态窗口）中，直接销毁，不加载第二个 Sakana
       if (window.self !== window.top) {
         var wrapper = document.getElementById('sakana-widget-wrapper');
         if (wrapper) wrapper.style.display = 'none';
@@ -105,9 +105,9 @@ if theme.sakana && theme.sakana.enable
       if (window.sakanaInitialized) return;
       window.sakanaInitialized = true;
 
-      // ★ 拖拽修复:文章模态窗口/视频 iframe 会吞掉 mousemove/mouseup,
-      //   导致拖动小人时"卡住"(鼠标一离开小人区域,父页面就收不到事件)。
-      //   抓住小人期间让所有 iframe 穿透鼠标事件,松手恢复。
+      // 文章模态窗口/视频 iframe 会吞掉 mousemove/mouseup,
+      // 导致拖动小人时"卡住"(鼠标一离开小人区域,父页面就收不到事件)。
+      // 抓住小人期间让所有 iframe 穿透鼠标事件,松手恢复。
       document.addEventListener('mousedown', function(e) {
         var wrapper = document.getElementById('sakana-widget-wrapper');
         if (wrapper && wrapper.contains(e.target)) {
@@ -134,9 +134,9 @@ if theme.sakana && theme.sakana.enable
             el: sakanaBox,
             character: savedChar,
             canSwitchCharacter: false,
-            // ★ 平抑物理参数:默认 r=60(入场大倾角)+ decay=0.99(几乎无阻尼)
-            //   会让摆动越晃越烈以至于拉伸变形;降低惯性、加强阻尼、
-            //   减小初始倾角后,入场只有轻微摆动并快速回正
+            // 平抑物理参数:默认 r=60(入场大倾角)+ decay=0.99(几乎无阻尼)
+            // 会让摆动越晃越烈以至于拉伸变形;降低惯性、加强阻尼、
+            // 减小初始倾角后,入场只有轻微摆动并快速回正
             inertia: 0.02,
             decay: 0.9,
             r: 10

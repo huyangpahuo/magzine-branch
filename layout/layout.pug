@@ -27,10 +27,40 @@ html(lang=config.language)
           }
         })();
 
-    //- ★★★ 新增：检测当前页面是否在 iframe (模态窗口) 中运行，提前打上标签防止闪烁 ★★★
+    //- 检测当前页面是否在 iframe (模态窗口) 中运行
+    //- 打标记的同时内联"iframe 专用隐藏样式"。此前这些规则放在
+    //- article-modal.css 里,而该文件是 media=print 非阻塞异步加载:
+    //- iframe 页面会先用阻塞样式渲染出完整导航栏/页脚/桌宠,等异步
+    //- CSS 到达才隐藏——表现为模态窗口里导航栏闪现约 1 秒(缓存冷时明显)。
+    //- 内联样式零额外请求,先于首帧生效,正常页面 is-iframe 永远不会
+    //- 被打上,这些规则是惰性的。
     script.
       if (window.parent !== window) {
         document.documentElement.classList.add('is-iframe');
+      }
+    style.
+      html.is-iframe .header,
+      html.is-iframe header,
+      html.is-iframe .navbar,
+      html.is-iframe .footer,
+      html.is-iframe footer,
+      html.is-iframe .music-player,
+      html.is-iframe .theme-color-picker-container,
+      html.is-iframe #waves-container,
+      html.is-iframe #pet-root,
+      html.is-iframe #sakana-widget-wrapper,
+      html.is-iframe .author-card-section,
+      html.is-iframe .hero-section {
+        display: none !important;
+      }
+      html.is-iframe .post-wrapper,
+      html.is-iframe .article-container,
+      html.is-iframe main {
+        margin-top: 0 !important;
+        padding-top: 20px !important;
+      }
+      html.is-iframe body {
+        overflow-x: hidden !important;
       }
 
     //- 字体:移除 Google Fonts(境内不可达且阻塞渲染),回退到字体栈里的系统字体。
@@ -47,8 +77,8 @@ html(lang=config.language)
     //- Favicon
     link(rel="icon", href=url_for(theme.favicon))
 
-    //- ★ LCP 预加载:首屏最大元素是 hero 背景图与开屏封面首图
-    //-   (DebugBear 实测 LCP 比 图片加载完成 晚 500-800ms,主因是渲染阻塞)
+    //- LCP 预加载:首屏最大元素是 hero 背景图与开屏封面首图
+    //- (DebugBear 实测 LCP 比 图片加载完成 晚 500-800ms,主因是渲染阻塞)
     if theme.hero && theme.hero.enable && theme.hero.background_image
       link(rel="preload", as="image", href=url_for(theme.hero.background_image), fetchpriority="high")
     if theme.cover && theme.cover.enable && theme.cover.images && theme.cover.images.length
@@ -70,10 +100,10 @@ html(lang=config.language)
     //- 文章访问统计(卡片封面徽标 + 文章页 meta 项)
     != css('css/components/post-stats')
 
-    //- ★ 页面级/按需样式改为非阻塞异步加载(media=print + onload 切回 all):
-    //-   它们都以页面级 class 作作用域、不会污染其他页面,且首屏渲染用不到;
-    //-   GTmetrix 实测渲染阻塞 CSS 曾占 31 个请求/114KB,这是其中最大的一块。
-    //-   pjax 只替换 main.main、不替换 <head>,异步加载后样式常驻,无感刷新不丢
+    //- 页面级/按需样式改为非阻塞异步加载(media=print + onload 切回 all):
+    //- 它们都以页面级 class 作作用域、不会污染其他页面,且首屏渲染用不到;
+    //- GTmetrix 实测渲染阻塞 CSS 曾占 31 个请求/114KB,这是其中最大的一块。
+    //- pjax 只替换 main.main、不替换 <head>,异步加载后样式常驻,无感刷新不丢
     link(rel="stylesheet", href=url_for('css/pages/categories.css'), media="print", onload="this.media='all'")
     link(rel="stylesheet", href=url_for('css/pages/categories-accordion.css'), media="print", onload="this.media='all'")
     link(rel="stylesheet", href=url_for('css/pages/categories-explorer.css'), media="print", onload="this.media='all'")
@@ -116,13 +146,13 @@ html(lang=config.language)
         != item
 
   body
-    //- ★★★ 新增：通过配置文件判断是否开启封面 ★★★
+    //- 通过配置文件判断是否开启封面
     if theme.cover && theme.cover.enable
       != partial('_partial/cover')
     #app
       != partial('_partial/header')
 
-      //- ★★★ 修改为：通过配置文件判断是否开启右上角色卡 ★★★
+      //- 通过配置文件判断是否开启右上角色卡
       if theme.color_picker && theme.color_picker.enable
         != partial('_partial/color-picker')
         
@@ -131,12 +161,12 @@ html(lang=config.language)
       main.main
         != body
 
-      //- ★★★ 新增：通过配置文件判断是否开启 Sakana ★★★
+      //- 通过配置文件判断是否开启 Sakana
       if theme.sakana && theme.sakana.enable
         != partial('_partial/sakana')
 
 
-      //- ★★★ 新增：波浪效果容器 (紧贴 Footer 上方) ★★★
+      //- 波浪效果容器 (紧贴 Footer 上方)
       #waves-container
         svg.waves(xmlns="http://www.w3.org/2000/svg", xmlns:xlink="http://www.w3.org/1999/xlink", viewBox="0 24 150 28", preserveAspectRatio="none", shape-rendering="auto")
           defs
@@ -148,7 +178,7 @@ html(lang=config.language)
             use(xlink:href="#gentle-wave", x="48", y="7")
 
       != partial('_partial/footer')
-      //- ★★★ 桌面宠物 ★★★
+      //- 桌面宠物
       if theme.pet && theme.pet.enable
         != partial('_partial/pet')
 
@@ -165,21 +195,19 @@ html(lang=config.language)
           if (shouldBeDark) {
             document.body.classList.add('dark-mode');
           }
-          // ★ 性能修改:删除了原先 "visibility:hidden 直到 DOMContentLoaded" 的白屏锁。
-          //   它会把所有阻塞资源的耗时叠加成整页白屏;暗色防闪已由 <head> 里的
-          //   documentElement.classList 提前完成,不再需要整页隐藏。
+          // 暗色防闪由 <head> 的内联脚本提前完成,无需整页隐藏的白屏锁。
         })();
 
     //- Scripts
-    //- ★ 性能修改:全部加 defer——不阻塞 HTML 解析,首屏文字可以先渲染;
-    //-   defer 保持文档顺序执行,且仍在 DOMContentLoaded 之前跑完,
-    //-   各脚本里监听 DOMContentLoaded 的初始化逻辑不受影响(pjax 换页也会重新派发该事件)。
-    //- ★ 语言层最先加载:window.i18n 在脚本执行期(而非 DOMContentLoaded)注册,
-    //-   后续组件的取词调用(i18n.get/text/set)才能拿到字典
+    //- 全部加 defer——不阻塞 HTML 解析,首屏文字可以先渲染;
+    //- defer 保持文档顺序执行,且仍在 DOMContentLoaded 之前跑完,
+    //- 各脚本里监听 DOMContentLoaded 的初始化逻辑不受影响(pjax 换页也会重新派发该事件)。
+    //- 语言层最先加载:window.i18n 在脚本执行期(而非 DOMContentLoaded)注册,
+    //- 后续组件的取词调用(i18n.get/text/set)才能拿到字典
     script(defer, src=url_for('js/core/lang-dict.js'))
     script(defer, src=url_for('js/core/lang-switch.js'))
     script(defer, src=url_for('js/core/main.js'))
-    //- ★ 内容按视口加载:代码块/表格/图表/公式/视频离屏不渲染(模态与直链通用)
+    //- 内容按视口加载:代码块/表格/图表/公式/视频离屏不渲染(模态与直链通用)
     script(defer, src=url_for('js/content/content-lazy.js'))
     script(defer, src=url_for('js/content/tags.js'))
     script(defer, src=url_for('js/pages/categories-accordion.js'))
@@ -220,7 +248,7 @@ html(lang=config.language)
       script(defer, src=url_for('cursors/anya/data.js'))
       script(defer, src=url_for('js/effects/anya-cursor.js'))
 
-    //- ★ 首页 hero 特效框架(panel 管理器先加载,特效脚本向其注册;新增特效照此追加一行)
+    //- 首页 hero 特效框架(panel 管理器先加载,特效脚本向其注册;新增特效照此追加一行)
     if theme.hero && theme.hero.effects && theme.hero.effects.enable
       script(defer, src=url_for('js/effects/hero-panel.js'))
       if theme.hero.effects.fluid && theme.hero.effects.fluid.enable !== false
@@ -276,8 +304,8 @@ html(lang=config.language)
         pet: !{JSON.stringify(theme.pet)},
         anime: !{JSON.stringify(theme.anime)}
         };
-        // ★ 原始配置快照(未合并读者设置):设置面板的"选项是否显示"
-        //   必须以主题原始配置为准,否则读者关掉某项后选项会自己消失
+        // 原始配置快照(未合并读者设置):设置面板的"选项是否显示"
+        // 必须以主题原始配置为准,否则读者关掉某项后选项会自己消失
         window.__themeRaw = JSON.parse(JSON.stringify(base));
         // 深合并读者设置补丁(两级足够)
         Object.keys(window.__readerThemePatch || {}).forEach(function (k) {

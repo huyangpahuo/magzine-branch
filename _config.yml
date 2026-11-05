@@ -109,7 +109,7 @@ footer:
   image:
     enable: true # 是否显示图片，设为true显示
     src: "https://github.com/funingna-wakawaka/picx-images-hosting/raw/master/碧蓝档案.3yew7g3xtc.webp" # 图片URL
-    link: "https://bluearchive-cn.com/" # 图片链接地址
+    link: "https://blog.desertpoplar.com/" # 图片链接地址
     alt: "Footer Image" # 图片替代文本
   # 备案示例,请修改为自己的备案内容
   # badges:
@@ -182,18 +182,17 @@ wordcount:
   enable: true # 是否在文章元数据区域显示字数和预计阅读时间
 
 # 文章访问统计(浏览次数 PV / 访客数 UV)
-# 数据源:Cloudflare Worker + D1 统计服务(接口同 rightdoor/visitor-stats,
-# 与 citrus 博客共用同一服务;/log 埋点 + /total 一次拉取全量,本地缓存)
-# ★ 注意:博客域名需加入统计服务 D1 config 表的 allowed_domains 白名单,
-#   否则请求会被 403 拒绝(页面统计位置会一直显示「-」)
+# 数据源:Cloudflare Worker + D1 统计服务(/log 埋点 + /total 拉取全量,本地缓存)
+# 注意:博客域名需加入统计服务 D1 config 表的 allowed_domains 白名单,
+# 否则请求会被 403 拒绝(页面统计位置会一直显示「-」)
 post_stats:
   enable: true # 是否开启卡片封面左上角与文章页的 PV/UV 统计
   api_base: "" # 统计服务地址
   cache_ttl: 300000 # 数字缓存时长(毫秒),默认 5 分钟
   mock: false # 本地调试:显示随机数字,不发任何统计请求
 
-# 桌面宠物配置(建议保持当前配置,数值调高浏览器会非常卡顿,甚至崩溃)
-# 出于性能考虑,若一个段落超过800字桌宠自动忽略
+# 桌面宠物配置(数值调大会非常卡顿甚至崩溃,建议保持当前值)
+# 出于性能考虑,超过 800 字的段落桌宠自动忽略
 pet:
   enable: true # 设为 false 即可关闭桌宠
   mobile_enable: false # 是否在手机移动端启用桌宠 (出于性能考虑，默认建议关闭)
@@ -240,7 +239,7 @@ image_viewer:
 #音乐配置文件为music.yml,请前往source/_data/music.yml文件修改
 music_player:
   enable: true #是否启用音乐播放器
-  style: "card" #桌面端播放器形态: "pill" (圆条型) 或 "card" (卡片模式)
+  style: "pill" #桌面端播放器形态: "pill" (圆条型) 或 "card" (卡片模式)
   mobile_style: "card" #手机端播放器形态: "pill" (纵向圆条) 或 "card" (纵向卡片),与桌面端互不影响
   pc_position: "header" # PC端位置: "header"(塞入导航菜单作者名字右侧) 或 "floating"(默认左上角且自由拖拽)
   autoplay: false
@@ -312,11 +311,11 @@ share:
     weibo: true
     option: # Additional options
 
-# 在 _config.yml 底部添加
+# 追番页配置
 anime:
-  # 播放器解析接口，如果是B站官方URL，可以用下面这个，或者替换为其他的免费外接源接口
-  # 例如: "https://jx.playerjy.com/?url=" 等全网解析接口
-  #默认使用哔哩哔哩播放源(无需更改,因为配置文件是anime.yml,而不是_config.yml,这里为默认值),请前往source/_data/anime.yml文件修改
+  # 播放器解析接口:B站官方 URL 直接可用,也可替换为其他免费外接解析源
+  # 例如: "https://jx.playerjy.com/?url="
+  # 每部番的播放源在 source/_data/anime/*.yml 里逐条配置
   player_api: "https://player.bilibili.com/player.html?bvid="
   # 是否开启历史记录功能（在卡片右下角显示"已观看"）
   history: true
@@ -354,12 +353,9 @@ theme_config:
     cache: true
 
 # 图片压缩功能 (需安装 sharp 依赖: npm install sharp)
-# ★ 2026-09 升级为"路由流"实现:一次 hexo generate 即自动完成,
-#   不再需要连续执行两次;hexo server 本地预览看到的也是压缩后的图片。
-# ★ mode: "webp" = png/jpg/jpeg 转为 webp,所有页面/样式/脚本里的引用
-#   会在构建时自动改写为 .webp,文章和配置无需任何改动;
-#   mode: "keep" = 保留原格式,仅压缩体积。
-# ★ 建议 webp 模式搭配 hexo clean 使用,避免 public 残留旧 .png 文件。
+# mode: "webp" = png/jpg/jpeg 转为 webp,全站引用在构建时自动改写为 .webp;
+# mode: "keep" = 保留原格式,仅压缩体积。建议 webp 模式搭配 hexo clean 使用,
+# 避免 public 残留旧 .png 文件。
 compress_images:
   enable: true # 是否开启图片压缩 (默认开启)
   mode: "webp" # "webp"(推荐) 或 "keep"
@@ -380,20 +376,13 @@ compress_images:
 # Custom code injection
 inject:
   head:
-    # Custom CSS
+    # Custom CSS(Font Awesome / AI 样式均已本地化进主题,勿再加 CDN 外链)
     # - <link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'">
-    # ★ Font Awesome 已在 layout.pug 本地化引入(lib/font-awesome),此处删除重复的 cdnjs 外链
-    # ★ AI 样式已本地化(css/components/chuckle-post-ai.css),不再依赖
-    #   tianli0 CDN(其域名 DNS 已无法解析,每次进站都报 ERR_NAME_NOT_RESOLVED);
-    #   保留 media="print" + onload 非阻塞加载
     - <link rel="stylesheet" href="/css/components/chuckle-post-ai.css" media="print" onload="this.media='all'"> #AI
   bottom:
-    # Custom JavaScript
+    # Custom JavaScript(统一加 defer,不阻塞解析)
     # - <script src="/js/xxx"></script>
-    # ★ 性能修改:注入脚本统一加 defer,不再阻塞页面解析
-    # ★ ai.js(原插件示例初始化,选择器与主题不符且先于类定义执行导致
-    #   ReferenceError)已移除:文章页的 AI 由 postai.js + post.pug 内的
-    #   守卫式初始化负责
+    # 文章页 AI 由 postai.js + post.pug 守卫式初始化,无需在此注入
     - <script defer src="/js/features/postai.js"></script> #ai
     #以下是数学公式支持
     - <script defer src="/js/content/math-support.js"></script> # 数学公式
@@ -424,7 +413,7 @@ ai_summary:
   # 其他可选配置
   ai_name: "阿罗娜" # AI名称
   ai_introduce: "老师好, 我是阿罗娜, 一个基于OpenAI GPT-4o的强大语言模型, 今天有什么可以帮到您? 😊" # AI介绍语
-  ai_version: "OpenAI GPT-4o" # AI版本显示,什么,你说是GPT-4o,没错,我就是挂羊头卖狗肉 [狗头][狗头][狗头]
+  ai_version: "OpenAI GPT-4o" # AI版本显示(仅展示用)
   # 按钮文本
   buttons:
     - "介绍自己"

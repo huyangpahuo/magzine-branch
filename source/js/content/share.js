@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
     button.addEventListener("click", function (e) {
       e.preventDefault();
 
-      // ★★★ 修改：直接使用当前浏览器地址栏的 URL ★★★
+      // 修改：直接使用当前浏览器地址栏的 URL
       const finalUrl = getCurrentPageUrl();
 
       // 创建临时输入框复制
@@ -71,9 +71,9 @@ document.addEventListener("DOMContentLoaded", function () {
   // ================= 2. 微信分享功能 (自动生成当前页二维码) =================
   const wechatButtons = document.querySelectorAll(".share-btn.wechat");
 
-  // ★ 性能修改:QRCode 库按需加载。
-  //   原先 <head> 里同步引入 cdnjs 的 qrcode.min.js,阻塞每个页面的解析,
-  //   但只有点"微信分享"那一下才用到;改为点击时动态注入,加载失败走 API 兜底。
+  // QRCode 库按需加载。
+  // 原先 <head> 里同步引入 cdnjs 的 qrcode.min.js,阻塞每个页面的解析,
+  // 但只有点"微信分享"那一下才用到;改为点击时动态注入,加载失败走 API 兜底。
   let qrcodeLoading = null;
   function ensureQRCode() {
     if (typeof QRCode !== "undefined") return Promise.resolve();
@@ -125,7 +125,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       closeWechatModal();
 
-      // ★★★ 修改：直接使用当前浏览器地址栏的 URL 生成二维码 ★★★
+      // 修改：直接使用当前浏览器地址栏的 URL 生成二维码
       const url = getCurrentPageUrl();
 
       const modal = document.createElement("div");

@@ -84,7 +84,7 @@ function initSearch() {
     }
 
     if (!searchIndex) {
-      // ★★★ 修改点 1：翻译错误提示 ★★★
+      // 修改点 1：翻译错误提示
       searchResults.innerHTML = `<div class="search-no-results">${t("search.index_missing")}</div>`;
       return;
     }
@@ -137,12 +137,12 @@ function initSearch() {
 
   function displaySearchResults(results, query) {
     if (results.length === 0) {
-      // ★★★ 修改点 2：翻译无结果提示 ★★★
+      // 修改点 2：翻译无结果提示
       searchResults.innerHTML = `<div class="search-no-results">${t("search.no_results")}</div>`;
       return;
     }
 
-    // ★ 带变量的计数文案走 i18n.format(词条缺译时自动回退英文/中文) ★
+    // 带变量的计数文案走 i18n.format(词条缺译时自动回退英文/中文)
     let countHtml = (window.i18n && window.i18n.format ? window.i18n.format("post.found_results", { n: results.length }) : results.length + " 个结果");
 
     let html = `<div class="search-results-count">${countHtml}</div>`;

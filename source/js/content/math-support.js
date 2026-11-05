@@ -1,8 +1,8 @@
 // MathJax 配置与加载脚本
-// ★ 性能修改(2026-09):
-//   1. 只有页面正文确实包含公式标记($...$、\(...\)、\[...\])时才下载
-//     MathJax——绝大多数页面零公式,不再为它付出 ~1MB 脚本的请求与解析;
-//   2. 下载推迟到浏览器空闲(requestIdleCallback),不与首屏渲染抢主线程。
+// 性能修改(2026-09):
+// 1. 只有页面正文确实包含公式标记($...$、\(...\)、\[...\])时才下载
+// MathJax——绝大多数页面零公式,不再为它付出 ~1MB 脚本的请求与解析;
+// 2. 下载推迟到浏览器空闲(requestIdleCallback),不与首屏渲染抢主线程。
 (function () {
   function pageHasMath() {
     var scope = document.querySelector(".post-content") || document.body;

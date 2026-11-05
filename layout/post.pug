@@ -46,8 +46,6 @@
         if theme.wordcount && theme.wordcount.enable && hasWordCount
           .post-wordcount
             i.fas.fa-file-word(style="margin-right: 5px")
-            //- 修改前: span= wordcount(page.content) + ' 字'
-            //- 修改后: 拆分数字和单位(单位走词条)
             span= wordcount(page.content)
             span(style="margin-left: 3px")&attributes(t('post.words'))= zh('post.words')
         
@@ -56,8 +54,6 @@
          if theme.wordcount && theme.wordcount.enable && hasMin2Read
           .post-readtime
             i.fas.fa-clock(style="margin-right: 5px")
-            //- 修改前: span= min2read(page.content) + ' 分钟'
-            //- 修改后: 拆分数字和单位(单位走词条)
             span= min2read(page.content)
             span(style="margin-left: 3px")&attributes(t('post.minutes'))= zh('post.minutes')
 
@@ -72,8 +68,8 @@
 
       h1.post-title(data-i18n-zh=page.title)&attributes(i18n_attrs(page, 'title'))= page.title
 
-      //- ★★★ 新增：当本文章页在"文章模态窗口"的 iframe 中被打开/切换（点击上一篇/下一篇）时，
-      //- 主动通知父窗口更新模态框标题，避免依赖 iframe 的 load 事件时机不稳定的问题 ★★★
+      //- 当本文章页在"文章模态窗口"的 iframe 中被打开/切换（点击上一篇/下一篇）时，
+      //- 主动通知父窗口更新模态框标题，避免依赖 iframe 的 load 事件时机不稳定的问题
       //- 携带各语言显式标题(zh 原文 + front-matter 里的 title_<lang>),
       //- 父窗口按当前语言挑选,缺译时回退英文/中文
       - var modalTitles = { zh: page.title || '', en: page.title_en || '' }

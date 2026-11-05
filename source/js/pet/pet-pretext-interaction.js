@@ -4,7 +4,7 @@
  *
  * 桌宠在文章上走过时,把附近文字逐字符推开;走远后复原。
  *
- * ★ 性能架构(2026-09 重构,行为与旧版一致):
+ *性能架构(2026-09 重构,行为与旧版一致):
  *   1. 视口懒包裹:不再打开文章就给全篇每个字包 span,而是用
  *      IntersectionObserver(在 iframe 文档里创建)只包裹"视口上下
  *      各一屏"内的段落;滚出两屏以外的段落自动还原成纯文本,
@@ -21,7 +21,7 @@ export class PetPretextInteraction {
   constructor(options = {}) {
     this.repelRadius = options.repelRadius || 50; // 排斥半径(像素)
     this.throttleMs = options.throttleMs || 50; // 节流间隔(毫秒)
-    // ★ 允许参与文字避让的元素(CSS 选择器,逗号分隔)
+    // 允许参与文字避让的元素(CSS 选择器,逗号分隔)
     this.allowSelector =
       options.allowSelector || "p, h1, h2, h3, h4, h5, h6, li, pre";
     this.maxBlockChars = 800; // 单块文字超过此长度则忽略(超大代码块等)
@@ -190,7 +190,7 @@ export class PetPretextInteraction {
       return;
     }
 
-    // ★ 白名单:只有匹配 allowSelector 的元素会参与文字避让
+    // 白名单:只有匹配 allowSelector 的元素会参与文字避让
     const blocks = articleBody.querySelectorAll(this.allowSelector);
     if (blocks.length === 0) {
       this.isPreparing = false;
@@ -269,9 +269,9 @@ export class PetPretextInteraction {
     if (!doc) return;
 
     // 判断切文章:iframe 文档对象变了则彻底重置。
-    // ★ resetAll 后立刻记住当前文档:preparedDoc 原本只在延迟 800ms 的
-    //   prepareIframeText 里赋值,导致准备期间每帧都会再 resetAll 一次,
-    //   并不断追加新的 800ms 定时器(定时器风暴反复清空包裹队列)
+    // resetAll 后立刻记住当前文档:preparedDoc 原本只在延迟 800ms 的
+    // prepareIframeText 里赋值,导致准备期间每帧都会再 resetAll 一次,
+    // 并不断追加新的 800ms 定时器(定时器风暴反复清空包裹队列)
     if (this.preparedDoc !== doc) {
       this.resetAll();
       this.preparedDoc = doc;
@@ -312,9 +312,9 @@ export class PetPretextInteraction {
     const petIframeY =
       petScreenY - iframeRect.top + doc.documentElement.scrollTop;
 
-    // ★ 读写分离第一步:集中读取。
-    //   先按块 rect 粗筛(只保留"视口内且桌宠附近"的块),
-    //   再把入围块的所有 span 位置一次性读完。
+    // 读写分离第一步:集中读取。
+    // 先按块 rect 粗筛(只保留"视口内且桌宠附近"的块),
+    // 再把入围块的所有 span 位置一次性读完。
     const scrollTop = doc.documentElement.scrollTop;
     const viewH = doc.defaultView.innerHeight;
     const margin = this.repelRadius + 100;
@@ -369,7 +369,7 @@ export class PetPretextInteraction {
       candidates.push({ blockObj, spanPos });
     }
 
-    // ★ 读写分离第二步:集中写入,期间不再触发任何布局读取
+    // 读写分离第二步:集中写入,期间不再触发任何布局读取
     for (const { blockObj, spanPos } of candidates) {
       blockObj.spans.forEach((span, idx) => {
         const spanX = spanPos[idx][0];

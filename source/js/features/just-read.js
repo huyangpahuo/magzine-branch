@@ -64,7 +64,7 @@
       data = { url: location.pathname, time: Date.now() };
     }
     data.title = titleEl ? titleEl.textContent.trim() : "";
-    // ★ 额外收集封面/日期/分类,供主页"复制刚读过卡片"完整还原外观
+    // 额外收集封面/日期/分类,供主页"复制刚读过卡片"完整还原外观
     var coverEl = document.querySelector(".post-cover img");
     var catEl = document.querySelector(".post-meta .post-category a");
     var dateEl = document.querySelector(".post-date time");
@@ -99,9 +99,9 @@
     img.src = record.cover || "";
     img.alt = record.title || "";
     img.loading = "lazy";
-    // ★ 兜底:localStorage 里记录的封面路径可能已失效(如图片转为 webp 后
-    //   旧 .png 路径不存在),加载失败时移除图片避免显示破图;
-    //   记录会在读者下次打开文章时自动刷新为新路径。
+    // 兜底:localStorage 里记录的封面路径可能已失效(如图片转为 webp 后
+    // 旧 .png 路径不存在),加载失败时移除图片避免显示破图;
+    // 记录会在读者下次打开文章时自动刷新为新路径。
     img.addEventListener("error", function () {
       if (img.parentElement) img.remove();
     });
@@ -143,8 +143,8 @@
       dateEl.setAttribute("datetime", record.date);
       dateEl.setAttribute("data-date-standard", record.date.slice(0, 10));
       if (dateInfo && dateInfo.text) {
-        // ★ 优先复用主页原卡片的日期文本与属性(已按界面语言本地化,
-        //   中英文切换时与相邻卡片行为完全一致)
+        // 优先复用主页原卡片的日期文本与属性(已按界面语言本地化,
+        // 中英文切换时与相邻卡片行为完全一致)
         dateEl.textContent = dateInfo.text;
         if (dateInfo.originalText) {
           dateEl.setAttribute("data-original-text", dateInfo.originalText);
@@ -178,6 +178,7 @@
     meta.appendChild(dateEl);
     content.appendChild(meta);
 
+    // 标题(与主页卡片同构:文章标题是内容,不参与界面翻译)
     var h3 = document.createElement("h3");
     h3.className = "article-title";
     var titleA = document.createElement("a");
@@ -186,7 +187,7 @@
     h3.appendChild(titleA);
     content.appendChild(h3);
 
-    // 标签(与主页卡片同款 .article-tags > a.tag)
+    // 标签(最多 3 个,与主页卡片展示数量一致;标签名是内容,不翻译)
     if (record.tags && record.tags.length) {
       var tagsBox = document.createElement("div");
       tagsBox.className = "article-tags";
@@ -207,9 +208,9 @@
   }
 
   // 在主页:把刚读过的文章"复制"一份到列表最前并加"刚读过"徽章
-  // ★ 是复制而非移动——文章本体在各页的位置保持不变
+  // 是复制而非移动——文章本体在各页的位置保持不变
   function pinOnHome() {
-    // ★ 只在主页第一页置顶;分页页(/page/N/)保持时间顺序
+    // 只在主页第一页置顶;分页页(/page/N/)保持时间顺序
     if (location.pathname !== "/") return;
     var grid = document.querySelector(".articles-grid");
     var record = null;
@@ -235,7 +236,7 @@
     });
 
     // 复制"刚读过"卡片到最前(尺寸与排版延续首卡)
-    // ★ 日期文本从原卡片复制(已按界面语言本地化);原卡片不在本页时按语言计算
+    // 日期文本从原卡片复制(已按界面语言本地化);原卡片不在本页时按语言计算
     var dateInfo = null;
     var originalCard = null;
     grid.querySelectorAll(":scope > .article-card").forEach(function (c) {

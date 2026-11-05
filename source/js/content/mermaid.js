@@ -418,7 +418,7 @@
       { passive: false },
     );
 
-    // ★ 拖动惯性(与图片查看器同款手感):追踪瞬时速度,松手后滑行衰减
+    // 拖动惯性(与图片查看器同款手感):追踪瞬时速度,松手后滑行衰减
     var dragVel = { x: 0, y: 0, lastX: 0, lastY: 0, lastT: 0 };
     var momentumRaf = 0;
     function glide() {
@@ -460,7 +460,7 @@
       e.preventDefault();
     });
 
-    // ★ rAF 合帧:事件只记录坐标,每帧最多写一次 style(高回报率鼠标防卡顿)
+    // rAF 合帧:事件只记录坐标,每帧最多写一次 style(高回报率鼠标防卡顿)
     var panRaf = 0;
     var latestPtr = { x: 0, y: 0 };
     document.addEventListener("mousemove", function (e) {
@@ -799,7 +799,7 @@
     var pres = findMermaidPres();
     if (pres.length === 0) return;
 
-    // ★ 库的下载推迟到第一张图接近视口(setupLazyRender 内触发)
+    // 库的下载推迟到第一张图接近视口(setupLazyRender 内触发)
     setupLazyRender();
   });
 })();

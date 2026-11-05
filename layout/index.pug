@@ -50,7 +50,7 @@ section.articles-section
                 - var defaultCover = theme.theme_config.post && theme.theme_config.post.default_cover ? theme.theme_config.post.default_cover : '/images/19.png'
                 - var coverPath = article.cover ? getCoverPath(article.cover, article.path) : defaultCover
                 img(src=url_for(coverPath), alt=article.title, loading="lazy")&attributes(i18n_attrs(article, 'title', 'alt'))
-                //- ★★★ 新增：悬停遮罩层 ★★★
+                //- 悬停遮罩层
                 .read-overlay
                   span.read-text(data-label="点击阅读->")&attributes(t('post.click_read'), ta('data-label', 'post.click_read'))= zh('post.click_read')
                 //- 文章访问统计徽标(封面左上角,配置见 post_stats)

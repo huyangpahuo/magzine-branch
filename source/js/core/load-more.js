@@ -76,8 +76,8 @@ function initLoadMore() {
   // 如果没有按钮，说明不需要加载更多逻辑，直接返回
   if (!loadMoreBtn) return;
 
-  // ★ 防止重复初始化:main.js 与本文件都定义并调用了 initLoadMore(同名函数,
-  //   后加载者覆盖前者,但两处 DOMContentLoaded 都会执行),不加守卫会绑定两次点击
+  // 防止重复初始化:main.js 与本文件都定义并调用了 initLoadMore(同名函数,
+  // 后加载者覆盖前者,但两处 DOMContentLoaded 都会执行),不加守卫会绑定两次点击
   if (loadMoreBtn.dataset.loadMoreInit) return;
   loadMoreBtn.dataset.loadMoreInit = "1";
 
@@ -87,7 +87,7 @@ function initLoadMore() {
   }
 
   // 3. 文案统一走 language/*.yml 词条(i18n.text 中文模式解析 zh.yml,
-  //    其它语言缺译时自动回退英文/中文,不再各语言硬编码)
+  // 其它语言缺译时自动回退英文/中文,不再各语言硬编码)
   const t = (key) =>
     window.i18n && typeof window.i18n.text === "function"
       ? window.i18n.text(key)
@@ -146,8 +146,8 @@ function initLoadMore() {
     num.setAttribute("aria-label", t("post.page_input_hint"));
     num.title = t("post.page_input_hint");
 
-    // ★ 页码键盘跳转:电脑端回车/空格、手机端虚拟键盘回车,
-    //   行为与点击"加载更多文章"完全一致(编辑页码→跳转,未改→追加/翻页)
+    // 页码键盘跳转:电脑端回车/空格、手机端虚拟键盘回车,
+    // 行为与点击"加载更多文章"完全一致(编辑页码→跳转,未改→追加/翻页)
     num.addEventListener("keydown", (e) => {
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
@@ -205,7 +205,7 @@ function initLoadMore() {
     const currentPage = parseInt(btn.getAttribute("data-current-page")) || 1;
     const totalPages = parseInt(btn.getAttribute("data-total-pages")) || 1;
 
-    // ★ 页码可编辑:输入了有效页数 → 点击直接跳转;无效 → 提示"无效页码哦~"
+    // 页码可编辑:输入了有效页数 → 点击直接跳转;无效 → 提示"无效页码哦~"
     const pagerInput =
       btn.parentElement && btn.parentElement.querySelector(".pager-num");
     if (pagerInput) {
@@ -232,8 +232,8 @@ function initLoadMore() {
       return;
     }
 
-    // ★ 屏幕上已经追加过一页(超过一页的内容)后,再点"加载更多"就翻到下一页,
-    //   页码随之变化;首次点击仍然是在当前页追加
+    // 屏幕上已经追加过一页(超过一页的内容)后,再点"加载更多"就翻到下一页,
+    // 页码随之变化;首次点击仍然是在当前页追加
     if (btn.dataset.appended === "1") {
       goPage(nextPage);
       return;
@@ -273,7 +273,7 @@ function initLoadMore() {
           // 准备一个数组来存放真正要插入的（去重后的）新文章元素
           const articlesToInsert = [];
 
-          // ★★★ 核心去重 ★★★
+          // 去重
           const existingLinks = Array.from(
             articlesGrid.querySelectorAll(".article-title a"),
           ).map((a) => a.getAttribute("href"));
@@ -296,7 +296,7 @@ function initLoadMore() {
             }
           });
 
-          // ★★★ 对新插入的文章应用随机排版 ★★★
+          // 对新插入的文章应用随机排版
           // 传入 currentCount 作为起始索引，确保排版逻辑接续上一页
           if (articlesToInsert.length > 0) {
             applyRandomLayout(articlesToInsert, currentCount);
@@ -320,7 +320,7 @@ function initLoadMore() {
             console.warn("未添加新文章，可能是重复内容");
           }
 
-          // ★★★ 更新按钮状态 ★★★
+          // 更新按钮状态
           if (nextPage >= totalPages) {
             btn.innerHTML = t("post.no_more");
             btn.style.opacity = "0.6";
@@ -339,7 +339,7 @@ function initLoadMore() {
             curLang() !== "zh"
           ) {
             window.i18n.translateNode(articlesGrid);
-            // ★★★ 新增：调用日期翻译函数，处理新加载文章的日期 ★★★
+            // 调用日期翻译函数，处理新加载文章的日期
             if (typeof window.i18n.translateDates === "function") {
               window.i18n.translateDates();
             }

@@ -6,8 +6,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const wallContainer = document.getElementById("photo-wall-container");
   const emptyTip = document.getElementById("wall-empty-tip");
 
-  // ★ 本脚本全站加载(见 layout.pug),非照片墙页面上这些元素不存在,
-  //   直接返回,避免 null.addEventListener 报错
+  // 本脚本全站加载(见 layout.pug),非照片墙页面上这些元素不存在,
+  // 直接返回,避免 null.addEventListener 报错
   if (!modal || !btnOpen || !btnClose || !overlay) return;
 
   let zIndexCounter = 10;
@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const authorEl = comment.querySelector(
         ".tk-nick, .vnick, .gt-comment-username",
       );
-      // ★ 将 innerText 改为 textContent
+      // 将 innerText 改为 textContent
       const author = authorEl
         ? authorEl.textContent.trim()
         : window.i18n && window.i18n.text
@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", function () {
         ".tk-content, .vcontent, .gt-comment-body",
       );
 
-      // ★ 将 innerText 改为 textContent，并过滤掉多余的换行符
+      // 将 innerText 改为 textContent，并过滤掉多余的换行符
       let message =
         window.i18n && window.i18n.text
           ? window.i18n.text("wall.nothing_left")
@@ -108,9 +108,9 @@ document.addEventListener("DOMContentLoaded", function () {
     // 初始尝试渲染一次 (应对网页秒开、缓存加载的情况)
     setTimeout(renderPhotos, 500);
 
-    // ★ 竞速修复:twikoo 本地化后评论渲染可能快于本脚本的观察器注册
-    //   (defer 脚本要等 DOMContentLoaded,评论可能已经画完了),
-    //   MutationObserver 接不住"注册前发生的变化",补一个轮询。
+    // 竞速修复:twikoo 本地化后评论渲染可能快于本脚本的观察器注册
+    // (defer 脚本要等 DOMContentLoaded,评论可能已经画完了),
+    // MutationObserver 接不住"注册前发生的变化",补一个轮询。
     let pollCount = 0;
     const poll = setInterval(function () {
       const has =
@@ -194,9 +194,9 @@ document.addEventListener("DOMContentLoaded", function () {
       document.addEventListener("mouseup", stopDrag);
       document.addEventListener("touchmove", drag, { passive: false });
       document.addEventListener("touchend", stopDrag);
-      // ★ 移动端浏览器(Edge/Yandex 等)的边缘手势/下拉刷新会以 touchcancel
-      //   结束触摸而不是 touchend,漏接会导致 touchmove+preventDefault 永久
-      //   残留在 document 上,换页后全站都无法滚动
+      // 移动端浏览器(Edge/Yandex 等)的边缘手势/下拉刷新会以 touchcancel
+      // 结束触摸而不是 touchend,漏接会导致 touchmove+preventDefault 永久
+      // 残留在 document 上,换页后全站都无法滚动
       document.addEventListener("touchcancel", stopDrag);
     }
 

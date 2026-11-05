@@ -174,10 +174,10 @@
     var startScale = 1;
 
     // Desktop: stage absolutely positioned (top:50%, left:50%), transform
-    //   carries the full translate(-50%+tx, -50%+ty) + scale.
+    // carries the full translate(-50%+tx, -50%+ty) + scale.
     // Mobile: overlay is a flex container, stage is CSS-centered.
-    //   transform is purely translate(tx,ty) rotate(deg) scale(s) — just
-    //   like image-zoom's viewImage transform model.
+    // transform is purely translate(tx,ty) rotate(deg) scale(s) — just
+    // like image-zoom's viewImage transform model.
     function updateTransform(animate) {
       stage.style.transition = animate
         ? "transform 0.3s cubic-bezier(0.25,0.8,0.25,1)"
@@ -412,7 +412,7 @@
     );
 
     // Mouse drag
-    // ★ 拖动惯性(与图片查看器同款手感):追踪瞬时速度,松手后滑行衰减
+    // 拖动惯性(与图片查看器同款手感):追踪瞬时速度,松手后滑行衰减
     var dragVel = { x: 0, y: 0, lastX: 0, lastY: 0, lastT: 0 };
     var momentumRaf = 0;
     function glide() {
@@ -453,7 +453,7 @@
       stage.style.cursor = "grabbing";
       e.preventDefault();
     });
-    // ★ rAF 合帧:事件只记录坐标,每帧最多写一次 style(高回报率鼠标防卡顿)
+    // rAF 合帧:事件只记录坐标,每帧最多写一次 style(高回报率鼠标防卡顿)
     var panRaf = 0;
     var latestPtr = { x: 0, y: 0 };
     document.addEventListener("mousemove", function (e) {

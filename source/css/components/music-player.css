@@ -851,7 +851,7 @@ body.dark-mode .music-player.in-modal-mode .music-player-pill-title {
     height: 90px;
 }
 
-/* 卡片(横向):与信息区同宽,长度恒定 */
+/* 卡片(横向):基础尺寸;模态形态下覆盖为与圆条同规格(见 in-modal-mode 段) */
 .music-player .music-player-card .music-wave {
     width: 150px;
     height: 90px;
@@ -864,12 +864,13 @@ body.dark-mode .music-player.in-modal-mode .music-player-pill-title {
 }
 
 /* ★★ 模态卡片:紧凑纵向布局(高度=内容,不再拉伸撑出空白);
-   空白区由声波波动图填充,封面/文字/控制键居中 ★★ */
+   空白区由声波波动图填充(与圆条同尺寸 56×90,不再撑宽卡片),
+   封面/文字/控制键居中 ★★ */
 .music-player.in-modal-mode .music-player-card {
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    width: 208px !important;
+    width: 140px !important;
     height: fit-content !important;
     min-height: 0 !important;
     max-height: calc(100vh - 40px) !important;
@@ -890,7 +891,8 @@ body.dark-mode .music-player.in-modal-mode .music-player-pill-title {
     text-align: center !important;
 }
 
+/* 卡片声波与圆条同规格(56×90),居中显示 */
 .music-player.in-modal-mode .music-player-card .music-wave {
-    width: 180px !important;
-    height: 64px !important;
+    width: 56px !important;
+    height: 90px !important;
 }

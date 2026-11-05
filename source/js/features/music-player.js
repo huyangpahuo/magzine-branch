@@ -23,8 +23,8 @@
     const mobileStyle = player.dataset.mobileStyle || playerStyle;
     const pcPosition = player.dataset.pcPosition || "floating";
 
-    // ★ 桌面/手机允许配置不同形态(style + mobile_style):两个面板都保留
-    //   在 DOM 中,由 applyStyleScope 按当前宽度切换显示哪一个
+    // 桌面/手机允许配置不同形态(style + mobile_style):两个面板都保留
+    // 在 DOM 中,由 applyStyleScope 按当前宽度切换显示哪一个
     const pillMini = player.querySelector(".music-player-pill");
     const cardMini = player.querySelector(".music-player-card");
     if (!pillMini || !cardMini) return;
@@ -51,9 +51,9 @@
     }
 
     // ----- UI 定位逻辑 -----
-    // ★ 统一入口 placePlayer():桌面按配置嵌入导航栏或悬浮;手机端固定左下角。
-    //   初始化与跨越 768 分界的 resize 都会调用,避免形态切换后样式错乱;
-    //   模态窗口打开期间(in-modal-mode)不重新放置,由 article-modal 接管
+    // 统一入口 placePlayer():桌面按配置嵌入导航栏或悬浮;手机端固定左下角。
+    // 初始化与跨越 768 分界的 resize 都会调用,避免形态切换后样式错乱;
+    // 模态窗口打开期间(in-modal-mode)不重新放置,由 article-modal 接管
     function placePlayer() {
       if (player.classList.contains("in-modal-mode")) return;
 
@@ -93,9 +93,9 @@
         // 补加 is-floating 让默认隐藏的播放器显示出来(否则 opacity 恒为 0)
         player.classList.add("is-floating");
         player.classList.remove("in-header");
-        // ★ 手机端默认收起,只显示圆钮;点击圆钮向上弹出播放器。
-        //   若初始为展开态,圆钮的第一下点击会变成"收起",用户将永远
-        //   看不到播放面板,也无法开始播放
+        // 手机端默认收起,只显示圆钮;点击圆钮向上弹出播放器。
+        // 若初始为展开态,圆钮的第一下点击会变成"收起",用户将永远
+        // 看不到播放面板,也无法开始播放
         if (!player.classList.contains("collapsed")) {
           player.classList.add("collapsed");
           updateIcons();
@@ -139,7 +139,7 @@
       let pWidth = rect.width;
       let pHeight = rect.height;
 
-      // ★★★ 修复折叠状态下绝对定位导致的父容器宽高塌陷为0的问题 ★★★
+      // 修复折叠状态下绝对定位导致的父容器宽高塌陷为0的问题
       if (player.classList.contains("collapsed") && toggleBtn) {
         pWidth = Math.max(pWidth, toggleBtn.offsetWidth);
         pHeight = Math.max(pHeight, toggleBtn.offsetHeight);
@@ -210,7 +210,7 @@
       } catch (e) {}
     }
 
-    // ★ 放置播放器(须在 isPlaying/collapseBtns 就绪之后调用,见上)
+    // 放置播放器(须在 isPlaying/collapseBtns 就绪之后调用,见上)
     placePlayer();
 
     // 跨越 768 分界(旋转屏幕/拉伸窗口)时重新放置
@@ -342,9 +342,9 @@
       const song = songs[index];
       if (!song) return;
       audio.src = song.src;
-      // ★ 歌名/歌手是 music.yml 的内容,不属于翻译层:写入动态内容时
-      //   必须摘掉"未在播放"状态的词条标记,否则切换语言时 applyTree
-      //   会按 music.not_playing 词条把歌名改写成状态文案
+      // 歌名/歌手是 music.yml 的内容,不属于翻译层:写入动态内容时
+      // 必须摘掉"未在播放"状态的词条标记,否则切换语言时 applyTree
+      // 会按 music.not_playing 词条把歌名改写成状态文案
       titleEls.forEach((el) => {
         el.removeAttribute("data-i18n-key");
         el.textContent = song.title;
@@ -428,7 +428,7 @@
         let pWidth = rect.width;
         let pHeight = rect.height;
 
-        // ★★★ 修复折叠状态下拖拽时，绝对定位导致的父容器宽高塌陷问题 ★★★
+        // 修复折叠状态下拖拽时，绝对定位导致的父容器宽高塌陷问题
         if (el.classList.contains("collapsed")) {
           const tBtn = el.querySelector(".music-player-toggle");
           if (tBtn) {

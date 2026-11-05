@@ -36,7 +36,7 @@ export class PetMusicPlayer {
     }
   }
 
-  // ★ 核心修复：获取当前正在使用的播放器容器（卡片 or 圆条）
+  // 核心修复：获取当前正在使用的播放器容器（卡片 or 圆条）
   _getActiveMini() {
     if (!this.globalPlayer) return null;
     const isPill = this.globalPlayer.classList.contains("style-pill");
@@ -92,8 +92,8 @@ export class PetMusicPlayer {
   toggleLoop() {
     const btn = this._getActiveMini()?.querySelector(".music-player-loop");
     if (btn) btn.click();
-    // ★ 同步桌宠面板上的循环按钮图标:此前只转发点击、不更新自身,
-    //   导致切换列表/单曲循环时面板 UI 毫无变化
+    // 同步桌宠面板上的循环按钮图标:此前只转发点击、不更新自身,
+    // 导致切换列表/单曲循环时面板 UI 毫无变化
     if (this._menuLoopBtn && btn) {
       this._menuLoopBtn.innerHTML = btn.innerHTML;
       this._menuLoopBtn.setAttribute(

@@ -18,8 +18,7 @@ script(src="https://cdn.jsdelivr.net/npm/artplayer/dist/artplayer.js")
 
   //- 追番卡片网格
   .bili-grid
-    //- ★ 新增：数据兼容与扁平化处理
-    -     //- ★ 新增：数据兼容与扁平化处理 (修复 Hexo 子目录解析问题)
+    -     // 数据兼容与扁平化处理 (修复 Hexo 子目录解析问题)
     - var animeList = []
     - if (site.data) {
     -   // 1. 兼容旧版：如果还是使用单一的 source/_data/anime.yml
@@ -46,7 +45,7 @@ script(src="https://cdn.jsdelivr.net/npm/artplayer/dist/artplayer.js")
 
     if animeList.length > 0
       each item in animeList
-        //- ★ 注入 data-sources 和 data-episodes 数据
+        //- 注入 data-sources 和 data-episodes 数据
         - var sourcesJson = item.sources ? JSON.stringify(item.sources) : "[]";
         - var episodesJson = item.episodes ? JSON.stringify(item.episodes) : "[]";
         - var defaultUrl = item.url || "";
@@ -68,7 +67,7 @@ script(src="https://cdn.jsdelivr.net/npm/artplayer/dist/artplayer.js")
     else
       p(style="grid-column: 1 / -1; text-align: center;")&attributes(t('anime.empty'))= zh('anime.empty')
 
-//- ★ 播放器模态窗口 (更新了UI区)
+//- 播放器模态窗口
 #anime-modal.anime-modal
   .anime-modal-content
     .anime-modal-header
@@ -86,14 +85,14 @@ script(src="https://cdn.jsdelivr.net/npm/artplayer/dist/artplayer.js")
       //- 原本的 iframe (用于 B站、解析接口等网页)
       iframe#anime-modal-iframe(src="" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true")
       
-      //- ★ 新增：Artplayer 容器
+      //- Artplayer 容器
       #anime-artplayer-container(style="width:100%; height:100%; display:none;")
       
-      //- ★ 选集侧边栏面板
+      //- 选集侧边栏面板
       #anime-episode-sidebar.anime-episode-sidebar
         .sidebar-header
           h3&attributes(t('anime.playlist'))= zh('anime.playlist')
-          //- ★ 新增：换源下拉菜单
+          //- 换源下拉菜单
           select#anime-source-select(style="display:none;")
           button#sidebar-close-btn
             i.fas.fa-chevron-right

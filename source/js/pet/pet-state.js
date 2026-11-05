@@ -36,12 +36,12 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
 
 // ===== 可调参数 =====
-// ★ 速度相关参数全部降到原来的 0.3 倍 ★
+// 速度相关参数全部降到原来的 0.3 倍
 const CFG = {
   // —— 检测区域（以角色中心为原点的长方形半宽/半高）——
   DETECT_HALF_W: 30, // 缩小检测区域匹配缩小后的角色
   DETECT_HALF_H: 25,
-  // ★ 设为 true 可显示绿色半透明区域，调试完成后设回 false ★
+  // 设为 true 可显示绿色半透明区域，调试完成后设回 false
   DEBUG_ZONE: false,
 
   // —— 移动（全部 × 0.3）——
@@ -206,7 +206,7 @@ export class PetStateMachine {
     });
     window.addEventListener("touchend", () => this._onUp());
 
-    // ★ 禁用角色上的右键默认菜单（由 pet-sound.js 的菜单接管）★
+    // 禁用角色上的右键默认菜单（由 pet-sound.js 的菜单接管）★
     this.innerEl.addEventListener("contextmenu", (e) => {
       e.preventDefault();
     });
@@ -227,7 +227,7 @@ export class PetStateMachine {
     this.ropeLen = CFG.ROPE_BASE;
 
     //跳跃小动画
-    // ★ 核心修改 1：初始设为 wait 状态，等待判定，先不给速度
+    // 核心修改 1：初始设为 wait 状态，等待判定，先不给速度
     this.jumpPhase = "wait";
     this.jumpOffset = 0;
     this.jumpVel = 0;
@@ -432,7 +432,7 @@ export class PetStateMachine {
 
   // -------------------- DRAGGING --------------------
   _tickDragging(dt) {
-    // ★ 核心修改 2：判定是否转化为真正的拖拽
+    // 核心修改 2：判定是否转化为真正的拖拽
     if (this.jumpPhase === "wait") {
       const elapsed = performance.now() - this.mouseDownT;
       const dist = Math.hypot(

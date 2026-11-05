@@ -1,9 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
   // ==========================================
-  // ★ 1. 解除防盗链 (绕过腾讯、B站等视频直链限制)
-  // ★ pjax: no-referrer 只在追番页生效。整页加载时 meta 是在 iframe
-  //   开始加载后才注入的,影响不大;但 pjax 换页时 meta 会一直残留,
-  //   导致万花筒等页面的 YouTube/B站 嵌入拿不到 referrer 而解析异常。
+  // 1. 解除防盗链 (绕过腾讯、B站等视频直链限制)
+  // pjax: no-referrer 只在追番页生效。整页加载时 meta 是在 iframe
+  // 开始加载后才注入的,影响不大;但 pjax 换页时 meta 会一直残留,
+  // 导致万花筒等页面的 YouTube/B站 嵌入拿不到 referrer 而解析异常。
   // ==========================================
   const isAnimePage =
     location.pathname.indexOf("/anime") === 0 ||
@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // ==========================================
-  // ★ 2. 初始化配置与本地历史记录
+  // 2. 初始化配置与本地历史记录
   // ==========================================
   const animeConfig =
     window.theme && window.theme.anime ? window.theme.anime : {};
@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // ==========================================
-  // ★ 3. 核心播放控制 (切换 iframe 或 Artplayer)
+  // 3. 核心播放控制 (切换 iframe 或 Artplayer)
   // ==========================================
   function playVideo(rawUrl, apiOverride) {
     const api = apiOverride !== undefined ? apiOverride : globalApi;
@@ -230,7 +230,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // ==========================================
-  // ★ 4. 观看历史记录逻辑
+  // 4. 观看历史记录逻辑
   // ==========================================
   const HISTORY_KEY = "anime_watch_history";
   function getHistory() {
@@ -267,7 +267,7 @@ document.addEventListener("DOMContentLoaded", function () {
   updateBadges();
 
   // ==========================================
-  // ★ 5. 获取 DOM 元素
+  // 5. 获取 DOM 元素
   // ==========================================
   const modal = document.getElementById("anime-modal");
   const modalTitle = document.getElementById("anime-modal-title");
@@ -284,7 +284,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const loadingText = document.getElementById("context-menu-loading");
 
   // ==========================================
-  // ★ 6. 绑定卡片交互事件 (纯本地 yml 数据)
+  // 6. 绑定卡片交互事件 (纯本地 yml 数据)
   // ==========================================
   document.querySelectorAll(".bili-card-wrapper").forEach((card) => {
     // 6.1 左键点击卡片 -> 获取播放源并打开模态框
@@ -446,7 +446,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // ==========================================
-  // ★ 7. 模态框与侧边栏控制逻辑
+  // 7. 模态框与侧边栏控制逻辑
   // ==========================================
   if (episodeBtn)
     episodeBtn.addEventListener("click", () =>

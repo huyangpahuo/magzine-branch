@@ -12,7 +12,7 @@ main.link-page
     if site.data.link
       .link-grid
         each item, idx in site.data.link
-          //- ★ 整卡是一个 <a>:点击卡片任意位置即可跳转
+          //- 整卡是一个 <a>:点击卡片任意位置即可跳转
           a.link-card(href=item.link, target="_blank", rel="noopener", data-link-url=item.link, data-idx=idx)
             .link-card-inner
               .link-avatar(style="width: 60px; height: 60px; border-radius: 50%; overflow: hidden; flex-shrink: 0;")

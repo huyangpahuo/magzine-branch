@@ -158,8 +158,8 @@
       var influence = Math.max(0, Math.min(1, 1 - dist / 110));
       influence = influence * influence * (3 - 2 * influence);
       el.style.transform = "scale(" + (1 + influence * 0.16) + ")";
-      // ★ 渐隐只用 opacity:Firefox 对 SVG 图层化元素(will-change:filter /
-      //   内联 filter)存在渲染 bug,会导致中间文字丢失 fill 颜色
+      // 渐隐只用 opacity:Firefox 对 SVG 图层化元素(will-change:filter /
+      // 内联 filter)存在渲染 bug,会导致中间文字丢失 fill 颜色
       el.style.opacity = 0.35 + influence * 0.65;
     }
   }

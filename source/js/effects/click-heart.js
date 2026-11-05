@@ -1,9 +1,10 @@
 (function () {
-  // ★ 模态窗口(iframe)中不启动:父页面已有点击特效,避免双份 canvas
+  // 模态窗口(iframe)中不启动:父页面已有点击特效,避免双份 canvas
   if (window.self !== window.top) return;
 
-  // ★ 读者设置:鼠标点击效果二选一(heart/fireworks),由 reader-settings 决定
-  if (window.__readerSettings && window.__readerSettings.click_effect !== "heart") return;
+  // 读者设置:鼠标点击效果二选一(heart/fireworks);未保存过设置时按主题默认(heart)
+  var heartMode = (window.__readerSettings && window.__readerSettings.click_effect) || "heart";
+  if (heartMode !== "heart") return;
   // 1. 初始化 Canvas
   let canvas = document.createElement("canvas");
   canvas.style.cssText =
@@ -164,8 +165,8 @@
   };
 
   // 4. 动画循环
-  // ★ 性能修改:粒子全部消散后停止 rAF 循环,点击时再唤醒,
-  //   不再在没有粒子时每帧空转 clearRect。
+  // 粒子全部消散后停止 rAF 循环,点击时再唤醒,
+  // 不再在没有粒子时每帧空转 clearRect。
   let running = false;
 
   function loop() {
@@ -199,8 +200,8 @@
   document.addEventListener("mousedown", function (e) {
     // Hero 与封面区域不触发全局点击动画,避免干扰首屏交互。
     if (e.target.closest && e.target.closest("#blog-cover, .hero-section")) return;
-    // ★ 文章模态窗口打开时不生成粒子:模态+iframe+桌宠本就吃性能,
-    //   点击特效在父页面继续开会明显卡顿
+    // 文章模态窗口打开时不生成粒子:模态+iframe+桌宠本就吃性能,
+    // 点击特效在父页面继续开会明显卡顿
     if (document.querySelector(".article-modal.active")) return;
 
     // 每次点击时,获取一次最新的主题色

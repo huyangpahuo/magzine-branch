@@ -77,8 +77,8 @@ function ChucklePostAI(AI_option) {
 
     // ===========================================
     // 国际化辅助:文案与提示词都写在 language/*.yml 里
-    //   t(text)          —— 词条直查(字符串本身就是字典键)
-    //   tf(tpl, vars)    —— 带 {占位符} 的模板,按当前语言取译文再填值
+    // t(text)          —— 词条直查(字符串本身就是字典键)
+    // tf(tpl, vars)    —— 带 {占位符} 的模板,按当前语言取译文再填值
     // 两者都在 i18n 尚未就绪时原样返回中文,不会报错或留空。
     // 提示词也走这里,所以 AI 的回复语言自动跟随界面语言(俄语界面→俄语回答)。
     // ===========================================
@@ -318,8 +318,8 @@ function ChucklePostAI(AI_option) {
       controller = new AbortController();
       signal = controller.signal;
 
-      // ★ 后端 Worker 地址可配置:读 config.yml 的 ai_summary.api_url
-      //   (经 layout.pug 挂到 window.theme);留空则不发任何请求
+      // 后端 Worker 地址可配置:读 config.yml 的 ai_summary.api_url
+      // (经 layout.pug 挂到 window.theme);留空则不发任何请求
       const apiUrl =
         (window.theme &&
           window.theme.ai_summary &&
@@ -339,8 +339,8 @@ function ChucklePostAI(AI_option) {
           headers: {
             "Content-Type": "application/json",
           },
-          // ★ model 不在前端配置:Worker 端会用 CONFIG.TARGET_MODEL 强制覆盖
-          //   请求体里的 model,写在这里只是冗余(改模型去 Worker 里改)
+          // model 不在前端配置:Worker 端会用 CONFIG.TARGET_MODEL 强制覆盖
+          // 请求体里的 model,写在这里只是冗余(改模型去 Worker 里改)
           body: JSON.stringify({
             messages: [{ role: "user", content: prompt }],
           }),

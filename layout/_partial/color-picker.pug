@@ -37,7 +37,7 @@ style.
     position: relative; /* 为 tooltip 提供定位参照 */
   }
 
-  /* ★★★ 调色板提示框 (Tooltip) 向左弹出 ★★★ */
+  /* 调色板提示框 (Tooltip) 向左弹出 */
   .theme-color-picker-container label::after {
     content: attr(data-title);
     position: absolute;
@@ -111,7 +111,7 @@ script.
       const newColor = e.target.value;
       root.style.setProperty('--accent-color', newColor);
       
-      // ★ 修复 Bug：如果在 iframe 模态框中修改颜色，实时同步给主窗口(父界面)
+      // 在 iframe 模态框中改色时,实时同步给主窗口(父界面)
       if (window.self !== window.top) {
         try {
           window.top.document.documentElement.style.setProperty('--accent-color', newColor);
@@ -129,7 +129,7 @@ script.
       localStorage.setItem('custom-accent-color', newColor);
     });
 
-    // ★ 修复 Bug：监听 localStorage 变化。如果主页颜色改变，通知到所有开启的模态框 iframe 或者 其他标签页
+    // 监听 localStorage 变化:主页改色后通知所有已打开的模态框 iframe 与其他标签页
     window.addEventListener('storage', function(e) {
       if (e.key === 'custom-accent-color' && e.newValue) {
         root.style.setProperty('--accent-color', e.newValue);

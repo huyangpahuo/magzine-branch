@@ -93,12 +93,12 @@
         return;
       var r = el.getBoundingClientRect();
       if (r.top < window.innerHeight) {
-        // ★ 首屏内元素:立即标记为已显现。
-        //   (CSS 会隐藏所有匹配元素,如果不标记,首屏文字会被永久藏起
-        //    ——这正是"正文闪现后消失/标题下方大段空白"的根因)
+        // 首屏内元素:立即标记为已显现。
+        // (CSS 会隐藏所有匹配元素,如果不标记,首屏文字会被永久藏起
+        // ——这正是"正文闪现后消失/标题下方大段空白"的根因)
         el.classList.add("revealed");
       }
-      // ★ 全部纳入观察:离开视口后复位,再次进入时重新播放出现动画
+      // 全部纳入观察:离开视口后复位,再次进入时重新播放出现动画
       items.push(el);
     });
     if (items.length === 0) return; // 没有待显现项时不挂隐藏样式,零风险
@@ -115,12 +115,12 @@
         ".post-content.reading-reveal > h5, .post-content.reading-reveal > h6,",
         ".post-content.reading-reveal > ul, .post-content.reading-reveal > ol,",
         ".post-content.reading-reveal > blockquote, .post-content.reading-reveal > hr,",
-        /* ★ 表格:revealed 标记打在 table 上,包裹层用 :has 联动淡入
-           (table 节点在 table.js 包裹后依然存在,观察不中断) */
+        // 表格:revealed 标记打在 table 上,包裹层用 :has 联动淡入
+           /* (table 节点在 table.js 包裹后依然存在,观察不中断) */
         ".post-content.reading-reveal > .table-wrapper:has(table:not(.revealed)),",
-        /* ★ 代码卡(highlight.js 运行时创建,由 MutationObserver 补挂观察) */
+        /* 代码卡(highlight.js 运行时创建,由 MutationObserver 补挂观察) */
         ".post-content.reading-reveal > .codecard,",
-        /* ★ mermaid 图表(渲染前后均为 pre.mermaid 节点) */
+        /* mermaid 图表(渲染前后均为 pre.mermaid 节点) */
         ".post-content.reading-reveal > pre.mermaid {",
         "  opacity: 0;",
         "  transform: translateY(14px);",
@@ -134,7 +134,7 @@
         "  opacity: 1;",
         "  transform: none;",
         "}",
-        /* ★ 归档页时间轴条目套用同一套出现动画 */
+        /* 归档页时间轴条目套用同一套出现动画 */
         ".reading-reveal.archive-reveal > .archive-post,",
         ".reading-reveal.archive-reveal > .archive-year {",
         "  opacity: 0;",
@@ -162,7 +162,7 @@
               el.classList.add("revealed");
             }, delay);
           } else {
-            // ★ 离开视口:复位隐藏,再次进入时重新播放出现动画
+            // 离开视口:复位隐藏,再次进入时重新播放出现动画
             el.classList.remove("revealed");
             el.dataset.revealIdx = "0";
           }

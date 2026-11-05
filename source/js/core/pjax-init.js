@@ -86,7 +86,7 @@
         if (url.origin !== location.origin) return;
         if (!isPjaxPath(url.pathname)) return;
 
-        // ★ 手机端:在文章页点 Logo/首页 → 回到离开时所在的分页(而非第一页)
+        // 手机端:在文章页点 Logo/首页 → 回到离开时所在的分页(而非第一页)
         var targetHref = url.href;
         if (
           window.innerWidth <= 768 &&
@@ -199,10 +199,10 @@
         if (!newMain || !oldMain)
           throw new Error("pjax: 目标页面缺少 " + SWAP_SELECTOR); // i18n:allow(值通道/内容,有意保留的中文)
 
-        // ★ 先更新地址栏,再替换内容并重建脚本:
-        //   页面内嵌脚本(twikoo 等)重建执行时会用 location.pathname
-        //   决定拉取哪个页面的评论,此刻 URL 必须已经是新页面,
-        //   否则会把上一个页面的评论拉进来。
+        // 先更新地址栏,再替换内容并重建脚本:
+        // 页面内嵌脚本(twikoo 等)重建执行时会用 location.pathname
+        // 决定拉取哪个页面的评论,此刻 URL 必须已经是新页面,
+        // 否则会把上一个页面的评论拉进来。
         var newTitle = doc.title || document.title;
         var detachedScripts = [];
         var found = newMain.querySelectorAll("script");
@@ -266,7 +266,7 @@
     // 唤醒所有依赖 DOMContentLoaded 的页面脚本
     document.dispatchEvent(new Event("DOMContentLoaded"));
 
-    // ★ 兜底规则(承袭旧 ojax-init):评论/数学公式在新容器中重新加载
+    // 兜底规则(承袭旧 ojax-init):评论/数学公式在新容器中重新加载
     setTimeout(function () {
       var twikooEl = document.getElementById("twikoo");
       if (
@@ -290,15 +290,15 @@
       } catch (e) {}
     }
 
-    // ★ 音乐播放器防丢失:文章模态窗口等逻辑可能移动过播放器,
-    //   若它意外脱离了文档,放回 body(音频不会断)
+    // 音乐播放器防丢失:文章模态窗口等逻辑可能移动过播放器,
+    // 若它意外脱离了文档,放回 body(音频不会断)
     if (playerRef && !document.body.contains(playerRef)) {
       document.body.appendChild(playerRef);
     }
 
     // 滚动位置:新页面回顶部,后退则恢复原位置
     if (push) {
-      // ★ 手机端从文章回到主页列表时,恢复离开前的滚动位置
+      // 手机端从文章回到主页列表时,恢复离开前的滚动位置
       if (pendingHomeScroll !== null) {
         var sy = pendingHomeScroll;
         pendingHomeScroll = null;

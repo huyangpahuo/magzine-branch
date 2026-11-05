@@ -31,8 +31,8 @@
   var FAIL_CACHE_KEY = 'visitor-stats:failed';
   var totalPromise = null;
 
-  // ★ 与 scripts/other/stats-key.js 的哈希保持一致:
-  //   供动态渲染的节点(just-read 置顶卡等)从文章真实路径反推统计 key
+  // 与 scripts/other/stats-key.js 的哈希保持一致:
+  // 供动态渲染的节点(just-read 置顶卡等)从文章真实路径反推统计 key
   window.__statsKey = function (path) {
     if (!path) return '';
     var p = String(path).replace(/^\/+|\/+$/g, '');

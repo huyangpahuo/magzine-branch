@@ -18,7 +18,7 @@ export class PetChat {
 
     this.idleTime = 0;
     this.bubbleTimer = null;
-    this.dragSayTimer = null; // ★ 新增：拖拽对话延迟定时器
+    this.dragSayTimer = null; // 拖拽对话延迟定时器
     this.isSpeaking = false;
     this.lastState = State.IDLE;
 
@@ -44,7 +44,7 @@ export class PetChat {
   }
 
   _bindEvents() {
-    // ★ 核心修改：移除原生的 click 监听，防覆盖。左键点击对话全权由状态机触发！
+    // 移除原生的 click 监听，防覆盖。左键点击对话全权由状态机触发！
 
     // 仅保留右键的监听
     this.innerEl.addEventListener("contextmenu", () => {
@@ -89,8 +89,8 @@ export class PetChat {
   say(text, duration = 3000) {
     if (!this.bubbleEl || !this.textEl) return;
 
-    // ★ 显示前先按当前语言渲染:此前靠 lang-switch 的观察器事后翻译,
-    //   气泡会先闪一下中文再变成译文,观感很差
+    // 显示前先按当前语言渲染:此前靠 lang-switch 的观察器事后翻译,
+    // 气泡会先闪一下中文再变成译文,观感很差
     const translated =
       window.i18n && typeof window.i18n.get === "function"
         ? window.i18n.get(text)

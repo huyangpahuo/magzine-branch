@@ -71,7 +71,18 @@
     return !!analyser;
   }
 
-  /* ---------- 绘制:横向圆角短条,自上而下堆叠,颜色绿→黄渐变 ---------- */
+  /* ---------- 绘制:横向圆角短条,自上而下堆叠;颜色跟随主题 --accent-color ---------- */
+  // 每帧读取计算样式:调色盘/主题色切换即时生效,成本可忽略
+  function accentColor() {
+    var v = "";
+    try {
+      v = getComputedStyle(document.documentElement)
+        .getPropertyValue("--accent-color");
+    } catch (e) {}
+    v = (v || "").trim();
+    return v || "#51cf66";
+  }
+
   function draw(ts) {
     rafId = requestAnimationFrame(draw);
     if (!player.classList.contains("in-modal-mode")) return;
@@ -102,6 +113,7 @@
     }
 
     var dpr = window.devicePixelRatio || 1;
+    var accent = accentColor();
     [wavePill, waveCard].forEach(function (c) {
       if (!c) return;
       var w = c.clientWidth;
@@ -128,13 +140,13 @@
 
       for (var b = 0; b < BARS; b++) {
         var y = b * (rowH + gap);
-        // 浅色轨道铺满整行
-        g.fillStyle = "rgba(255, 255, 255, 0.16)";
+        // 中性轨道铺满整行(亮暗两种播放器底色上都可见)
+        g.fillStyle = "rgba(127, 127, 127, 0.25)";
         trackPath(0, y, w, rowH, r);
-        // 绿色幅度条:随音乐起伏,最短保持圆头可见
+        // 主题色幅度条:随音乐起伏,最短保持圆头可见
         var amp = 0.14 + vals[b] * 0.86;
         var bw = Math.max(rowH, w * amp);
-        g.fillStyle = "#51cf66";
+        g.fillStyle = accent;
         trackPath(0, y, bw, rowH, r);
       }
     });

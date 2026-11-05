@@ -53,9 +53,9 @@ if theme.comments && theme.comments.enable
     when 'twikoo'
       #twikoo-comments
       div(id="twikoo")
-      //- ★ 性能修改:twikoo 改为本地文件(不再从 unpkg 拉取,境内不稳),
-      //-   并且只在评论区滚入视口附近(IntersectionObserver)时才加载执行,
-      //-   文章首屏不再为评论脚本付出请求+解析成本。
+      //- twikoo 改为本地文件(不再从 unpkg 拉取,境内不稳),
+      //- 并且只在评论区滚入视口附近(IntersectionObserver)时才加载执行,
+      //- 文章首屏不再为评论脚本付出请求+解析成本。
       script.
         (function () {
           function initTwikoo() {

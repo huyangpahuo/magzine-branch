@@ -35,14 +35,14 @@ document.addEventListener("DOMContentLoaded", function () {
         this.style.color = "inherit";
         this.style.borderBottom = "none";
         this.style.cursor = "default";
-        // ★ 标记展开状态:悬停时不再浮出"点击查看"提示(仅隐藏态显示)
+        // 标记展开状态:悬停时不再浮出"点击查看"提示(仅隐藏态显示)
         this.classList.add("revealed");
         isRevealed = true;
 
         // 添加一个小的提示，表明可以点击恢复
         const restoreHint = document.createElement("span");
 
-        // ★★★ 核心修改 1：翻译 "(点击恢复)" ★★★
+        // 核心修改 1：翻译 "(点击恢复)"
         // 注意：这里是带空格的，确保你的 lang-switch.js 字典里有 " (点击恢复)"
         restoreHint.textContent = t(" (点击恢复)");
 
@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", function () {
         restoreHint.addEventListener("click", function (e) {
           e.stopPropagation();
 
-          // ★★★ 核心修改 2：翻译恢复后的文本 ★★★
+          // 核心修改 2：翻译恢复后的文本
           // 如果 displayText 是 "点击查看"，t() 会把它变成 "Click to view"
           element.textContent = t(displayText);
 

@@ -1,8 +1,8 @@
 // 文章模态窗口功能
 document.addEventListener("DOMContentLoaded", function () {
-  // ★ 模态窗口 iframe 内不再创建第二层模态(否则会 blog 套 blog 套 blog)。
-  //   iframe 内点击分类/标签等非文章链接由 pjax-init 接管:通知父页面关闭模态并跳转;
-  //   iframe 内文章之间的跳转(上一篇/下一篇/相关文章)保留原有体验。
+  // 模态窗口 iframe 内不再创建第二层模态(否则会 blog 套 blog 套 blog)。
+  // iframe 内点击分类/标签等非文章链接由 pjax-init 接管:通知父页面关闭模态并跳转;
+  // iframe 内文章之间的跳转(上一篇/下一篇/相关文章)保留原有体验。
   if (window.self !== window.top) return;
 
   // 界面文案统一走 language/*.yml 词条(中文模式解析 zh.yml,缺译回退英文)
@@ -14,7 +14,6 @@ document.addEventListener("DOMContentLoaded", function () {
   // 检查是否启用模态窗口模式，且屏幕宽度足够大
   const isSmallScreen = window.innerWidth <= 768;
 
-  // ★★★ 恢复后的正式代码 ★★★
   // 只有当：
   // 1. window.theme 对象存在
   // 2. 且配置了 article_list
@@ -96,7 +95,7 @@ document.addEventListener("DOMContentLoaded", function () {
           .header, header, .navbar { display: none !important; } 
           .footer, footer { display: none !important; }
 
-          /* ★★★ 杀死 iframe 内部重复加载的悬浮组件 ★★★ */
+          /* 杀死 iframe 内部重复加载的悬浮组件 */
           .music-player { display: none !important; }
           .theme-color-picker-container { display: none !important; }
 
@@ -107,7 +106,7 @@ document.addEventListener("DOMContentLoaded", function () {
         iframeDoc.head.appendChild(iframeStyle);
 
         // =================================================================
-        // ★ 核心修复：监听 iframe 内部的点击，并手动通知父窗口（解决桌宠菜单关不掉）
+        // 核心修复：监听 iframe 内部的点击，并手动通知父窗口（解决桌宠菜单关不掉）
         // =================================================================
         const notifyParent = (e) => {
           if (!e) return;
@@ -151,7 +150,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // 每当 iframe 加载新页面（包括点击上一篇/下一篇）都会触发
     modalIframe.addEventListener("load", updateModalTitleFromIframe);
 
-    // ★★★ 新增：监听文章页通过 postMessage 主动上报的标题 ★★★
+    // 监听文章页通过 postMessage 主动上报的标题
     // 解决点击文章内"上一篇/下一篇"后，iframe 的 load 事件时机不可靠、
     // 导致模态框标题未同步更新的问题。只信任来自当前 modal iframe 的消息。
     window.addEventListener("message", function (e) {
@@ -180,10 +179,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 为主页文章链接添加点击事件的函数
     function addClickEventToLinks() {
-      // ★★★ 新增：加入了 .search-result-link 选择器 ★★★
-      // ★★★ 新增：加入了 .archive-post-title a 选择器，修复归档页标题不触发模态窗口的问题 ★★★
-      // ★★★ 新增：加入了 .post-item-title a 选择器，修复分类/相关标签/相关分类页标题不触发模态窗口的问题 ★★★
-      // ★★★ 新增：加入了 .cx-item 选择器，分类页"文件夹"视图的文章卡片也走模态窗口 ★★★
+      // 加入了 .search-result-link 选择器
+      // 加入了 .archive-post-title a 选择器，修复归档页标题不触发模态窗口的问题
+      // 加入了 .post-item-title a 选择器，修复分类/相关标签/相关分类页标题不触发模态窗口的问题
+      // 加入了 .cx-item 选择器，分类页"文件夹"视图的文章卡片也走模态窗口
       const articleLinks = document.querySelectorAll(
         ".article-title a, .article-image a, .read-more, .search-result-link, .archive-post-title a, .post-item-title a, .cx-item",
       );
@@ -203,7 +202,7 @@ document.addEventListener("DOMContentLoaded", function () {
           const loadingText = t("common.loading");
           let initialTitle = loadingText;
 
-          // ★★★ 新增：如果点击的是搜索结果链接 ★★★
+          // 如果点击的是搜索结果链接
           if (this.classList.contains("search-result-link")) {
             const searchTitle = this.querySelector(".search-result-title");
             if (searchTitle) {
@@ -223,7 +222,7 @@ document.addEventListener("DOMContentLoaded", function () {
           ) {
             initialTitle = this.textContent.trim();
           }
-          // ★ 分类页"文件夹"视图的卡片:取内部的名称元素
+          // 分类页"文件夹"视图的卡片:取内部的名称元素
           else if (this.classList.contains("cx-item")) {
             const cxName = this.querySelector(".cx-item-name");
             if (cxName) initialTitle = cxName.textContent.trim();
@@ -249,11 +248,11 @@ document.addEventListener("DOMContentLoaded", function () {
           // 显示模态窗口
           modal.classList.add("active");
           document.body.style.overflow = "hidden";
-          // ★ 隐藏父页导航栏:模态与导航栏同为 z-index 1000,部分浏览器
-          //   会把导航栏绘制在模态之上(移动端尤甚)
+          // 隐藏父页导航栏:模态与导航栏同为 z-index 1000,部分浏览器
+          // 会把导航栏绘制在模态之上(移动端尤甚)
           document.body.classList.add("article-modal-open");
 
-          // ★★★ 激活音乐播放器的垂直模式 ★★★
+          // 激活音乐播放器的垂直模式
           if (musicPlayer) {
             // 将播放器从 header 中强制拔出，放到 body 下，突破层级限制
             document.body.appendChild(musicPlayer);
@@ -284,12 +283,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 开始观察 articles-grid 的变化，而不是 body，性能更好
     const grid = document.querySelector(".articles-grid");
-    const searchResults = document.querySelector(".search-results"); // ★★★ 新增：获取搜索结果容器 ★★★
+    const searchResults = document.querySelector(".search-results"); // 获取搜索结果容器
 
     if (grid) {
       observer.observe(grid, { childList: true, subtree: true });
     }
-    // ★★★ 新增：监听搜索结果的 DOM 变化 ★★★
+    // 监听搜索结果的 DOM 变化
     if (searchResults) {
       observer.observe(searchResults, { childList: true, subtree: true });
     }
@@ -303,15 +302,15 @@ document.addEventListener("DOMContentLoaded", function () {
       modal.classList.remove("active");
       document.body.classList.remove("article-modal-open");
       // 延迟清空 src，避免关闭瞬间闪烁白屏
-      // ★ 必须用 about:blank:空字符串会让 iframe 重新加载父页首页,
-      //   隐藏 iframe 里 WebGL 流体/音频等全部照跑,是阅读页内存暴涨的元凶
+      // 必须用 about:blank:空字符串会让 iframe 重新加载父页首页,
+      // 隐藏 iframe 里 WebGL 流体/音频等全部照跑,是阅读页内存暴涨的元凶
       setTimeout(() => {
         modalIframe.src = "about:blank";
       }, 300);
       document.body.style.overflow = ""; // 恢复背景滚动
       modalTitle.textContent = "";
 
-      // ★★★ 取消音乐播放器的垂直模式，恢复原状 ★★★
+      // 取消音乐播放器的垂直模式，恢复原状
       if (musicPlayer) {
         musicPlayer.classList.remove("in-modal-mode");
         // 如果原本是 header 模式，将其放回导航栏中
@@ -320,7 +319,7 @@ document.addEventListener("DOMContentLoaded", function () {
           if (navLogo) {
             navLogo.insertAdjacentElement("afterend", musicPlayer);
           }
-          // ★★★ 新增：Header 模式不支持折叠状态，强制展开，防止隐身 ★★★
+          // Header 模式不支持折叠状态，强制展开，防止隐身
           musicPlayer.classList.remove("collapsed");
         }
       }

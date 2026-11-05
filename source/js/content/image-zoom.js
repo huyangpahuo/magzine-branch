@@ -33,11 +33,11 @@
   }
 
   document.addEventListener("DOMContentLoaded", function () {
-    // ★ 幂等守卫:direct 模式下文章页经 pjax 加载,pjax 换页会重新派发
-    //   DOMContentLoaded;若无守卫,每换一页就往 body 叠加一个一模一样的
-    //   查看器,点击空白/关闭按钮一次只关掉最上层,看起来就要点很多次。
-    //   查看器节点挂在 body(pjax 只替换 main),单实例可跨页面复用,
-    //   打开时的图片列表是点击当下查询的,无需重建。
+    // 幂等守卫:direct 模式下文章页经 pjax 加载,pjax 换页会重新派发
+    // DOMContentLoaded;若无守卫,每换一页就往 body 叠加一个一模一样的
+    // 查看器,点击空白/关闭按钮一次只关掉最上层,看起来就要点很多次。
+    // 查看器节点挂在 body(pjax 只替换 main),单实例可跨页面复用,
+    // 打开时的图片列表是点击当下查询的,无需重建。
     if (window.__imageViewerInit) return;
     window.__imageViewerInit = true;
 
@@ -259,8 +259,8 @@
         const { vx, moved } = sd;
         sd = null;
         thumbsEl.classList.remove("dragging");
-        // ★ 只有真正拖动过才吞掉随后的 click;原地点击必须放行,
-        //   否则点缩略图不切图(旧实现用 class 判断,而 class 移除时机晚于 click)
+        // 只有真正拖动过才吞掉随后的 click;原地点击必须放行,
+        // 否则点缩略图不切图(旧实现用 class 判断,而 class 移除时机晚于 click)
         thumbDragMoved = moved;
         if (!moved) return;
         // 轻微惯性滚动
@@ -316,7 +316,7 @@
       };
 
       if (fromDx) {
-        // ★ 拖动提交:从当前拖动位置顺着原方向快速滑出,衔接手势不回跳
+        // 拖动提交:从当前拖动位置顺着原方向快速滑出,衔接手势不回跳
         stage.style.transition = "none";
         stage.style.transform = `translateX(${fromDx}px)`;
         void stage.offsetWidth; // 强制回流,让起始位置先生效
@@ -502,8 +502,8 @@
     let drag = null;
     let clickTimer = null; // 延迟切换 ui-hidden,避免双击(缩放)误触发
     let lastImgClick = 0; // 识别双击:300ms 内第二次 mouseup 取消待定的切换
-    // ★ rAF 合帧:高回报率鼠标(500-1000Hz)下,逐事件写 style 会造成
-    //   每秒数百次样式重算 → 拖动一卡一卡。事件只记录坐标,每帧统一写一次。
+    // rAF 合帧:高回报率鼠标(500-1000Hz)下,逐事件写 style 会造成
+    // 每秒数百次样式重算 → 拖动一卡一卡。事件只记录坐标,每帧统一写一次。
     let dragRaf = 0;
     function scheduleDragFrame() {
       if (dragRaf) return;
@@ -565,10 +565,10 @@
       drag.dy = e.clientY - drag.startY;
       drag.curX = e.clientX;
       drag.curY = e.clientY;
-      scheduleDragFrame(); // ★ 每帧最多写一次 style
+      // scheduleDragFrame(); 每帧最多写一次 style
     });
-    // ★ 拖动释放后会紧接着派发 click(落在空白处=关闭查看器),
-    //   拖过的那次 click 必须吞掉,否则"抓住空白处切图"变成"拖一下就关了"
+    // 拖动释放后会紧接着派发 click(落在空白处=关闭查看器),
+    // 拖过的那次 click 必须吞掉,否则"抓住空白处切图"变成"拖一下就关了"
     let suppressViewerClick = false;
     imageViewer.addEventListener(
       "click",
@@ -595,7 +595,7 @@
       if (movedFar) suppressViewerClick = true;
       if (wasZoomed) {
         stage.classList.remove("panning");
-        releasePan(vx, 0); // ★ 放开手:平移惯性滑行 + 边界回弹
+        releasePan(vx, 0); // 放开手:平移惯性滑行 + 边界回弹
         return;
       }
       stopPan();
@@ -606,7 +606,7 @@
       const vw = window.innerWidth;
       const canPrev = state.index > 0;
       const canNext = state.index < state.images.length - 1;
-      // ★ 甩动判定:拖过 12% 视口宽,或快速甩动(>0.6px/ms)
+      // 甩动判定:拖过 12% 视口宽,或快速甩动(>0.6px/ms)
       const goNext = canNext && (-dx > vw * 0.12 || vx < -0.6) && dx < 0;
       const goPrev = canPrev && (dx > vw * 0.12 || vx > 0.6) && dx > 0;
       if (goNext || goPrev) {
@@ -914,7 +914,7 @@
         const dx = t0.clientX - touch.lastX;
         const now = Date.now();
         const dt = Math.max(1, now - (touch.lastT || now));
-        // ★ 速度追踪对单指全程开启(放大平移的惯性与未放大的甩动判定都要用)
+        // 速度追踪对单指全程开启(放大平移的惯性与未放大的甩动判定都要用)
         if (!touch.panV)
           touch.panV = { x: 0, y: 0, lastX: t0.clientX, lastY: t0.clientY };
         touch.panV.x = (t0.clientX - touch.panV.lastX) / dt;
@@ -935,8 +935,8 @@
           return;
         }
 
-        // ★ 触摸同样 rAF 合帧:部分安卓触控采样率高于刷新率,
-        //   逐事件写 style 会掉帧,每帧统一应用一次
+        // 触摸同样 rAF 合帧:部分安卓触控采样率高于刷新率,
+        // 逐事件写 style 会掉帧,每帧统一应用一次
         latestTouch = { x: t0.clientX, y: t0.clientY };
         if (touchRaf) return;
         touchRaf = requestAnimationFrame(() => {
@@ -1005,7 +1005,7 @@
         touchRaf = 0;
         stage.style.willChange = "";
 
-        // ★ 放大状态松手:先结算平移惯性(速度来自最后一帧触摸),再清基准
+        // 放大状态松手:先结算平移惯性(速度来自最后一帧触摸),再清基准
         if (state.zoomed && pan) {
           const pv = touch.panV || { x: 0, y: 0 };
           releasePan(pv.x, pv.y);
@@ -1030,7 +1030,7 @@
         // 放大状态下:松手不做切换/复原,仅由平移结束收尾
         if (state.zoomed) return;
 
-        // ★ 甩动速度参与判定:快速轻扫也能切换(与电脑端一致的手感)
+        // 甩动速度参与判定:快速轻扫也能切换(与电脑端一致的手感)
         const flickV = touch.panV ? touch.panV.x : 0;
         const flicked = Math.abs(flickV) > 0.55 && Math.abs(dxTotal) > 24;
         if (

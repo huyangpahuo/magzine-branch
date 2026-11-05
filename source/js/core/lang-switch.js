@@ -71,9 +71,9 @@
   }
 
   // JS 侧取词入口:
-  //  - get(keyOrZhValue):词条ID或配置中文 → 当前语言文案;中文模式原样返回
-  //  - text(key):纯词条ID,中文模式也解析出 zh.yml 的规范文案
-  //  - format(keyOrTpl, vars):同 get,再填 {n}/{t} 占位符
+  // - get(keyOrZhValue):词条ID或配置中文 → 当前语言文案;中文模式原样返回
+  // - text(key):纯词条ID,中文模式也解析出 zh.yml 的规范文案
+  // - format(keyOrTpl, vars):同 get,再填 {n}/{t} 占位符
   function get(keyOrZhValue) {
     if (currentLang === "zh") return keyOrZhValue;
     if (Object.prototype.hasOwnProperty.call(dictFor(currentLang), keyOrZhValue)) {
@@ -358,8 +358,8 @@
     translateDates: translateDates,
   };
 
-  // ★ 观察器挂在 window 上:pjax 换页会重复执行初始化,
-  //   不叠加观察器,切语言时也只操作同一个
+  // 观察器挂在 window 上:pjax 换页会重复执行初始化,
+  // 不叠加观察器,切语言时也只操作同一个
   if (!window.__langObserverRef) window.__langObserverRef = { observer: null };
 
   // 动态插入的节点(加载更多/pjax/查看器)只需要补一次通道套用;

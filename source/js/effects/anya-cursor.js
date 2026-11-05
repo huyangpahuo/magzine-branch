@@ -35,9 +35,9 @@
       return all[all.length - 1];
     })();
   if (script && script.src) {
-    // ★ 兼容 js/anya-cursor.js 与 js/effects/anya-cursor.js 两种历史路径
-    //   (脚本在"按功能分类"时移入了 effects/ 子目录,旧正则会匹配失败,
-    //    导致 base 退化成脚本自身 URL,帧图全部 404)
+    // 兼容 js/anya-cursor.js 与 js/effects/anya-cursor.js 两种历史路径
+    // (脚本在"按功能分类"时移入了 effects/ 子目录,旧正则会匹配失败,
+    // 导致 base 退化成脚本自身 URL,帧图全部 404)
     base = script.src.replace(
       /js\/(?:effects\/)?anya-cursor[^\/]*\.js.*$/,
       "cursors/anya/",
@@ -84,9 +84,9 @@
     return animated.indexOf("normal") !== -1 ? "normal" : animated[0];
   }
 
-  // ★ 性能修改:鼠标闲置 2 秒后暂停帧动画。
-  //   每 16ms 改一次 <html> 的 CSS 变量会让全文档样式失效重算,
-  //   而指针静止时没人盯着光标动画看;一动就恢复,视觉上无感。
+  // 鼠标闲置 2 秒后暂停帧动画。
+  // 每 16ms 改一次 <html> 的 CSS 变量会让全文档样式失效重算,
+  // 而指针静止时没人盯着光标动画看;一动就恢复,视觉上无感。
   var lastActive = Date.now();
   ["mousemove", "pointerdown", "keydown", "wheel"].forEach(function (evt) {
     document.addEventListener(

@@ -1,60 +1,234 @@
+# ============================================================
+# 关于页数据(about.pug 读取)
+#
+# ★ profile(个人资料)与 skills(技能标签)是"会增删的词条":
+#   直接在这里加/删条目即可,每条自带 _en/_ja/_ru 可选字段,
+#   不写某语言字段就原样显示中文,字典和模板都不用动。
+#   渲染见 about.pug 的 .profile-info-content / .interest-cloud。
+# ============================================================
+
+# ---- 个人资料(.profile-item,label 是左侧灰字,value 是正文) ----
+profile:
+  - label: 称呼
+    label_en: Name
+    label_ja: 名前
+    label_ru: Имя
+    value: 胡杨怕火
+    value_en: Huyangpahuo
+    value_ru: Хуян Пахо
+  - label: 年龄
+    label_en: Age
+    label_ja: 年齢
+    label_ru: Возраст
+    value: 19岁
+    value_en: 19 years old
+    value_ja: 19歳
+    value_ru: 19 лет
+  - label: 大学
+    label_en: University
+    label_ja: 大学
+    label_ru: Университет
+    value: 河南师范大学软件工程
+    value_en: Henan Normal University, Software Engineering
+    value_ja: 河南師範大学 ソフトウェア工学
+    value_ru: Хэнаньский педагогический университет, программная инженерия
+  - label: 爱好
+    label_en: Hobbies
+    label_ja: 趣味
+    label_ru: Хобби
+    value: 做游戏和绘画
+    value_en: Making games and drawing
+    value_ja: ゲーム制作とお絵描き
+    value_ru: Делаю игры и рисую
+  - label: 擅长
+    label_en: Skills
+    label_ja: 特技
+    label_ru: Умения
+    value: 吃饱睡睡饱吃
+    value_en: Eat well, sleep well, repeat
+    value_ja: 食べて寝て、寝て食べて
+    value_ru: Поесть, поспать и снова поесть
+  - label: 身份
+    label_en: Identity
+    label_ja: 身分
+    label_ru: Кто я
+    value: 二次元爱好者
+    value_en: Anime Enthusiast
+    value_ja: 二次元愛好家
+    value_ru: Любитель аниме
+
+# ---- 技能标签(.interest-cloud 里的 span.tag;不需要翻译的条目只写 name) ----
+skills:
+  - name: 摄影和剪辑
+    name_en: Photography & Video Editing
+    name_ja: 撮影・動画編集
+    name_ru: Фото и видеомонтаж
+  - name: 像素画和二次元绘画
+    name_en: Pixel Art & Anime-style Illustration
+    name_ja: ドット絵・二次元イラスト
+    name_ru: Пиксель-арт и аниме-иллюстрации
+  - name: Logo和矢量图设计
+    name_en: Logo & Vector Design
+    name_ja: ロゴ・ベクターデザイン
+    name_ru: Логотипы и векторная графика
+  - name: 各种计算机语言
+    name_en: Programming Languages
+    name_ja: 各種プログラミング言語
+    name_ru: Языки программирования
+  - name: Blender建模
+    name_en: Blender Modeling
+    name_ja: Blenderモデリング
+    name_ru: Моделирование в Blender
+  - name: Linux
+  - name: 计算机图形学
+    name_en: Computer Graphics
+    name_ja: コンピュータグラフィクス
+    name_ru: Компьютерная графика
+  - name: 微信小程序
+    name_en: WeChat Mini Program Development
+    name_ja: WeChatミニプログラム
+    name_ru: Мини-программы WeChat
+  - name: AI
+  - name: 游戏制作
+    name_en: Game Development
+    name_ja: ゲーム制作
+    name_ru: Разработка игр
+  - name: 写小说
+    name_en: Novel Writing
+    name_ja: 小説執筆
+    name_ru: Написание романов
+  - name: 我的世界模组制作
+    name_en: Minecraft Modding
+    name_ja: Minecraft Mod制作
+    name_ru: Моды для Minecraft
+  - name: 英语
+    name_en: English
+    name_ja: 英語
+    name_ru: Английский
+  - name: 日语
+    name_en: Japanese
+    name_ja: 日本語
+    name_ru: Японский
+  - name: 前端和数据库
+    name_en: Frontend & Database Development
+    name_ja: フロントエンド・データベース
+    name_ru: Фронтенд и базы данных
+  - name: 安卓应用制作
+    name_en: Android App Development
+    name_ja: Androidアプリ制作
+    name_ru: Разработка Android-приложений
+
 cards:
   - title: "逃离后室"
+    title_en: "Escape the Backrooms"
+    title_ja: "バックルームからの脱出"
+    title_ru: "Побег из Закулисья"
     image: "/images/13.jpg"
     link: "https://store.steampowered.com/app/1943950/Escape_the_Backrooms/"
     background: "linear-gradient(135deg, #ff9a9e 0%, #fad0c4 50%, #ffecd2 100%)"
     description: "在不断的切出层级中探寻生的希望"
+    description_en: "Search for hope of survival through endless shifting levels"
+    description_ja: "幾層もの切り替わりの中で生存の希望を探す"
+    description_ru: "Поиск надежды на выживание среди бесконечных уровней"
     details: "下次窃皮者来的时候不要堵门你尔朵隆吗"
+    details_en: "Next time the Skin Stealer comes, don't block the door, you idiot"
+    details_ja: "次にスキンスティーラーが来たらドアを塞ぐなよ"
+    details_ru: "В следующий раз, когда придёт Скинстилер, не блокируй дверь"
     icon: "fas fa-heart"
     layout: "portrait"
     size: "large"
 
   - title: "小丑牌"
+    title_en: "Balatro"
+    title_ja: "バラトロ"
+    title_ru: "Balatro"
     image: "/images/14.png"
     link: "https://store.steampowered.com/app/2379780/Balatro/"
     background: "linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 50%, #a6c0fe 100%)"
     description: "一旦拥有爱不释手"
+    description_en: "Once you start, you can't put it down"
+    description_ja: "一度手にしたら手放せない"
+    description_ru: "Начнёшь — не оторвёшься"
     details: "结果就是玩上瘾了"
+    details_en: "And that's how I got completely addicted"
+    details_ja: "それで完全にハマってしまった"
+    details_ru: "И вот я полностью подсел"
     icon: "fas fa-palette"
     layout: "landscape"
     size: "medium"
 
   - title: "看门狗"
+    title_en: "Watchdog"
+    title_ja: "ウォッチドッグス"
+    title_ru: "Watch Dogs"
     image: "/images/15.png"
     link: "https://store.steampowered.com/app/2239550/Watch_Dogs_Legion/"
     background: "linear-gradient(135deg, #84fab0 0%, #8fd3f4 50%, #a8e6cf 100%)"
     description: "赋予游戏以美国都市的真实感"
+    description_en: "Brings a realistic American city atmosphere to life"
+    description_ja: "アメリカの都市のリアルさを再現"
+    description_ru: "Придаёт игре реализм американского города"
     details: "没错,我是嘉豪"
+    details_en: "That's Right, I'm Alanwalker"
+    details_ja: "その通り、私は嘉豪です"
+    details_ru: "Да, это я, Цзяхао"
     icon: "fas fa-running"
     layout: "portrait"
     size: "medium"
 
   - title: "我的世界"
+    title_en: "Minecraft"
+    title_ja: "マインクラフト"
+    title_ru: "Minecraft"
     image: "/images/16.png"
     link: "https://www.minecraft.net/zh-hans"
     background: "linear-gradient(135deg, #d4fc79 0%, #96e6a1 50%, #c2e59c 100%)"
     description: "生存探索无限,创造缔造奇迹"
+    description_en: "Infinite survival and exploration, endless creative possibilities"
+    description_ja: "サバイバルは無限、創造は奇跡を生む"
+    description_ru: "Бесконечное выживание и исследование, чудеса творчества"
     details: "准备好进服务器偷别人家了吗孩子们"
+    details_en: "Ready to join the server and loot other people's houses, kids?"
+    details_ja: "サーバーで他人の家を奪う準備はできたかい、子供たち"
+    details_ru: "Готовы зайти на сервер и обчистить чужие дома, дети?"
     icon: "fas fa-lightbulb"
     layout: "landscape"
     size: "large"
 
   - title: "师父"
+    title_en: "Sifu"
+    title_ja: "シフ"
+    title_ru: "Sifu"
     image: "/images/10.png"
     link: "https://store.steampowered.com/app/2138710/Sifu/"
     background: "linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)"
     description: "抬手不是抱歉"
+    description_en: "Every move is a strike, not an apology"
+    description_ja: "手を出すのは謝罪じゃない"
+    description_ru: "Каждое движение — удар, а не извинение"
     details: "这,即是武德.jpg"
+    details_en: "This… is martial virtue.jpg"
+    details_ja: "これこそ武徳.jpg"
+    details_ru: "Это… и есть боевая добродетель.jpg"
     icon: "fas fa-plane"
     layout: "portrait"
     size: "small"
 
   - title: "米塔"
+    title_en: "MiSide"
+    title_ja: "ミサイド"
+    title_ru: "MiSide"
     image: "/images/7.png"
     link: "https://store.steampowered.com/app/2527500/_MiSide/"
     background: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)"
     description: "满足了我对二次元的所有幻想"
+    description_en: "Fulfills all my anime fantasies"
+    description_ja: "二次元に対するすべての幻想を満たしてくれた"
+    description_ru: "Исполнила все мои аниме-фантазии"
     details: "幻想死了 狗头狗头狗头"
+    details_en: "Fantasy ruined. skull skull skull"
+    details_ja: "幻想は死んだ www"
+    details_ru: "Фантазия умерла. череп череп череп"
     icon: "fas fa-book"
     layout: "landscape"
     size: "small"

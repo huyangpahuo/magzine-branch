@@ -17,7 +17,7 @@ if theme.cover && theme.cover.enable
       span#start-journey-text 
       i.fas.fa-chevron-down.bouncing-arrow
 
-  //- ★★★ 关键修复：同步阻塞脚本，防止 iframe/模态窗口中出现封面 ★★★
+  //- 同步阻塞脚本，防止 iframe/模态窗口中出现封面
   script.
     (function() {
       var cover = document.getElementById('blog-cover');
@@ -112,7 +112,7 @@ if theme.cover && theme.cover.enable
       60% { transform: translateY(-7px); }
     }
 
-    /* ★★★ 手机端适配修改 ★★★ */
+    /* 手机端适配修改 */
     @media (max-width: 768px) {
       .cover-title { font-size: 2rem; letter-spacing: 2px; }
       .cover-author { font-size: 1.2rem; margin-top: 15px; }
@@ -131,12 +131,12 @@ if theme.cover && theme.cover.enable
       if (cover && cover.style.display !== 'none') {
         const startBtn = document.getElementById('start-journey');
 
-        // ★ 性能修改:THREE 液体背景模块本地化(原从 cdn.jsdelivr.net 动态 import,
-        //   境内访问不稳定时封面会长时间黑屏等待)。
+        // THREE 液体背景模块本地化(原从 cdn.jsdelivr.net 动态 import,
+        // 境内访问不稳定时封面会长时间黑屏等待)。
         import('#{url_for("js/vendor/liquid1.min.js")}').then((module) => {
         const LiquidBackground = module.default;
 
-        // ★★★ 动态读取配置文件中的轮播图数组，如果没配提供默认图 ★★★
+        // 动态读取配置文件中的轮播图数组，如果没配提供默认图
         const coverImages = !{JSON.stringify(theme.cover.images || ['/images/10.png', '/images/14.png'])};
         
         const canvas1 = document.getElementById('refraction-canvas-1');
@@ -153,10 +153,10 @@ if theme.cover && theme.cover.enable
 
         const app1 = setupApp(canvas1);
 
-        // ★ 性能修改:第二个 WebGL 实例延迟创建。
-        //   原先开屏同时渲染两套液体模拟(为轮播交叉淡化做准备),
-        //   但多数访客几秒内就会点"开始旅行"离开,第二套纯属浪费;
-        //   改为首次轮播切换前 1.5 秒才创建并加载图。
+        // 第二个 WebGL 实例延迟创建。
+        // 原先开屏同时渲染两套液体模拟(为轮播交叉淡化做准备),
+        // 但多数访客几秒内就会点"开始旅行"离开,第二套纯属浪费;
+        // 改为首次轮播切换前 1.5 秒才创建并加载图。
         let app2 = null;
         function getApp2() {
           if (!app2) app2 = setupApp(canvas2);
@@ -217,7 +217,7 @@ if theme.cover && theme.cover.enable
       });
 
       // =======================
-      // ★ 翻译处理：向全局 lang-switch 请求数据 ★
+      // 向全局 lang-switch 请求数据
       // =======================
       const splitAndAnimateText = (text, container, popBaseDelay = 0) => {
         container.innerHTML = ''; // 清空内容
@@ -242,15 +242,15 @@ if theme.cover && theme.cover.enable
         });
       };
 
-      // ★★★ 从配置文件动态获取文字 (依然保留原先的语言翻译支持机制) ★★★
+      // 封面文案来自配置,经 i18n.get 值索引按当前界面语言翻译
       const configTitle = !{JSON.stringify(theme.cover.title || "欢迎来到我的奇妙世界")};
       const configAuthor = !{JSON.stringify(theme.cover.author || "胡杨怕火")};
       const configBtn = !{JSON.stringify(theme.cover.btn_text || "开始你的旅行")};
 
-      // ★ 修复"非中文语言下二次进站 cover 仍是中文":lang-switch 经 inject
-      //   加载,时机晚于本模块,原先固定 100ms 后取一次译文,取早了就一直是
-      //   中文。改为:立即尝试 + 监听 langchange(初始化完成与手动切换都会
-      //   广播),就绪后(重新)按当前语言渲染,不再出现中文残留
+      // 修复"非中文语言下二次进站 cover 仍是中文":lang-switch 经 inject
+      // 加载,时机晚于本模块,原先固定 100ms 后取一次译文,取早了就一直是
+      // 中文。改为:立即尝试 + 监听 langchange(初始化完成与手动切换都会
+      // 广播),就绪后(重新)按当前语言渲染,不再出现中文残留
       const applyCoverTexts = () => {
         if (!(window.i18n && window.i18n.get)) return;
         const titleStr = window.i18n.get(configTitle);

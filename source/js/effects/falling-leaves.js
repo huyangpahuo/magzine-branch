@@ -1,9 +1,9 @@
 (function () {
-  // ★ 模态窗口(iframe)中不启动:父页面已有落叶,避免双份 canvas 双份开销
+  // 模态窗口(iframe)中不启动:父页面已有落叶,避免双份 canvas 双份开销
   if (window.self !== window.top) return;
 
   // --- 0. 移动端禁用检测 ---
-  // ★ 读者设置:关闭落叶效果时不运行(在 config.yml 基础上可被读者面板覆盖)
+  // 读者设置:关闭落叶效果时不运行(在 config.yml 基础上可被读者面板覆盖)
   if (window.__readerSettings && window.__readerSettings.leaves === "off") return;
   // 如果屏幕宽度小于 768px (通常是手机/平板)，直接退出，不运行脚本
   if (window.innerWidth <= 768) {
@@ -22,8 +22,8 @@
   // --- 1. 初始化全屏 Canvas ---
   let canvas = document.createElement("canvas");
   canvas.style.cssText =
-    // ★ z-index 999:浮在正文之上,但低于文章模态(1000)与图片/图表/表格
-    //   全屏查看器(9999+),模态或全屏打开时落叶在它们背后继续飘落
+    // z-index 999:浮在正文之上,但低于文章模态(1000)与图片/图表/表格
+    // 全屏查看器(9999+),模态或全屏打开时落叶在它们背后继续飘落
     "position:fixed;top:0;left:0;pointer-events:none;z-index:999;width:100%;height:100%";
   document.body.appendChild(canvas);
   let ctx = canvas.getContext("2d");
@@ -73,7 +73,7 @@
     [44, 18], // 20. 顶叶左内凹
   ];
 
-  // ★★★ 关键优化：只计算一次路径并缓存，不用每帧重复算 ★★★
+  // 只计算一次路径并缓存，不用每帧重复算
   const leafPath = new Path2D();
   const offsetX = 50;
   const offsetY = 50;
@@ -114,7 +114,7 @@
     this.opacity = Math.random() * 0.4 + 0.5;
   };
 
-  // ★★★ 关键修改 1：引入 timeScale 参数，将动画与真实时间挂钩 ★★★
+  // 引入 timeScale 参数，将动画与真实时间挂钩
   Leaf.prototype.update = function (timeScale = 1) {
     // 所有的速度都要乘以时间比例。如果掉帧导致这一帧经历的时间变长，它就会单步走得更远，从而保证视觉上永远是匀速的
     this.y += this.speed * timeScale;
@@ -132,9 +132,9 @@
     }
   };
 
-  // ★ 性能修改:主题色缓存,每 2 秒失效重取一次。
-  //   原先每片叶子每帧都 getComputedStyle(document.documentElement),
-  //   是常驻的强制样式计算开销。
+  // 主题色缓存,每 2 秒失效重取一次。
+  // 原先每片叶子每帧都 getComputedStyle(document.documentElement),
+  // 是常驻的强制样式计算开销。
   let cachedAccentColor = null;
   setInterval(function () {
     cachedAccentColor = null;
@@ -171,7 +171,7 @@
   }
 
   // --- 6. 动画循环 ---
-  let lastTime = 0; // 新增：记录上一帧的时间戳
+  let lastTime = 0; // 记录上一帧的时间戳
 
   // 接收 requestAnimationFrame 传进来的 timestamp
   function loop(timestamp) {
@@ -180,13 +180,13 @@
 
     requestAnimationFrame(loop);
 
-    // ★ 限帧 30FPS:落叶慢速飘落,30 帧足够顺滑(timeScale 会自动补偿步长),
-    //   主线程逐帧占用直接减半——此前 GTmetrix 实测单脚本吃掉 4.75s CPU
+    // 限帧 30FPS:落叶慢速飘落,30 帧足够顺滑(timeScale 会自动补偿步长),
+    // 主线程逐帧占用直接减半——此前 GTmetrix 实测单脚本吃掉 4.75s CPU
     if (lastTime && timestamp - lastTime < 33) return;
 
-    // ★ 被完全遮挡时跳过整帧渲染:开屏封面(z 9999999)与文章模态(1000)
-    //   都盖在落叶(z 999)之上,遮挡期间的绘制纯属浪费,也是"开屏过慢"
-    //   的主要 CPU 来源之一;状态解除后 deltaTime 会被下面的钳制拉回正常
+    // 被完全遮挡时跳过整帧渲染:开屏封面(z 9999999)与文章模态(1000)
+    // 都盖在落叶(z 999)之上,遮挡期间的绘制纯属浪费,也是"开屏过慢"
+    // 的主要 CPU 来源之一;状态解除后 deltaTime 会被下面的钳制拉回正常
     const coverEl = document.getElementById("blog-cover");
     if (
       coverEl &&
@@ -196,7 +196,7 @@
       return;
     if (document.querySelector(".article-modal.active")) return;
 
-    // ★★★ 关键修改 2：计算两帧之间的时间差 (Delta Time) ★★★
+    // 计算两帧之间的时间差 (Delta Time)
     if (!lastTime) lastTime = timestamp;
     let deltaTime = timestamp - lastTime;
     lastTime = timestamp;
