@@ -300,7 +300,8 @@ PRs are welcome.
 | [MathJax 3](https://www.mathjax.org/) (jsDelivr, on demand) | Math formulas |
 | [Mermaid 10](https://mermaid.js.org/) (cdnjs, viewport-lazy) | Diagrams |
 | [QRCode.js](https://github.com/davidshimjs/qrcodejs) (cdnjs, loaded on click) | WeChat share QR code |
-| [Post-Summary-AI](https://github.com/qxchuckle/Post-Summary-AI) by qxchuckle | AI summary style & solution |
+| [Post-Summary-AI](https://github.com/qxchuckle/Post-Summary-AI) by qxchuckle | **AI summary generator, heavily modified from this project**: summary style & solution |
+| [ArtPlayer 5.4.0](https://artplayer.org) | **Anime player** (video playback on the anime page) |
 | Bilibili / AcFun / Huya embeds | Video tags (overseas platforms need readers' own network) |
 
 ### Content & asset sources

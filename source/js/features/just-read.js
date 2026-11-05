@@ -116,23 +116,6 @@
     imgLink.appendChild(overlay);
     image.appendChild(imgLink);
 
-    // 访问统计徽标(与主页卡片同款;统计 key 由文章真实路径反推,
-    // 算法见 scripts/other/stats-key.js,浏览器端实现为 visitor-stats.js 的 window.__statsKey)
-    if (
-      window.theme &&
-      window.theme.post_stats &&
-      window.theme.post_stats.enable &&
-      typeof window.__statsKey === "function"
-    ) {
-      var badge = document.createElement("div");
-      badge.className = "card-stats-badge";
-      badge.setAttribute("data-stats-path", window.__statsKey(record.url));
-      badge.innerHTML =
-        '<i class="fas fa-eye" aria-hidden="true"></i><span data-stats="article-pv">-</span>' +
-        '<i class="fas fa-user" aria-hidden="true"></i><span data-stats="article-uv">-</span>';
-      image.appendChild(badge);
-    }
-
     var content = document.createElement("div");
     content.className = "article-content";
     var meta = document.createElement("div");
@@ -309,8 +292,6 @@
       setTimeout(function () {
         var onPost = recordIfOnPostPage();
         if (!onPost) pinOnHome();
-        // 置顶卡片(可能带统计徽标)重建后刷新统计数字(只填充,不重复埋点)
-        if (typeof window.__statsRefresh === "function") window.__statsRefresh();
       }, 300);
     });
   }

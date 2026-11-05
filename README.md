@@ -292,7 +292,8 @@ language/
 | [MathJax 3](https://www.mathjax.org/)(jsDelivr CDN,按需) | 数学公式 |
 | [Mermaid 10](https://mermaid.js.org/)(cdnjs,按视口) | 图表 |
 | [QRCode.js](https://github.com/davidshimjs/qrcodejs)(cdnjs,点击时加载) | 微信分享二维码 |
-| [Post-Summary-AI](https://github.com/qxchuckle/Post-Summary-AI) by qxchuckle | AI 摘要样式与方案 |
+| [Post-Summary-AI](https://github.com/qxchuckle/Post-Summary-AI) by qxchuckle | **文章摘要 AI 生成工具,魔改自该项目**:AI 摘要样式与方案 |
+| [ArtPlayer 5.4.0](https://artplayer.org) | **番剧播放器**(追番页视频播放) |
 | Bilibili / AcFun / 虎牙等嵌入播放器 | 视频标签(境外平台需读者自备网络) |
 
 ### 内容与素材来源
