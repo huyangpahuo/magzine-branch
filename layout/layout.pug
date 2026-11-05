@@ -47,6 +47,13 @@ html(lang=config.language)
     //- Favicon
     link(rel="icon", href=url_for(theme.favicon))
 
+    //- ★ LCP 预加载:首屏最大元素是 hero 背景图与开屏封面首图
+    //-   (DebugBear 实测 LCP 比 图片加载完成 晚 500-800ms,主因是渲染阻塞)
+    if theme.hero && theme.hero.enable && theme.hero.background_image
+      link(rel="preload", as="image", href=url_for(theme.hero.background_image), fetchpriority="high")
+    if theme.cover && theme.cover.enable && theme.cover.images && theme.cover.images.length
+      link(rel="preload", as="image", href=url_for(theme.cover.images[0]), fetchpriority="high")
+
     //- Styles
     != css('css/core/main')
     != css('css/components/tags')

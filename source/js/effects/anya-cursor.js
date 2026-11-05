@@ -35,7 +35,13 @@
       return all[all.length - 1];
     })();
   if (script && script.src) {
-    base = script.src.replace(/js\/anya-cursor[^\/]*\.js.*$/, "cursors/anya/");
+    // ★ 兼容 js/anya-cursor.js 与 js/effects/anya-cursor.js 两种历史路径
+    //   (脚本在"按功能分类"时移入了 effects/ 子目录,旧正则会匹配失败,
+    //    导致 base 退化成脚本自身 URL,帧图全部 404)
+    base = script.src.replace(
+      /js\/(?:effects\/)?anya-cursor[^\/]*\.js.*$/,
+      "cursors/anya/",
+    );
   }
 
   var root = document.documentElement;

@@ -279,6 +279,18 @@ document.addEventListener("DOMContentLoaded", function () {
    * 创建移动端目录按钮和面板
    */
   function createMobileToc() {
+    // ★ pjax 在文章间跳转时会再次进入本函数:先清掉上一篇文章遗留的
+    //   按钮/面板/遮罩,否则 ☰ 按钮会越积越多(出现两个列表按钮)
+    [
+      ".mobile-toc-toggle",
+      ".mobile-toc-panel",
+      ".mobile-toc-overlay",
+    ].forEach(function (sel) {
+      document.querySelectorAll(sel).forEach(function (el) {
+        el.remove();
+      });
+    });
+
     // 获取或创建按钮容器
     const buttonContainer =
       document.querySelector(".button-container") ||

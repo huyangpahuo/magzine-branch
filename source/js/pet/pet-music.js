@@ -92,6 +92,16 @@ export class PetMusicPlayer {
   toggleLoop() {
     const btn = this._getActiveMini()?.querySelector(".music-player-loop");
     if (btn) btn.click();
+    // ★ 同步桌宠面板上的循环按钮图标:此前只转发点击、不更新自身,
+    //   导致切换列表/单曲循环时面板 UI 毫无变化
+    if (this._menuLoopBtn && btn) {
+      this._menuLoopBtn.innerHTML = btn.innerHTML;
+      this._menuLoopBtn.setAttribute(
+        "data-title",
+        btn.getAttribute("data-title") || "",
+      );
+    }
+    this._syncUI();
   }
 
   setVolume(v01) {
@@ -175,6 +185,7 @@ export class PetMusicPlayer {
     const playBtn = createBtn("fas fa-play", () => this.playPause());
     const nextBtn = createBtn("fas fa-step-forward", () => this.next());
     const loopBtn = createBtn("fas fa-retweet", () => this.toggleLoop());
+    this._menuLoopBtn = loopBtn; // 供 toggleLoop 同步图标
 
     controls.appendChild(prevBtn);
     controls.appendChild(playBtn);

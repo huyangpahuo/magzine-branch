@@ -180,6 +180,22 @@
 
     requestAnimationFrame(loop);
 
+    // ★ 限帧 30FPS:落叶慢速飘落,30 帧足够顺滑(timeScale 会自动补偿步长),
+    //   主线程逐帧占用直接减半——此前 GTmetrix 实测单脚本吃掉 4.75s CPU
+    if (lastTime && timestamp - lastTime < 33) return;
+
+    // ★ 被完全遮挡时跳过整帧渲染:开屏封面(z 9999999)与文章模态(1000)
+    //   都盖在落叶(z 999)之上,遮挡期间的绘制纯属浪费,也是"开屏过慢"
+    //   的主要 CPU 来源之一;状态解除后 deltaTime 会被下面的钳制拉回正常
+    const coverEl = document.getElementById("blog-cover");
+    if (
+      coverEl &&
+      coverEl.style.display !== "none" &&
+      !coverEl.classList.contains("slide-up")
+    )
+      return;
+    if (document.querySelector(".article-modal.active")) return;
+
     // ★★★ 关键修改 2：计算两帧之间的时间差 (Delta Time) ★★★
     if (!lastTime) lastTime = timestamp;
     let deltaTime = timestamp - lastTime;
