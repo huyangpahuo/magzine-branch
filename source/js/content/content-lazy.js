@@ -85,7 +85,11 @@
 
     var items = [];
     content.querySelectorAll(":scope > *").forEach(function (el) {
-      if (!el.matches("p, h1, h2, h3, h4, h5, h6, ul, ol, blockquote, hr"))
+      if (
+        !el.matches(
+          "p, h1, h2, h3, h4, h5, h6, ul, ol, blockquote, hr, table, pre.mermaid"
+        )
+      )
         return;
       var r = el.getBoundingClientRect();
       if (r.top < window.innerHeight) {
@@ -93,8 +97,8 @@
         //   (CSS 会隐藏所有匹配元素,如果不标记,首屏文字会被永久藏起
         //    ——这正是"正文闪现后消失/标题下方大段空白"的根因)
         el.classList.add("revealed");
-        return;
       }
+      // ★ 全部纳入观察:离开视口后复位,再次进入时重新播放出现动画
       items.push(el);
     });
     if (items.length === 0) return; // 没有待显现项时不挂隐藏样式,零风险
@@ -110,13 +114,35 @@
         ".post-content.reading-reveal > h3, .post-content.reading-reveal > h4,",
         ".post-content.reading-reveal > h5, .post-content.reading-reveal > h6,",
         ".post-content.reading-reveal > ul, .post-content.reading-reveal > ol,",
-        ".post-content.reading-reveal > blockquote, .post-content.reading-reveal > hr {",
+        ".post-content.reading-reveal > blockquote, .post-content.reading-reveal > hr,",
+        /* ★ 表格:revealed 标记打在 table 上,包裹层用 :has 联动淡入
+           (table 节点在 table.js 包裹后依然存在,观察不中断) */
+        ".post-content.reading-reveal > .table-wrapper:has(table:not(.revealed)),",
+        /* ★ 代码卡(highlight.js 运行时创建,由 MutationObserver 补挂观察) */
+        ".post-content.reading-reveal > .codecard,",
+        /* ★ mermaid 图表(渲染前后均为 pre.mermaid 节点) */
+        ".post-content.reading-reveal > pre.mermaid {",
         "  opacity: 0;",
         "  transform: translateY(14px);",
         "  transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),",
         "              transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);",
         "}",
-        ".post-content.reading-reveal > .revealed {",
+        ".post-content.reading-reveal > .revealed,",
+        ".post-content.reading-reveal > .codecard.revealed,",
+        ".post-content.reading-reveal > .table-wrapper:has(table.revealed),",
+        ".post-content.reading-reveal > pre.mermaid.revealed {",
+        "  opacity: 1;",
+        "  transform: none;",
+        "}",
+        /* ★ 归档页时间轴条目套用同一套出现动画 */
+        ".reading-reveal.archive-reveal > .archive-post,",
+        ".reading-reveal.archive-reveal > .archive-year {",
+        "  opacity: 0;",
+        "  transform: translateY(14px);",
+        "  transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),",
+        "              transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);",
+        "}",
+        ".reading-reveal.archive-reveal > .revealed {",
         "  opacity: 1;",
         "  transform: none;",
         "}",
@@ -127,15 +153,19 @@
     var io = new IntersectionObserver(
       function (entries) {
         entries.forEach(function (en) {
-          if (!en.isIntersecting) return;
-          io.unobserve(en.target);
-          // 交错显现:同批进入的元素按 DOM 顺序错开 40ms
           var el = en.target;
-          var delay = Math.min(el.dataset.revealIdx * 40, 240);
-          el.dataset.revealIdx = "0";
-          setTimeout(function () {
-            el.classList.add("revealed");
-          }, delay);
+          if (en.isIntersecting) {
+            // 交错显现:同批进入的元素按 DOM 顺序错开 40ms
+            var delay = Math.min((el.dataset.revealIdx || 0) * 40, 240);
+            el.dataset.revealIdx = "0";
+            setTimeout(function () {
+              el.classList.add("revealed");
+            }, delay);
+          } else {
+            // ★ 离开视口:复位隐藏,再次进入时重新播放出现动画
+            el.classList.remove("revealed");
+            el.dataset.revealIdx = "0";
+          }
         });
       },
       { rootMargin: "0px 0px -8% 0px" },
@@ -144,6 +174,57 @@
       el.dataset.revealIdx = String(Math.min(i % 6, 5));
       io.observe(el);
     });
+
+    /* ---------- 代码卡/表格/mermaid:highlight.js 与 table.js 可能在
+       本脚本执行期就已完成初始化(脚本执行期同步运行早于 DCL 初始化),
+       已存在的代码卡/包裹层同样纳入观察;之后新建的由 MutationObserver
+       补挂观察(否则永远停留在隐藏态) ---------- */
+    content.querySelectorAll(":scope > .codecard").forEach(function (c) {
+      io.observe(c);
+    });
+    content
+      .querySelectorAll(":scope > .table-wrapper > table")
+      .forEach(function (tb) {
+        io.observe(tb);
+      });
+    content.querySelectorAll(":scope > pre.mermaid").forEach(function (mm) {
+      io.observe(mm);
+    });
+
+    /* ---------- 代码卡:highlight.js 在本脚本之后运行,新建的
+       .codecard 由 MutationObserver 补挂观察(否则永远停留在隐藏态) ---------- */
+    var revealMO = new MutationObserver(function (muts) {
+      muts.forEach(function (m) {
+        m.addedNodes.forEach(function (n) {
+          if (n.nodeType !== 1) return;
+          if (n.matches(".codecard")) io.observe(n);
+          if (n.querySelectorAll)
+            n.querySelectorAll(".codecard").forEach(function (c) {
+              io.observe(c);
+            });
+        });
+      });
+    });
+    revealMO.observe(content, { childList: true, subtree: true });
+
+    /* ---------- 归档页:时间轴条目套用同一套显现动画 ---------- */
+    var archiveTimeline = document.querySelector(
+      ".archive-content .timeline",
+    );
+    if (
+      archiveTimeline &&
+      !archiveTimeline.classList.contains("reading-reveal")
+    ) {
+      archiveTimeline.classList.add("reading-reveal archive-reveal");
+      archiveTimeline
+        .querySelectorAll(":scope > .archive-post, :scope > .archive-year")
+        .forEach(function (el, i) {
+          var r = el.getBoundingClientRect();
+          if (r.top < window.innerHeight) el.classList.add("revealed");
+          el.dataset.revealIdx = String(Math.min(i % 6, 5));
+          io.observe(el);
+        });
+    }
   }
 
   /* ---------- 3. 视频滚出视口 / 页面后台 → 暂停 ---------- */

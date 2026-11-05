@@ -242,6 +242,9 @@ document.addEventListener("DOMContentLoaded", function () {
           // 显示模态窗口
           modal.classList.add("active");
           document.body.style.overflow = "hidden";
+          // ★ 隐藏父页导航栏:模态与导航栏同为 z-index 1000,部分浏览器
+          //   会把导航栏绘制在模态之上(移动端尤甚)
+          document.body.classList.add("article-modal-open");
 
           // ★★★ 激活音乐播放器的垂直模式 ★★★
           if (musicPlayer) {
@@ -291,6 +294,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // 关闭模态窗口
     function closeModal() {
       modal.classList.remove("active");
+      document.body.classList.remove("article-modal-open");
       // 延迟清空 src，避免关闭瞬间闪烁白屏
       // ★ 必须用 about:blank:空字符串会让 iframe 重新加载父页首页,
       //   隐藏 iframe 里 WebGL 流体/音频等全部照跑,是阅读页内存暴涨的元凶
